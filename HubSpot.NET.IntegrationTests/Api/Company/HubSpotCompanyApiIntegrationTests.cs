@@ -18,29 +18,23 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
         _companiesToCleanup = new List<long>();
     }
 
-    public void Dispose()
+    [Fact]
+    public void GetCompanyByDomain()
     {
-        foreach (var companyId in _companiesToCleanup)
+        const string uniqueDomain = "www.unique-test-domain.com";
+
+        var createdCompany = CreateTestCompany(website: $"https://{uniqueDomain}");
+        var companyByDomain = _api.GetByDomain<CompanyHubSpotModel>(uniqueDomain);
+
+        using (new AssertionScope())
         {
-            _api.Delete(companyId);
+            var matchingCompany = companyByDomain.Results.FirstOrDefault();
+
+            matchingCompany.Should().NotBeNull("Expected a company, but found none.");
+            matchingCompany.Should().BeEquivalentTo(createdCompany,
+                options => options
+                    .Excluding(c => c.Id));
         }
-    }
-
-    private CompanyHubSpotModel CreateTestCompany()
-    {
-        var newCompany = new CompanyHubSpotModel
-        {
-            Name = "Test Company",
-            Country = "Australia",
-            Website = "https://www.test.com"
-        };
-        var createdCompany = _api.Create(newCompany);
-
-        createdCompany.Should().NotBeNull();
-        createdCompany.Id.Should().HaveValue();
-        _companiesToCleanup.Add(createdCompany.Id.Value);
-
-        return createdCompany;
     }
 
     [Fact]
@@ -63,5 +57,61 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
             companyById.Country.Should().Be(createdCompany.Country);
             companyById.Website.Should().Be(createdCompany.Website);
         }
+    }
+
+    [Fact]
+    public void ListCompanies()
+    {
+        var createdCompanies = new List<CompanyHubSpotModel>();
+
+        for (int i = 0; i < 3; i++)
+        {
+            var createdCompany = CreateTestCompany($"Test Company {i}", $"Country {i}", $"https://www.test{i}.com");
+            createdCompanies.Add(createdCompany);
+        }
+
+        var requestOptions = new ListRequestOptions
+        {
+            PropertiesToInclude = new List<string> { "Name", "Country", "Website" },
+            Limit = 100
+        };
+        var allCompanies = _api.List<CompanyHubSpotModel>(requestOptions);
+
+        using (new AssertionScope())
+        {
+            foreach (var createdCompany in createdCompanies)
+            {
+                var existingCompany = allCompanies.Companies.FirstOrDefault(c => c.Id == createdCompany.Id);
+
+                existingCompany.Should().NotBeNull($"Expected to find company with id {createdCompany.Id} in list.");
+                existingCompany.Should().BeEquivalentTo(createdCompany, options => options.Excluding(c => c.Id),
+                    "The existing company should be equivalent to the created company except for the Id.");
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        foreach (var companyId in _companiesToCleanup)
+        {
+            _api.Delete(companyId);
+        }
+    }
+
+    private CompanyHubSpotModel CreateTestCompany(string? name = null, string? country = null, string? website = null)
+    {
+        var newCompany = new CompanyHubSpotModel
+        {
+            Name = name,
+            Country = country,
+            Website = website
+        };
+        var createdCompany = _api.Create(newCompany);
+
+        createdCompany.Should().NotBeNull();
+        createdCompany.Id.Should().HaveValue();
+        _companiesToCleanup.Add(createdCompany.Id.Value);
+
+        return createdCompany;
     }
 }
