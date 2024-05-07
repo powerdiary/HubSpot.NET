@@ -1,8 +1,11 @@
 ﻿using FluentAssertions;
 using FluentAssertions.Execution;
+using HubSpot.NET.Api;
 using HubSpot.NET.Api.Company;
 using HubSpot.NET.Api.Company.Dto;
 using HubSpot.NET.Core;
+using SearchRequestFilter = HubSpot.NET.Api.SearchRequestFilter;
+using SearchRequestFilterGroup = HubSpot.NET.Api.SearchRequestFilterGroup;
 
 namespace HubSpot.NET.IntegrationTests.Api.Company;
 
@@ -87,6 +90,67 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
                 existingCompany.Should().BeEquivalentTo(createdCompany, options => options.Excluding(c => c.Id),
                     "The existing company should be equivalent to the created company except for the Id.");
             }
+        }
+    }
+
+    [Fact]
+    public void UpdateCompany()
+    {
+        var createdCompany = CreateTestCompany("Test Company", "Country", "https://www.test.com");
+
+        createdCompany.Name = "Updated Test Company";
+        createdCompany.Country = "Updated Country";
+        createdCompany.Website = "https://www.updatedtest.com";
+
+        var updatedCompany = _api.Update(createdCompany);
+
+        var retrievedCompany = _api.GetById<CompanyHubSpotModel>(updatedCompany.Id.Value);
+
+        using (new AssertionScope())
+        {
+            retrievedCompany.Should().NotBeNull();
+            retrievedCompany.Should().BeEquivalentTo(updatedCompany, options => options.Excluding(c => c.Id));
+        }
+    }
+
+    [Fact]
+    public async Task SearchCompanies()
+    {
+        var createdCompany = CreateTestCompany(name: "Search Test Company");
+
+        // This delay is necessary because after the creation of a new company, it can take
+        // some time for this data to be indexed and thus become searchable.
+        await Task.Delay(7000);
+
+        var filterGroup = new SearchRequestFilterGroup { Filters = new List<SearchRequestFilter>() };
+        filterGroup.Filters.Add(new SearchRequestFilter
+        {
+            PropertyName = "name",
+            Operator = SearchRequestFilterOperatorType.EqualTo,
+            Value = createdCompany.Name
+        });
+
+        var searchOptions = new SearchRequestOptions
+        {
+            FilterGroups = new List<SearchRequestFilterGroup>(),
+            PropertiesToInclude = new List<string> { "Name", "Country", "Website", "Domain", "CreatedAt", "UpdatedAt" }
+        };
+
+        searchOptions.FilterGroups.Add(filterGroup);
+
+        var searchResults = _api.Search<CompanyHubSpotModel>(searchOptions);
+
+        using (new AssertionScope())
+        {
+            var foundCompany = searchResults.Results.FirstOrDefault(c => c.Id == createdCompany.Id);
+
+            foundCompany.Should().NotBeNull("Expected to find the created company in search results.");
+            foundCompany.CreatedAt.Should().NotBeNull("Expected CreatedAt to have a value.");
+            foundCompany.UpdatedAt.Should().NotBeNull("Expected UpdatedAt to have a value.");
+            foundCompany.Should().BeEquivalentTo(createdCompany, options => options.Excluding(c => c.Id)
+                .Excluding(c => c.CreatedAt)
+                .Excluding(c => c.UpdatedAt));
+
         }
     }
 
