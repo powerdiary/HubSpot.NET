@@ -6,76 +6,62 @@ using HubSpot.NET.Core;
 
 namespace HubSpot.NET.IntegrationTests.Api.Company;
 
-public class HubSpotCompanyApiIntegrationTests: HubSpotIntegrationTestBase
+public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBase, IDisposable
 {
     private readonly HubSpotCompanyApi _api;
+    private readonly IList<long> _companiesToCleanup;
 
     public HubSpotCompanyApiIntegrationTests()
     {
         var client = new HubSpotBaseClient(ApiKey);
         _api = new HubSpotCompanyApi(client);
+        _companiesToCleanup = new List<long>();
+    }
+
+    public void Dispose()
+    {
+        foreach (var companyId in _companiesToCleanup)
+        {
+            _api.Delete(companyId);
+        }
+    }
+
+    private CompanyHubSpotModel CreateTestCompany()
+    {
+        var newCompany = new CompanyHubSpotModel
+        {
+            Name = "Test Company",
+            Country = "Australia",
+            Website = "https://www.test.com"
+        };
+        var createdCompany = _api.Create(newCompany);
+
+        createdCompany.Should().NotBeNull();
+        createdCompany.Id.Should().HaveValue();
+        _companiesToCleanup.Add(createdCompany.Id.Value);
+
+        return createdCompany;
     }
 
     [Fact]
     public void CreateAndDeleteCompany()
     {
-        CompanyHubSpotModel? createdCompany = null;
-
-        try
-        {
-            var newCompany = new CompanyHubSpotModel
-            {
-                Name = "Test Company",
-                Country = "Australia",
-                Website = "https://www.test.com"
-            };
-
-            createdCompany = _api.Create(newCompany);
-
-            using (new AssertionScope())
-            {
-                createdCompany.Should().NotBeNull();
-                createdCompany.Id.Should().HaveValue();
-            }
-        }
-        finally
-        {
-            if (createdCompany != null)
-            {
-                _api.Delete(createdCompany.Id.Value);
-            }
-        }
+        CreateTestCompany();
     }
 
     [Fact]
     public void GetCompanyById()
     {
-        var createdCompany = _api.Create(new CompanyHubSpotModel
-        {
-            Name = "Test Company",
-            Country = "Australia",
-            Website = "https://www.test.com"
-        });
+        var createdCompany = CreateTestCompany();
 
-        try
+        var companyById = _api.GetById<CompanyHubSpotModel>(createdCompany.Id.Value);
+        using (new AssertionScope())
         {
-            var companyById = _api.GetById<CompanyHubSpotModel>(createdCompany.Id.Value);
-
-            using (new AssertionScope())
-            {
-                companyById.Should().NotBeNull();
-                companyById.Id.Should().Be(createdCompany.Id);
-                companyById.Name.Should().Be(createdCompany.Name);
-                companyById.Country.Should().Be(createdCompany.Country);
-                companyById.Website.Should().Be(createdCompany.Website);
-            }
-        }
-        finally
-        {
-            if (createdCompany != null)
-            {
-                _api.Delete(createdCompany.Id.Value);
-            }
+            companyById.Should().NotBeNull();
+            companyById.Id.Should().Be(createdCompany.Id);
+            companyById.Name.Should().Be(createdCompany.Name);
+            companyById.Country.Should().Be(createdCompany.Country);
+            companyById.Website.Should().Be(createdCompany.Website);
         }
     }
 }
