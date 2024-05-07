@@ -21,10 +21,10 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public void GetCompanyByDomain()
     {
-        const string uniqueDomain = "www.unique-test-domain.com";
+        const string uniqueDomain = "https://www.unique-test-domain.com";
 
-        var createdCompany = CreateTestCompany(website: $"https://{uniqueDomain}");
-        var companyByDomain = _api.GetByDomain<CompanyHubSpotModel>(uniqueDomain);
+        var createdCompany = CreateTestCompany(website: uniqueDomain);
+        var companyByDomain = _api.GetByDomain<CompanyHubSpotModel>(createdCompany.Domain);
 
         using (new AssertionScope())
         {
@@ -72,7 +72,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
 
         var requestOptions = new ListRequestOptions
         {
-            PropertiesToInclude = new List<string> { "Name", "Country", "Website" },
+            PropertiesToInclude = new List<string> { "Name", "Country", "Website", "Domain" },
             Limit = 100
         };
         var allCompanies = _api.List<CompanyHubSpotModel>(requestOptions);
