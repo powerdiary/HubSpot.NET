@@ -7,7 +7,7 @@ namespace HubSpot.NET.Examples
 {
     public class DemonstrateApi
     {
-        private readonly HubSpotApi _api = null;
+        private readonly HubSpotApi _api;
 
         public DemonstrateApi(string apiKey)
         {
