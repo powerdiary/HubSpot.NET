@@ -332,3 +332,5 @@ package-lock.json
 /src/assets/theme/*/theme-*.css
 /src/assets/theme/designer
 /src/assets/theme/_vendor_extensions.scss
+**/appsettings.Development.json
+**/appsettings.Production.json
