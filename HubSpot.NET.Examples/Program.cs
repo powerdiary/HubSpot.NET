@@ -18,7 +18,6 @@ using HubSpot.NET.Core;
 
 namespace HubSpot.NET.Examples
 {
-
     public class Examples
     {
         private static string[] _args;
@@ -34,7 +33,6 @@ namespace HubSpot.NET.Examples
                     configuration.Build();
                     configuration.AddEnvironmentVariables();
                 })
-
                 .ConfigureServices((context, services) =>
                 {
                     services.AddLogging(logger =>
@@ -43,13 +41,18 @@ namespace HubSpot.NET.Examples
                         logger.SetMinimumLevel(LogLevel.Debug);
                     });
                 });
-        // enable args to be presented from CLI for automated test execution 
+
+        // enable args to be presented from CLI for automated test execution
         static async Task Main(string[] args)
         {
             _args = args;
             var host = CreateHostBuilder(args);
             var container = host.Build();
             var configuration = container.Services.GetService<IConfiguration>();
+
+            var demoApi = new DemonstrateApi(configuration["HubSpot:PrivateAppKey"]);
+            demoApi.CreateAndDeleteEntities();
+            return;
 
             var api = new HubSpotApi(configuration["HubSpot:PrivateAppKey"]);
 
@@ -60,16 +63,15 @@ namespace HubSpot.NET.Examples
 
             var newEquipment = new CreateCustomObjectHubSpotModel
             {
-                SchemaId = id,
+                SchemaId = Guid.NewGuid().ToString(),
                 Properties = new Dictionary<string, object>()
                 {
-
-                    {"year1", 2014},
-                    {"make", "Ford"},
-                    {"model", "150" + DateTime.Now.Hour + DateTime.Now.Minute},
-                    {"name", $"2015 Ford 150"},
-                    {"hoursmileage", $"1000" },
-                    {"new_associated_deal" , new DateTime(2023, 10, 12, 0, 0, 0, DateTimeKind.Utc)}
+                    { "year1", 2014 },
+                    { "make", "Ford" },
+                    { "model", "150" + DateTime.Now.Hour + DateTime.Now.Minute },
+                    { "name", $"2015 Ford 150" },
+                    { "hoursmileage", $"1000" },
+                    { "new_associated_deal", new DateTime(2023, 10, 12, 0, 0, 0, DateTimeKind.Utc) }
                 },
                 Associations = new List<CreateCustomObjectHubSpotModel.Association>()
                 {
@@ -77,7 +79,7 @@ namespace HubSpot.NET.Examples
                     {
                         To = new CreateCustomObjectHubSpotModel.To()
                         {
-                            Id = "15273381013"  // company to associate to 
+                            Id = "15273381013" // company to associate to
                         },
                         Types = new List<CreateCustomObjectHubSpotModel.TypeElement>()
                         {
@@ -92,7 +94,7 @@ namespace HubSpot.NET.Examples
                     {
                         To = new CreateCustomObjectHubSpotModel.To()
                         {
-                            Id = "68751"  // contact to associate to 
+                            Id = "68751" // contact to associate to
                         },
                         Types = new List<CreateCustomObjectHubSpotModel.TypeElement>()
                         {
@@ -107,20 +109,17 @@ namespace HubSpot.NET.Examples
             };
             // 0-3 => object type id that corresponds to the deal
             // 9909067546 => deal id
-            var newEquipmentId = api.CustomObjects.CreateWithDefaultAssociationToObject(newEquipment, "0-3", "9909067546");
-
-
+            var newEquipmentId =
+                api.CustomObjects.CreateWithDefaultAssociationToObject(newEquipment, "0-3", "9909067546");
 
             var getEquipment = api.CustomObjects.GetEquipmentDataById<HubspotEquipmentObjectModel>(id, newEquipmentId);
 
-
-            var getEquipmentHours = api.CustomObjects.GetEquipmentDataById<HubspotEquipmentObjectModel>(id, newEquipmentId, "hoursmileage");
+            var getEquipmentHours =
+                api.CustomObjects.GetEquipmentDataById<HubspotEquipmentObjectModel>(id, newEquipmentId, "hoursmileage");
 
             var result3 = api.CustomObjects.GetAssociationsToCustomObject
                 <CustomObjectAssociationModel>("2-4390924", "3254092177",
-                "0-1", CancellationToken.None);
-
-
+                    "0-1", CancellationToken.None);
 
             // 0-3 -> deal object type
             // 9346274448 -> deal id
@@ -130,17 +129,16 @@ namespace HubSpot.NET.Examples
             // 55 -> association label
             // api.Associations.AssociationToObjectByLabel("0-3", "9346274448", "0-1", "68751", "USER_DEFINED", 55);
 
-
             var updatedEquipment = new UpdateCustomObjectHubSpotModel
             {
                 Id = newEquipmentId,
                 SchemaId = id,
                 Properties = new Dictionary<string, object>()
                 {
-                    {"year1", 2024},
-                    {"make", "Ford"},
-                    {"model", "550" + DateTime.Now.Hour + DateTime.Now.Minute},
-                    {"name", $"2024 Ford 550"}
+                    { "year1", 2024 },
+                    { "make", "Ford" },
+                    { "model", "550" + DateTime.Now.Hour + DateTime.Now.Minute },
+                    { "name", $"2024 Ford 550" }
                 }
             };
 
@@ -159,31 +157,23 @@ namespace HubSpot.NET.Examples
             });
 
             var result =
-                api.CustomObjectProperties.UpdateProperty<CustomObjectPropertyHubSpotModel>("Machine2", "karintest", customObjectProperty);
+                api.CustomObjectProperties.UpdateProperty<CustomObjectPropertyHubSpotModel>("Machine2", "karintest",
+                    customObjectProperty);
             Console.Write(result);
 
             await UploadNoteWithFile(api);
         }
 
-
-
         public class EquipmentObject : CreateCustomObjectHubSpotModel
         {
+            [DataMember(Name = "name")] public new string Name => $"{Year} {Make} {Model}";
 
-
-            [DataMember(Name = "name")]
-            public new string Name => $"{Year} {Make} {Model}";
-
-            [DataMember(Name = "make")]
-            public string Make { get; set; }
-            [DataMember(Name = "model")]
-            public string Model { get; set; }
+            [DataMember(Name = "make")] public string Make { get; set; }
+            [DataMember(Name = "model")] public string Model { get; set; }
 
             // [DataMember(Name ="year")]
             public string Year { get; set; }
-
         }
-
 
         static async Task UploadNoteWithFile(HubSpotApi api)
         {
@@ -198,7 +188,6 @@ namespace HubSpot.NET.Examples
             {
                 Console.WriteLine(e);
             }
-
 
             var fileModel = new FileHubSpotRequestModel()
             {
@@ -219,7 +208,6 @@ namespace HubSpot.NET.Examples
 
             Console.Write(fileResponse);
 
-
             var note = new NoteHubSpotRequestModel()
             {
                 Properties = new NoteHubSpotRequestPropertiesModel()
@@ -233,11 +221,11 @@ namespace HubSpot.NET.Examples
                 {
                     new NoteHubSpotRequestAssociationsModel
                     {
-                        To = new NoteHubSpotRequestAssociationToModel {Id = "12792130062"},
+                        To = new NoteHubSpotRequestAssociationToModel { Id = "12792130062" },
                         Types = new List<NoteHubspotRequestAssociationTypeModel>
                         {
                             new NoteHubspotRequestAssociationTypeModel()
-                                {AssociationCategory = "HUBSPOT_DEFINED", AssociationTypeId = "214"}
+                                { AssociationCategory = "HUBSPOT_DEFINED", AssociationTypeId = "214" }
                         }
                     }
                 }
@@ -247,8 +235,5 @@ namespace HubSpot.NET.Examples
 
             Console.Write(noteResponse);
         }
-
-
-
     }
 }
