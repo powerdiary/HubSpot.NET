@@ -138,7 +138,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
         var createdCompany = CreateTestCompany(name: "Search Test Company");
 
         // Delay is required to allow time for new data to be searchable.
-        await Task.Delay(7000);
+        await Task.Delay(10000);
 
         var filterGroup = new SearchRequestFilterGroup { Filters = new List<SearchRequestFilter>() };
         filterGroup.Filters.Add(new SearchRequestFilter

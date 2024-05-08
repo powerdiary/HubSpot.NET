@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HubSpot.NET.IntegrationTests;
 
-public abstract class HubSpotIntegrationTestBase: IDisposable
+public abstract class HubSpotIntegrationTestBase : IDisposable
 {
     private readonly string? ApiKey;
     protected readonly HubSpotCompanyApi CompanyApi;
@@ -56,7 +56,8 @@ public abstract class HubSpotIntegrationTestBase: IDisposable
         return createdCompany;
     }
 
-    protected ContactHubSpotModel CreateTestContact(string? email = null, string? firstname = null, string? lastname = null)
+    protected ContactHubSpotModel CreateTestContact(string? email = null, string? firstname = null,
+        string? lastname = null)
     {
         var newContact = new ContactHubSpotModel
         {
@@ -83,21 +84,43 @@ public abstract class HubSpotIntegrationTestBase: IDisposable
         }
         catch (Exception ex)
         {
-            // handle the error as needed
             Console.WriteLine($"Error while associating contact {contact.Id} with company {company.Id}: {ex.Message}");
         }
     }
 
+    #region IDisposable Support
+    private bool _isDisposed;
+
     public void Dispose()
     {
-        foreach (var companyId in _companiesToCleanup)
-        {
-            CompanyApi.Delete(companyId);
-        }
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        foreach (var contactId in _contactsToCleanup)
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_isDisposed)
         {
-            _contactApi.Delete(contactId);
+            if (disposing)
+            {
+                foreach (var companyId in _companiesToCleanup)
+                {
+                    CompanyApi.Delete(companyId);
+                }
+
+                foreach (var contactId in _contactsToCleanup)
+                {
+                    _contactApi.Delete(contactId);
+                }
+            }
+
+            _isDisposed = true;
         }
     }
+
+    ~HubSpotIntegrationTestBase()
+    {
+        Dispose(false);
+    }
+    #endregion
 }
