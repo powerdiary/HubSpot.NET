@@ -91,4 +91,68 @@ public sealed class HubSpotContactApiIntegrationTests : HubSpotIntegrationTestBa
         var act = () => ContactApi.Delete(0);
         act.Should().Throw<HubSpotException>();
     }
+
+    [Fact]
+    public void GetContactByEmail()
+    {
+        var createdContact = CreateTestContact("testemail@test.com");
+        var contactByEmail = ContactApi.GetByEmail<ContactHubSpotModel>(createdContact.Email);
+
+        using (new AssertionScope())
+        {
+            contactByEmail.Should().NotBeNull();
+            contactByEmail.Id.Should().Be(createdContact.Id);
+            contactByEmail.FirstName.Should().Be(createdContact.FirstName);
+            contactByEmail.LastName.Should().Be(createdContact.LastName);
+            contactByEmail.Email.Should().Be(createdContact.Email);
+        }
+    }
+
+    /*
+    NOTE: The GetByUserToken method in the HubSpotContactApi cannot be integration tested
+    because the User Token (contactUtk) is not retrieved when creating or updating a contact
+    through the HubSpot API in our current setup. User Tokens are usually generated through
+    HubSpot's tracking code when a user visits the website and accepts cookies. This test
+    method should be revisited once we have the capacity to programmatically generate or
+    retrieve User Tokens in our tests.
+    */
+
+    [Fact]
+    public async Task ListContacts()
+    {
+        var firstCreatedContact = CreateTestContact("firstcontact@test.com");
+        var secondCreatedContact = CreateTestContact("secondcontact@test.com");
+
+        await Task.Delay(10000);
+
+        var contactList = ContactApi.List<ContactHubSpotModel>(new ContactSearchRequestOptions
+        {
+            PropertiesToInclude = new List<string> { "email" }
+        });
+
+        using (new AssertionScope())
+        {
+            contactList.Should().NotBeNull();
+            var contacts = contactList.Contacts.Where(contact =>
+                contact.Email == firstCreatedContact.Email ||
+                contact.Email == secondCreatedContact.Email);
+            contacts.Should().HaveCount(2);
+        }
+    }
+
+    [Fact]
+    public void BatchCreateContacts()
+    {
+        var firstCreatedContact = CreateTestContact("firstcontact@test.com");
+        var secondCreatedContact = CreateTestContact("secondcontact@test.com");
+        var contactsToCreate = new List<ContactHubSpotModel> { firstCreatedContact, secondCreatedContact };
+
+        ContactApi.Batch(contactsToCreate);
+
+        using(new AssertionScope())
+        {
+            ContactApi.GetByEmail<ContactHubSpotModel>(firstCreatedContact.Email).Should().NotBeNull();
+            ContactApi.GetByEmail<ContactHubSpotModel>(secondCreatedContact.Email).Should().NotBeNull();
+        }
+    }
 }
