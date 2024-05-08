@@ -53,24 +53,6 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
         return createdCompany;
     }
 
-    protected ContactHubSpotModel CreateTestContact(string email = "test@email.com", string firstname = "Test Firstname",
-        string lastname = "Test Lastname", string company = "Test Company", string phone = "1234567890")
-    {
-        var newContact = new ContactHubSpotModel
-        {
-            Email = email,
-            FirstName = firstname,
-            LastName = lastname,
-            Company = company,
-            Phone = phone
-        };
-
-        var createdContact = ContactApi.Create(newContact);
-        _contactsToCleanup.Add(createdContact.Id.Value);
-
-        return createdContact;
-    }
-
     protected ContactHubSpotModel RecreateTestContact(string email = "test@email.com", string firstname = "Test Firstname",
         string lastname = "Test Lastname", string company = "Test Company", string phone = "1234567890")
     {

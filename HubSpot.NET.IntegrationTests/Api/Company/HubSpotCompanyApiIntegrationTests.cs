@@ -182,7 +182,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     public async Task GetCompanyAssociations()
     {
         var createdCompany = CreateTestCompany("Test Company", "Test Country", "https://www.test1.com");
-        var createdContact = CreateTestContact("testmail@test1.com", "TestFirstName", "TestLastName");
+        var createdContact = RecreateTestContact("testmail@test1.com", "TestFirstName", "TestLastName");
 
         AssociateContactWithCompany(createdCompany, createdContact); // replace with your actual method
 

@@ -16,7 +16,7 @@ public sealed class HubSpotContactApiIntegrationTests : HubSpotIntegrationTestBa
         const string expectedCompany = "TestCompany";
         const string expectedPhone = "1234567890";
 
-        var createdContact = CreateTestContact(expectedEmail, expectedFirstName, expectedLastName, expectedCompany, expectedPhone);
+        var createdContact = RecreateTestContact(expectedEmail, expectedFirstName, expectedLastName, expectedCompany, expectedPhone);
 
         using (new AssertionScope())
         {
@@ -32,7 +32,7 @@ public sealed class HubSpotContactApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public void GetContactById()
     {
-        var createdContact = CreateTestContact();
+        var createdContact = RecreateTestContact();
         var contactById = ContactApi.GetById<ContactHubSpotModel>(createdContact.Id.Value);
 
         using (new AssertionScope())
@@ -50,7 +50,7 @@ public sealed class HubSpotContactApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public void UpdateContact()
     {
-        var createdContact = CreateTestContact();
+        var createdContact = RecreateTestContact();
         createdContact.FirstName = "UpdatedFirstName";
         createdContact.LastName = "UpdatedLastName";
         createdContact.Email = "updatedemail@test.com";
@@ -75,7 +75,7 @@ public sealed class HubSpotContactApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public void DeleteContact()
     {
-        var createdContact = CreateTestContact();
+        var createdContact = RecreateTestContact();
         ContactApi.Delete(createdContact.Id.Value);
 
         var retrievedContact = ContactApi.GetById<ContactHubSpotModel>(createdContact.Id.Value);
@@ -95,7 +95,7 @@ public sealed class HubSpotContactApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public void GetContactByEmail()
     {
-        var createdContact = CreateTestContact("testemail@test.com");
+        var createdContact = RecreateTestContact("testemail@test.com");
         var contactByEmail = ContactApi.GetByEmail<ContactHubSpotModel>(createdContact.Email);
 
         using (new AssertionScope())
@@ -120,8 +120,8 @@ public sealed class HubSpotContactApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public async Task ListContacts()
     {
-        var firstCreatedContact = CreateTestContact("firstcontact@test.com");
-        var secondCreatedContact = CreateTestContact("secondcontact@test.com");
+        var firstCreatedContact = RecreateTestContact("firstcontact@test.com");
+        var secondCreatedContact = RecreateTestContact("secondcontact@test.com");
 
         await Task.Delay(10000);
 
@@ -143,8 +143,8 @@ public sealed class HubSpotContactApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public void BatchCreateContacts()
     {
-        var firstCreatedContact = CreateTestContact("firstcontact@test.com");
-        var secondCreatedContact = CreateTestContact("secondcontact@test.com");
+        var firstCreatedContact = RecreateTestContact("firstcontact@test.com");
+        var secondCreatedContact = RecreateTestContact("secondcontact@test.com");
         var contactsToCreate = new List<ContactHubSpotModel> { firstCreatedContact, secondCreatedContact };
 
         ContactApi.Batch(contactsToCreate);
