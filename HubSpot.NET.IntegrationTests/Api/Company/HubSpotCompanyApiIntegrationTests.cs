@@ -3,6 +3,8 @@ using FluentAssertions.Execution;
 using HubSpot.NET.Api;
 using HubSpot.NET.Api.Company;
 using HubSpot.NET.Api.Company.Dto;
+using HubSpot.NET.Api.Contact;
+using HubSpot.NET.Api.Contact.Dto;
 using HubSpot.NET.Core;
 using SearchRequestFilter = HubSpot.NET.Api.SearchRequestFilter;
 using SearchRequestFilterGroup = HubSpot.NET.Api.SearchRequestFilterGroup;
@@ -11,14 +13,21 @@ namespace HubSpot.NET.IntegrationTests.Api.Company;
 
 public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBase, IDisposable
 {
-    private readonly HubSpotCompanyApi _api;
+    private readonly HubSpotCompanyApi _companyApi;
+    private readonly HubSpotContactApi _contactApi;
+    private readonly HubSpotApi _hubSpotApi;
     private readonly IList<long> _companiesToCleanup;
+    private readonly IList<long> _contactsToCleanup;
 
     public HubSpotCompanyApiIntegrationTests()
     {
         var client = new HubSpotBaseClient(ApiKey);
-        _api = new HubSpotCompanyApi(client);
+        _companyApi = new HubSpotCompanyApi(client);
+        _contactApi = new HubSpotContactApi(client);
+        _hubSpotApi = new HubSpotApi(ApiKey);
+
         _companiesToCleanup = new List<long>();
+        _contactsToCleanup = new List<long>();
     }
 
     [Fact]
@@ -27,7 +36,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
         const string uniqueDomain = "https://www.unique-test-domain.com";
 
         var createdCompany = CreateTestCompany(website: uniqueDomain);
-        var companyByDomain = _api.GetByDomain<CompanyHubSpotModel>(createdCompany.Domain);
+        var companyByDomain = _companyApi.GetByDomain<CompanyHubSpotModel>(createdCompany.Domain);
 
         using (new AssertionScope())
         {
@@ -51,7 +60,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     {
         var createdCompany = CreateTestCompany();
 
-        var companyById = _api.GetById<CompanyHubSpotModel>(createdCompany.Id.Value);
+        var companyById = _companyApi.GetById<CompanyHubSpotModel>(createdCompany.Id.Value);
         using (new AssertionScope())
         {
             companyById.Should().NotBeNull();
@@ -78,7 +87,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
             PropertiesToInclude = new List<string> { "Name", "Country", "Website", "Domain" },
             Limit = 100
         };
-        var allCompanies = _api.List<CompanyHubSpotModel>(requestOptions);
+        var allCompanies = _companyApi.List<CompanyHubSpotModel>(requestOptions);
 
         using (new AssertionScope())
         {
@@ -102,9 +111,9 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
         createdCompany.Country = "Updated Country";
         createdCompany.Website = "https://www.updatedtest.com";
 
-        var updatedCompany = _api.Update(createdCompany);
+        var updatedCompany = _companyApi.Update(createdCompany);
 
-        var retrievedCompany = _api.GetById<CompanyHubSpotModel>(updatedCompany.Id.Value);
+        var retrievedCompany = _companyApi.GetById<CompanyHubSpotModel>(updatedCompany.Id.Value);
 
         using (new AssertionScope())
         {
@@ -118,8 +127,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     {
         var createdCompany = CreateTestCompany(name: "Search Test Company");
 
-        // This delay is necessary because after the creation of a new company, it can take
-        // some time for this data to be indexed and thus become searchable.
+        // Delay is required to allow time for new data to be searchable.
         await Task.Delay(7000);
 
         var filterGroup = new SearchRequestFilterGroup { Filters = new List<SearchRequestFilter>() };
@@ -138,7 +146,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
 
         searchOptions.FilterGroups.Add(filterGroup);
 
-        var searchResults = _api.Search<CompanyHubSpotModel>(searchOptions);
+        var searchResults = _companyApi.Search<CompanyHubSpotModel>(searchOptions);
 
         using (new AssertionScope())
         {
@@ -150,7 +158,27 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
             foundCompany.Should().BeEquivalentTo(createdCompany, options => options.Excluding(c => c.Id)
                 .Excluding(c => c.CreatedAt)
                 .Excluding(c => c.UpdatedAt));
+        }
+    }
 
+    [Fact]
+    public async Task GetCompanyAssociations()
+    {
+        var createdCompany = CreateTestCompany("Test Company", "Test Country", "https://www.test1.com");
+        var createdContact = CreateTestContact("testmail@test1.com", "TestFirstName", "TestLastName");
+
+        AssociateContactWithCompany(createdCompany, createdContact); // replace with your actual method
+
+        // Delay is required to allow time for new data to be searchable.
+        await Task.Delay(7000);
+
+        var associations = _companyApi.GetAssociations(createdCompany);
+
+        using (new AssertionScope())
+        {
+            associations.Should().NotBeNull("Expected to retrieve the associations set for the company.");
+            associations.Associations.AssociatedContacts.Should().Contain(createdContact.Id.Value,
+                "The associated contact ID should be present in the retrieved associations.");
         }
     }
 
@@ -158,7 +186,12 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     {
         foreach (var companyId in _companiesToCleanup)
         {
-            _api.Delete(companyId);
+            _companyApi.Delete(companyId);
+        }
+
+        foreach (var contactId in _contactsToCleanup)
+        {
+            _contactApi.Delete(contactId);
         }
     }
 
@@ -170,12 +203,44 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
             Country = country,
             Website = website
         };
-        var createdCompany = _api.Create(newCompany);
+        var createdCompany = _companyApi.Create(newCompany);
 
         createdCompany.Should().NotBeNull();
         createdCompany.Id.Should().HaveValue();
         _companiesToCleanup.Add(createdCompany.Id.Value);
 
         return createdCompany;
+    }
+
+    private ContactHubSpotModel CreateTestContact(string? email = null, string? firstname = null, string? lastname = null)
+    {
+        var newContact = new ContactHubSpotModel
+        {
+            Email = email,
+            FirstName = firstname,
+            LastName = lastname
+        };
+
+        var createdContact = _contactApi.Create(newContact);
+
+        createdContact.Should().NotBeNull();
+        createdContact.Id.Should().HaveValue();
+        _contactsToCleanup.Add(createdContact.Id.Value);
+
+        return createdContact;
+    }
+
+    private void AssociateContactWithCompany(CompanyHubSpotModel company, ContactHubSpotModel contact)
+    {
+        try
+        {
+            _hubSpotApi.Associations.AssociationToObject(HubSpotObjectIds.Company, company.Id.Value.ToString(),
+                HubSpotObjectIds.Contact, contact.Id.Value.ToString());
+        }
+        catch (Exception ex)
+        {
+            // handle the error as needed
+            Console.WriteLine($"Error while associating contact {contact.Id} with company {company.Id}: {ex.Message}");
+        }
     }
 }
