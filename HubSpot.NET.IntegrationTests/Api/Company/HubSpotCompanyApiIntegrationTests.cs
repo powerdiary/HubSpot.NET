@@ -3,8 +3,6 @@ using FluentAssertions.Execution;
 using HubSpot.NET.Api;
 using HubSpot.NET.Api.Company;
 using HubSpot.NET.Api.Company.Dto;
-using HubSpot.NET.Api.Contact;
-using HubSpot.NET.Api.Contact.Dto;
 using HubSpot.NET.Core;
 using SearchRequestFilter = HubSpot.NET.Api.SearchRequestFilter;
 using SearchRequestFilterGroup = HubSpot.NET.Api.SearchRequestFilterGroup;
