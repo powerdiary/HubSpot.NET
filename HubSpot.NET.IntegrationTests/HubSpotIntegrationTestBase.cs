@@ -71,6 +71,33 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
         return createdContact;
     }
 
+    protected ContactHubSpotModel RecreateTestContact(string email = "test@email.com", string firstname = "Test Firstname",
+        string lastname = "Test Lastname", string company = "Test Company", string phone = "1234567890")
+    {
+        var existingContact = ContactApi.GetByEmail<ContactHubSpotModel>(email);
+
+        if (existingContact != null)
+        {
+            ContactApi.Delete(existingContact.Id.Value);
+            _contactsToCleanup.Remove(existingContact.Id.Value);
+        }
+
+        var newContact = new ContactHubSpotModel
+        {
+            Email = email,
+            FirstName = firstname,
+            LastName = lastname,
+            Company = company,
+            Phone = phone
+        };
+
+        var createdContact = ContactApi.Create(newContact);
+
+        _contactsToCleanup.Add(createdContact.Id.Value);
+
+        return createdContact;
+    }
+
     protected void AssociateContactWithCompany(CompanyHubSpotModel company, ContactHubSpotModel contact)
     {
         try

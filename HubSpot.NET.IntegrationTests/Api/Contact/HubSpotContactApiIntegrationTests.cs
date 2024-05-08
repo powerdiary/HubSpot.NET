@@ -155,4 +155,39 @@ public sealed class HubSpotContactApiIntegrationTests : HubSpotIntegrationTestBa
             ContactApi.GetByEmail<ContactHubSpotModel>(secondCreatedContact.Email).Should().NotBeNull();
         }
     }
+
+    [Fact]
+    public async Task RecentlyUpdatedContactsTest()
+    {
+        var firstCreatedContact = RecreateTestContact("firstcontact@test.com");
+        var secondCreatedContact = RecreateTestContact("secondcontact@test.com");
+
+    	var updatedContact1 = UpdateTestContact(firstCreatedContact.Id.Value, "UpdatedFirstName1");
+    	var updatedContact2 = UpdateTestContact(secondCreatedContact.Id.Value, "UpdatedFirstName2");
+
+        await Task.Delay(10000);
+
+        var recentContacts = ContactApi.RecentlyUpdated<ContactHubSpotModel>().Contacts;
+
+        using(new AssertionScope())
+        {
+            recentContacts.Should().NotBeNullOrEmpty();
+            recentContacts.Should().Contain(contact => contact.Id == updatedContact1.Id);
+            recentContacts.Should().Contain(contact => contact.Id == updatedContact2.Id);
+        }
+    }
+
+    private ContactHubSpotModel UpdateTestContact(long id, string updatedFirstName = "UpdatedFirstName")
+    {
+        var testContact = ContactApi.GetById<ContactHubSpotModel>(id);
+
+        testContact.FirstName = updatedFirstName;
+        testContact.LastName = "UpdatedLastName";
+        testContact.Phone = "0987654321";
+        testContact.Company = "UpdatedCompany";
+
+        ContactApi.Update(testContact);
+
+        return testContact;
+    }
 }
