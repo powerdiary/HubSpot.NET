@@ -18,6 +18,10 @@ namespace HubSpot.NET.Api.Contact.Dto
         [DataMember(Name = "vid")]
         [IgnoreDataMember]
         public long? Id { get; set; }
+
+        [DataMember(Name = "contactUtk")]
+        public string ContactUtk { get; set; }
+
         [DataMember(Name = "email")]
         public string Email { get; set; }
         [DataMember(Name = "firstname")]
