@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using FluentAssertions.Execution;
+using HubSpot.NET.Api;
 using HubSpot.NET.Api.Contact.Dto;
 using HubSpot.NET.Core;
 
@@ -174,6 +175,39 @@ public sealed class HubSpotContactApiIntegrationTests : HubSpotIntegrationTestBa
             recentContacts.Should().NotBeNullOrEmpty();
             recentContacts.Should().Contain(contact => contact.Id == updatedContact1.Id);
             recentContacts.Should().Contain(contact => contact.Id == updatedContact2.Id);
+        }
+    }
+
+    [Fact]
+    public async Task SearchContacts()
+    {
+        var testContact1 = RecreateTestContact("john.doe@test.com", "John", "Doe");
+        var testContact2 = RecreateTestContact("jane.doe@test.com", "Jane", "Doe");
+        var testContact3 = RecreateTestContact("bob.ross@test.com", "Bob", "Ross");
+
+        await Task.Delay(10000);
+
+        var filters = new SearchRequestFilter
+        {
+            PropertyName = "lastname", // Assuming "Doe" refers to last name
+            Operator = SearchRequestFilterOperatorType.EqualTo,
+            Value = "Doe"
+        };
+
+        var filterGroup = new SearchRequestFilterGroup { Filters = new List<SearchRequestFilter> { filters } };
+
+        var searchResults = ContactApi.Search<ContactHubSpotModel>(new SearchRequestOptions
+        {
+            PropertiesToInclude = new List<string> { "email", "firstName", "lastName" },
+            FilterGroups = new List<SearchRequestFilterGroup> { filterGroup }
+        }).Results;
+
+        using(new AssertionScope())
+        {
+            searchResults.Should().NotBeEmpty();
+            searchResults.Count.Should().Be(2);
+            searchResults.Select(c => c.Email).Should().Contain(new List<string> { testContact1.Email, testContact2.Email });
+            searchResults.Select(c => c.Email).Should().NotContain(testContact3.Email);
         }
     }
 

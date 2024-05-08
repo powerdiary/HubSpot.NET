@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
-    using System.Reflection;
-    using System.Runtime.Serialization;
     using HubSpot.NET.Api.Contact.Dto;
     using HubSpot.NET.Core;
     using HubSpot.NET.Core.Extensions;
@@ -211,36 +209,13 @@
             return data;
         }
 
-        public ContactSearchHubSpotModel<T> Search<T>(ContactSearchRequestOptions opts = null)
-            where T : ContactHubSpotModel, new()
+        public ContactSearchHubSpotModel<T> Search<T>(SearchRequestOptions opts = null) where T : ContactHubSpotModel, new()
         {
-            if (opts == null)
-                opts = new ContactSearchRequestOptions();
+            opts ??= new SearchRequestOptions();
 
-            var path = $"{new T().RouteBasePath}/search/query"
-                .SetQueryParam("q", opts.Query)
-                .SetQueryParam("count", opts.Limit);
+            const string path = "/crm/v3/objects/contacts/search";
 
-            if (opts.PropertiesToInclude.Any())
-                path = path.SetQueryParam("property", opts.PropertiesToInclude);
-
-            if (opts.Offset != null)
-                path = path.SetQueryParam("offset", opts.Offset);
-
-            if (!string.IsNullOrWhiteSpace(opts.SortBy))
-            {
-                path = path.SetQueryParam("sort", opts.SortBy);
-
-                Type enumType = typeof(SortingOrderType);
-                MemberInfo[] memberInfos = enumType.GetMember(opts.Order.ToString());
-                MemberInfo enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == enumType);
-                object[] valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(EnumMemberAttribute), false);
-                string description = ((EnumMemberAttribute)valueAttributes[0]).Value;
-
-                path = path.SetQueryParam("order", description);
-            }
-
-            ContactSearchHubSpotModel<T> data = _client.ExecuteList<ContactSearchHubSpotModel<T>>(path, convertToPropertiesSchema: true);
+            var data = _client.ExecuteList<ContactSearchHubSpotModel<T>>(path, opts, Method.POST, convertToPropertiesSchema: true);
 
             return data;
         }
