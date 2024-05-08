@@ -50,9 +50,36 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     }
 
     [Fact]
-    public void CreateAndDeleteCompany()
+    public void CreateCompany()
     {
-        CreateTestCompany();
+        const string expectedName = "Test Company";
+        const string expectedCountry = "Test Country";
+        const string expectedWebsite = "https://www.test.com";
+
+        var createdCompany = CreateTestCompany(expectedName, expectedCountry, expectedWebsite);
+
+        using (new AssertionScope())
+        {
+            createdCompany.Should().NotBeNull();
+            createdCompany.Name.Should().Be(expectedName);
+            createdCompany.Country.Should().Be(expectedCountry);
+            createdCompany.Website.Should().Be(expectedWebsite);
+        }
+    }
+
+    [Fact]
+    public void DeleteCompany()
+    {
+        var createdCompany = CreateTestCompany();
+        _companyApi.Delete(createdCompany.Id.Value);
+        _companyApi.GetById<CompanyHubSpotModel>(createdCompany.Id.Value).Should().BeNull();
+    }
+
+    [Fact]
+    public void DeleteCompany_WhenCompanyDoesNotExist_ShouldNotThrowException()
+    {
+        var act = () => _companyApi.Delete(0);
+        act.Should().NotThrow<HubSpotException>();
     }
 
     [Fact]
