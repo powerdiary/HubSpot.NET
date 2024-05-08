@@ -157,7 +157,7 @@ public sealed class HubSpotContactApiIntegrationTests : HubSpotIntegrationTestBa
     }
 
     [Fact]
-    public async Task RecentlyUpdatedContactsTest()
+    public async Task RecentlyUpdatedContacts()
     {
         var firstCreatedContact = RecreateTestContact("firstcontact@test.com");
         var secondCreatedContact = RecreateTestContact("secondcontact@test.com");
