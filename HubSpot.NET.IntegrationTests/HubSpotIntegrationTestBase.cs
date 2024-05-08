@@ -106,7 +106,14 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
 
                 foreach (var contactId in _contactsToCleanup)
                 {
-                    ContactApi.Delete(contactId);
+                    try
+                    {
+                        ContactApi.Delete(contactId);
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
             }
 
