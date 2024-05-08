@@ -131,7 +131,6 @@ namespace HubSpot.NET.Examples
         public class EquipmentObject : CreateCustomObjectHubSpotModel
         {
             [DataMember(Name = "name")] public new string Name => $"{Year} {Make} {Model}";
-
             [DataMember(Name = "make")] public string Make { get; set; }
             [DataMember(Name = "model")] public string Model { get; set; }
 
