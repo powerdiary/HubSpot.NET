@@ -19,11 +19,18 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
         const string uniqueDomain = "https://www.unique-test-domain.com";
 
         var createdCompany = CreateTestCompany(website: uniqueDomain);
-        var companyByDomain = CompanyApi.GetByDomain<CompanyHubSpotModel>(createdCompany.Domain);
+        var companyByDomain = CompanyApi.GetByDomain<CompanyHubSpotModel>(createdCompany.Domain,
+            new CompanySearchByDomain
+            {
+                RequestOptions = new CompanySearchByDomainRequestOptions
+                {
+                    Properties = new List<string> { "Name", "Country", "Website", "Domain", "CreatedAt", "UpdatedAt" }
+                }
+            });
 
         using (new AssertionScope())
         {
-            var matchingCompany = companyByDomain.Results.FirstOrDefault();
+            var matchingCompany = companyByDomain.Results.FirstOrDefault(x=> x.Id == createdCompany.Id);
 
             matchingCompany.Should().NotBeNull("Expected a company, but found none.");
             matchingCompany.Should().BeEquivalentTo(createdCompany,

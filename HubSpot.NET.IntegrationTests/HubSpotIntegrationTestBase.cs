@@ -12,7 +12,7 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
 {
     private readonly string? ApiKey;
     protected readonly HubSpotCompanyApi CompanyApi;
-    private readonly HubSpotContactApi _contactApi;
+    protected readonly HubSpotContactApi ContactApi;
     private readonly HubSpotApi _hubSpotApi;
 
     private readonly IList<long> _companiesToCleanup;
@@ -32,14 +32,14 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
 
         var client = new HubSpotBaseClient(ApiKey);
         CompanyApi = new HubSpotCompanyApi(client);
-        _contactApi = new HubSpotContactApi(client);
+        ContactApi = new HubSpotContactApi(client);
         _hubSpotApi = new HubSpotApi(ApiKey);
 
         _companiesToCleanup = new List<long>();
         _contactsToCleanup = new List<long>();
     }
 
-    protected CompanyHubSpotModel CreateTestCompany(string? name = null, string? country = null, string? website = null)
+    protected CompanyHubSpotModel CreateTestCompany(string name = "Test Company", string country = "Test Country", string website = "www.testwebsite.com")
     {
         var newCompany = new CompanyHubSpotModel
         {
@@ -48,28 +48,24 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
             Website = website
         };
         var createdCompany = CompanyApi.Create(newCompany);
-
-        createdCompany.Should().NotBeNull();
-        createdCompany.Id.Should().HaveValue();
         _companiesToCleanup.Add(createdCompany.Id.Value);
 
         return createdCompany;
     }
 
-    protected ContactHubSpotModel CreateTestContact(string? email = null, string? firstname = null,
-        string? lastname = null)
+    protected ContactHubSpotModel CreateTestContact(string email = "test@email.com", string firstname = "Test Firstname",
+        string lastname = "Test Lastname", string company = "Test Company", string phone = "1234567890")
     {
         var newContact = new ContactHubSpotModel
         {
             Email = email,
             FirstName = firstname,
-            LastName = lastname
+            LastName = lastname,
+            Company = company,
+            Phone = phone
         };
 
-        var createdContact = _contactApi.Create(newContact);
-
-        createdContact.Should().NotBeNull();
-        createdContact.Id.Should().HaveValue();
+        var createdContact = ContactApi.Create(newContact);
         _contactsToCleanup.Add(createdContact.Id.Value);
 
         return createdContact;
@@ -110,7 +106,7 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
 
                 foreach (var contactId in _contactsToCleanup)
                 {
-                    _contactApi.Delete(contactId);
+                    ContactApi.Delete(contactId);
                 }
             }
 
