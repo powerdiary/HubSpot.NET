@@ -86,6 +86,33 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
         }
     }
 
+    [Fact(Skip = "The API should be upgraded to V3")]
+    public async Task GetCompanyById_WhenAssociationIsPresent_ShouldFetchAssociations()
+    {
+        var expectedCompany = CreateTestCompany();
+        var expectedContact = RecreateTestContact();
+
+        var expectedObjectType = "Company";
+        var expectedObjectId = expectedCompany.Id.Value.ToString();
+        var expectedToObjectType = "Contact";
+        var expectedToObjectId = expectedContact.Id.Value.ToString();
+
+        AssociationsApi.AssociationToObject(expectedObjectType, expectedObjectId, expectedToObjectType,
+            expectedToObjectId);
+
+        // Need to wait for data to be searchable.
+        await Task.Delay(7000);
+
+        var fetchedCompany = CompanyApi.GetById<CompanyHubSpotModel>(expectedCompany.Id.Value);
+
+        using (new AssertionScope())
+        {
+            fetchedCompany.Associations.Should().NotBeNull("Expected to retrieve associations set for the company.");
+            fetchedCompany.Associations.AssociatedContacts.Should().Contain(expectedContact.Id.Value,
+                "The associated contact ID should be present in the retrieved associations.");
+        }
+    }
+
     [Fact]
     public void ListCompanies()
     {
