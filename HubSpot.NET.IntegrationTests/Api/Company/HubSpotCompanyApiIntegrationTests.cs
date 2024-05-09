@@ -16,7 +16,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     {
         const string uniqueDomain = "https://www.unique-test-domain.com";
 
-        var createdCompany = CreateTestCompany(website: uniqueDomain);
+        var createdCompany = RecreateTestCompany(website: uniqueDomain);
         var companyByDomain = CompanyApi.GetByDomain<CompanyHubSpotModel>(createdCompany.Domain,
             new CompanySearchByDomain
             {
@@ -44,7 +44,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
         const string expectedCountry = "Test Country";
         const string expectedWebsite = "https://www.test.com";
 
-        var createdCompany = CreateTestCompany(expectedName, expectedCountry, expectedWebsite);
+        var createdCompany = RecreateTestCompany(expectedName, expectedCountry, expectedWebsite);
 
         using (new AssertionScope())
         {
@@ -58,7 +58,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public void DeleteCompany()
     {
-        var createdCompany = CreateTestCompany();
+        var createdCompany = RecreateTestCompany();
         CompanyApi.Delete(createdCompany.Id.Value);
         CompanyApi.GetById<CompanyHubSpotModel>(createdCompany.Id.Value).Should().BeNull();
     }
@@ -73,7 +73,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public void GetCompanyById()
     {
-        var createdCompany = CreateTestCompany();
+        var createdCompany = RecreateTestCompany();
 
         var companyById = CompanyApi.GetById<CompanyHubSpotModel>(createdCompany.Id.Value);
         using (new AssertionScope())
@@ -89,7 +89,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact(Skip = "The API should be upgraded to V3")]
     public async Task GetCompanyById_WhenAssociationIsPresent_ShouldFetchAssociations()
     {
-        var expectedCompany = CreateTestCompany();
+        var expectedCompany = RecreateTestCompany();
         var expectedContact = RecreateTestContact();
 
         var expectedObjectType = "Company";
@@ -120,7 +120,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
 
         for (int i = 0; i < 3; i++)
         {
-            var createdCompany = CreateTestCompany($"Test Company {i}", $"Country {i}", $"https://www.test{i}.com");
+            var createdCompany = RecreateTestCompany($"Test Company {i}", $"Country {i}", $"https://www.test{i}.com");
             createdCompanies.Add(createdCompany);
         }
 
@@ -147,7 +147,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public void UpdateCompany()
     {
-        var createdCompany = CreateTestCompany("Test Company", "Country", "https://www.test.com");
+        var createdCompany = RecreateTestCompany("Test Company", "Country", "https://www.test.com");
 
         createdCompany.Name = "Updated Test Company";
         createdCompany.Country = "Updated Country";
@@ -167,7 +167,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public async Task SearchCompanies()
     {
-        var createdCompany = CreateTestCompany(name: "Search Test Company");
+        var createdCompany = RecreateTestCompany(name: "Search Test Company");
 
         // Delay is required to allow time for new data to be searchable.
         await Task.Delay(10000);
@@ -206,7 +206,7 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     [Fact]
     public async Task GetCompanyAssociations()
     {
-        var createdCompany = CreateTestCompany("Test Company", "Test Country", "https://www.test1.com");
+        var createdCompany = RecreateTestCompany("Test Company", "Test Country", "https://www.test1.com");
         var createdContact = RecreateTestContact("testmail@test1.com", "TestFirstName", "TestLastName");
 
         AssociateContactWithCompany(createdCompany, createdContact); // replace with your actual method

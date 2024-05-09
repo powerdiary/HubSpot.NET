@@ -1,10 +1,13 @@
-﻿using HubSpot.NET.Api.Associations;
+﻿using HubSpot.NET.Api;
+using HubSpot.NET.Api.Associations;
 using HubSpot.NET.Api.Company;
 using HubSpot.NET.Api.Company.Dto;
 using HubSpot.NET.Api.Contact;
 using HubSpot.NET.Api.Contact.Dto;
 using HubSpot.NET.Core;
 using Microsoft.Extensions.Configuration;
+using SearchRequestFilter = HubSpot.NET.Api.SearchRequestFilter;
+using SearchRequestFilterGroup = HubSpot.NET.Api.SearchRequestFilterGroup;
 
 namespace HubSpot.NET.IntegrationTests;
 
@@ -41,8 +44,28 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
         _contactsToCleanup = new List<long>();
     }
 
-    protected CompanyHubSpotModel CreateTestCompany(string name = "Test Company", string country = "Test Country", string website = "www.testwebsite.com")
+    protected CompanyHubSpotModel RecreateTestCompany(string name = "Test Company", string country = "Test Country", string website = "www.testwebsite.com")
     {
+        var existingCompany = CompanyApi.Search<CompanyHubSpotModel>(new SearchRequestOptions
+        {
+            FilterGroups = new List<SearchRequestFilterGroup>
+            {
+                new()
+                {
+                    Filters = new List<SearchRequestFilter>
+                    {
+                        new() { Operator = SearchRequestFilterOperatorType.EqualTo, Value = name, PropertyName = "name" }
+                    }
+                }
+            }
+        }).Results.FirstOrDefault();
+
+        if (existingCompany != null)
+        {
+            CompanyApi.Delete(existingCompany.Id.Value);
+            _companiesToCleanup.Remove(existingCompany.Id.Value);
+        }
+
         var newCompany = new CompanyHubSpotModel
         {
             Name = name,

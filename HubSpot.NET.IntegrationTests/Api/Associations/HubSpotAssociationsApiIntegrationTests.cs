@@ -9,7 +9,7 @@ public sealed class HubSpotAssociationsApiIntegrationTests : HubSpotIntegrationT
     [Fact]
     public async Task CreateAssociationAndFetchToObject()
     {
-        var expectedCompany = CreateTestCompany();
+        var expectedCompany = RecreateTestCompany();
         var expectedContact = RecreateTestContact();
 
         var expectedObjectType = "Company";
@@ -35,7 +35,7 @@ public sealed class HubSpotAssociationsApiIntegrationTests : HubSpotIntegrationT
     [Fact(Skip = "Depends on the implementation of label API handling")]
     public async Task CreateAssociationByLabelAndFetchToObject()
     {
-        var expectedCompany = CreateTestCompany();
+        var expectedCompany = RecreateTestCompany();
         var expectedContact = RecreateTestContact();
 
         var expectedObjectType = "Company";
