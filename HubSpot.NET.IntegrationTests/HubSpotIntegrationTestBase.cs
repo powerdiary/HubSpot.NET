@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using HubSpot.NET.Api.Associations;
 using HubSpot.NET.Api.Company;
 using HubSpot.NET.Api.Company.Dto;
 using HubSpot.NET.Api.Contact;
@@ -11,6 +11,7 @@ namespace HubSpot.NET.IntegrationTests;
 public abstract class HubSpotIntegrationTestBase : IDisposable
 {
     private readonly string? ApiKey;
+    protected readonly HubSpotAssociationsApi AssociationsApi;
     protected readonly HubSpotCompanyApi CompanyApi;
     protected readonly HubSpotContactApi ContactApi;
     private readonly HubSpotApi _hubSpotApi;
@@ -31,6 +32,7 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
         ApiKey = configuration["HubSpot:PrivateAppKey"];
 
         var client = new HubSpotBaseClient(ApiKey);
+        AssociationsApi = new HubSpotAssociationsApi(client);
         CompanyApi = new HubSpotCompanyApi(client);
         ContactApi = new HubSpotContactApi(client);
         _hubSpotApi = new HubSpotApi(ApiKey);
