@@ -19,6 +19,7 @@ namespace HubSpot.NET.Core
     public class HubSpotObjectIds
     {
         public static readonly string Contact = "0-1";
+        public static readonly string Company = "0-2";
         public static readonly string Deal = "0-3";
     }
     
