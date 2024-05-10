@@ -172,41 +172,49 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!_isDisposed)
+        if (_isDisposed || !disposing)
+            return;
+
+        CleanCompanies();
+        CleanContacts();
+        CleanContactLists();
+
+        _isDisposed = true;
+    }
+
+    private void CleanCompanies()
+    {
+        foreach (var companyId in _companiesToCleanup)
         {
-            if (disposing)
-            {
-                foreach (var companyId in _companiesToCleanup)
-                {
-                    CompanyApi.Delete(companyId);
-                }
+            CompanyApi.Delete(companyId);
+        }
+    }
 
-                foreach (var contactId in _contactsToCleanup)
-                {
-                    try
-                    {
-                        ContactApi.Delete(contactId);
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-                }
+    private void CleanContacts()
+    {
+        foreach (var contactId in _contactsToCleanup)
+        {
+            TryAction(() => ContactApi.Delete(contactId));
+        }
+    }
 
-                foreach (var contactListId in _contactListToCleanup)
-                {
-                    try
-                    {
-                        ContactListApi.DeleteContactList(contactListId);
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-                }
-            }
+    private void CleanContactLists()
+    {
+        foreach (var contactListId in _contactListToCleanup)
+        {
+            TryAction(() => ContactListApi.DeleteContactList(contactListId));
+        }
+    }
 
-            _isDisposed = true;
+    private void TryAction(Action action)
+    {
+        try
+        {
+            action();
+        }
+        catch
+        {
+            // ignored
         }
     }
 
