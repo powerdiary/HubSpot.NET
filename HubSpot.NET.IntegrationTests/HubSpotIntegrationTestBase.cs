@@ -4,6 +4,8 @@ using HubSpot.NET.Api.Company;
 using HubSpot.NET.Api.Company.Dto;
 using HubSpot.NET.Api.Contact;
 using HubSpot.NET.Api.Contact.Dto;
+using HubSpot.NET.Api.ContactList;
+using HubSpot.NET.Api.ContactList.Dto;
 using HubSpot.NET.Core;
 using Microsoft.Extensions.Configuration;
 using SearchRequestFilter = HubSpot.NET.Api.SearchRequestFilter;
@@ -17,10 +19,12 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
     protected readonly HubSpotAssociationsApi AssociationsApi;
     protected readonly HubSpotCompanyApi CompanyApi;
     protected readonly HubSpotContactApi ContactApi;
+    protected readonly HubSpotContactListApi ContactListApi;
     private readonly HubSpotApi _hubSpotApi;
 
     private readonly IList<long> _companiesToCleanup;
     private readonly IList<long> _contactsToCleanup;
+    private readonly IList<long> _contactListToCleanup;
 
     protected HubSpotIntegrationTestBase()
     {
@@ -38,10 +42,12 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
         AssociationsApi = new HubSpotAssociationsApi(client);
         CompanyApi = new HubSpotCompanyApi(client);
         ContactApi = new HubSpotContactApi(client);
+        ContactListApi = new HubSpotContactListApi(new HubSpotBaseClient(ApiKey));
         _hubSpotApi = new HubSpotApi(ApiKey);
 
         _companiesToCleanup = new List<long>();
         _contactsToCleanup = new List<long>();
+        _contactListToCleanup = new List<long>();
     }
 
     protected CompanyHubSpotModel RecreateTestCompany(string name = "Test Company", string country = "Test Country", string website = "www.testwebsite.com")
@@ -118,6 +124,43 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
         }
     }
 
+    protected ContactListModel RecreateTestContactList(string name = "Test Contact List")
+    {
+        var contactLists = ContactListApi.GetContactLists().Lists;
+
+        var existingList = contactLists.Find(cl => cl.Name.Equals(name));
+
+        if (existingList != null)
+        {
+            _contactListToCleanup.Add(existingList.ListId);
+            return existingList;
+        }
+
+        var newContactList = new ContactListModel
+        {
+            Name = name,
+            Dynamic = false
+        };
+
+        ContactListModel createdContactList;
+
+        try
+        {
+            createdContactList = ContactListApi.CreateStaticContactList(newContactList.Name);
+            _contactListToCleanup.Add(createdContactList.ListId);
+        }
+        catch (HubSpotException ex)
+        {
+            throw new Exception(
+                "Error creating contact list. If this is due to the contact list name not being unique, " +
+                "please ensure you have removed any unused contact lists or use a unique name. " +
+                "Complete extraction of contact lists for the name check isn't currently possible until " +
+                "the feature with 'offset=' parameter is implemented in this library.", ex);
+        }
+
+        return createdContactList;
+    }
+
     #region IDisposable Support
     private bool _isDisposed;
 
@@ -143,6 +186,18 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
                     try
                     {
                         ContactApi.Delete(contactId);
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
+
+                foreach (var contactListId in _contactListToCleanup)
+                {
+                    try
+                    {
+                        ContactListApi.DeleteContactList(contactListId);
                     }
                     catch
                     {
