@@ -6,6 +6,8 @@ using HubSpot.NET.Api.Contact;
 using HubSpot.NET.Api.Contact.Dto;
 using HubSpot.NET.Api.ContactList;
 using HubSpot.NET.Api.ContactList.Dto;
+using HubSpot.NET.Api.Properties;
+using HubSpot.NET.Api.Properties.Dto;
 using HubSpot.NET.Core;
 using Microsoft.Extensions.Configuration;
 using SearchRequestFilter = HubSpot.NET.Api.SearchRequestFilter;
@@ -20,11 +22,14 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
     protected readonly HubSpotCompanyApi CompanyApi;
     protected readonly HubSpotContactApi ContactApi;
     protected readonly HubSpotContactListApi ContactListApi;
+    protected readonly HubSpotCompaniesPropertiesApi CompanyPropertiesApi;
+
     private readonly HubSpotApi _hubSpotApi;
 
-    private readonly IList<long> _companiesToCleanup;
-    private readonly IList<long> _contactsToCleanup;
-    private readonly IList<long> _contactListToCleanup;
+    private readonly IList<long> _companiesToCleanup = new List<long>();
+    private readonly IList<long> _contactsToCleanup = new List<long>();
+    private readonly IList<long> _contactListToCleanup = new List<long>();
+    private readonly IList<string> _companyPropertiesToCleanup = new List<string>();
 
     protected HubSpotIntegrationTestBase()
     {
@@ -42,12 +47,9 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
         AssociationsApi = new HubSpotAssociationsApi(client);
         CompanyApi = new HubSpotCompanyApi(client);
         ContactApi = new HubSpotContactApi(client);
-        ContactListApi = new HubSpotContactListApi(new HubSpotBaseClient(ApiKey));
+        ContactListApi = new HubSpotContactListApi(client);
+        CompanyPropertiesApi = new HubSpotCompaniesPropertiesApi(client);
         _hubSpotApi = new HubSpotApi(ApiKey);
-
-        _companiesToCleanup = new List<long>();
-        _contactsToCleanup = new List<long>();
-        _contactListToCleanup = new List<long>();
     }
 
     protected CompanyHubSpotModel RecreateTestCompany(string name = "Test Company", string country = "Test Country", string website = "www.testwebsite.com")
@@ -161,6 +163,32 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
         return createdContactList;
     }
 
+    protected CompanyPropertyHubSpotModel RecreateTestCompanyProperty(string name = "TestPropertyName",
+        string type = "string", string fieldType = "text")
+    {
+        var allProperties = CompanyPropertiesApi.GetAll();
+
+        var existingProperty = allProperties.FirstOrDefault(p => p.Name == name);
+
+        if (existingProperty != null)
+        {
+            CompanyPropertiesApi.Delete(existingProperty.Name);
+        }
+
+        var newProperty = new CompanyPropertyHubSpotModel
+        {
+            Name = name,
+            Type = type,
+            FieldType = fieldType
+        };
+
+        var createdProperty = CompanyPropertiesApi.Create(newProperty);
+
+        _companyPropertiesToCleanup.Add(createdProperty.Name);
+
+        return createdProperty;
+    }
+
     #region IDisposable Support
     private bool _isDisposed;
 
@@ -178,6 +206,7 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
         CleanCompanies();
         CleanContacts();
         CleanContactLists();
+        CleanCompanyProperties();
 
         _isDisposed = true;
     }
@@ -203,6 +232,21 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
         foreach (var contactListId in _contactListToCleanup)
         {
             TryAction(() => ContactListApi.DeleteContactList(contactListId));
+        }
+    }
+
+    private void CleanCompanyProperties()
+    {
+        foreach (var propertyName in _companyPropertiesToCleanup)
+        {
+            try
+            {
+                CompanyPropertiesApi.Delete(propertyName);
+            }
+            catch
+            {
+                // ignored
+            }
         }
     }
 
