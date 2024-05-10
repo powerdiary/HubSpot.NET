@@ -36,6 +36,19 @@ public class HubSpotContactListApiIntegrationTests : HubSpotIntegrationTestBase
     }
 
     [Fact]
+    public void ContactListById_WhenDoesNotExist_ShouldBeNull()
+    {
+        var nonExistingId = 0;
+
+        var contactListById = ContactListApi.GetContactListById(nonExistingId);
+
+        using (new AssertionScope())
+        {
+            contactListById.Should().BeNull();
+        }
+    }
+
+    [Fact]
     public void AddContactsToList()
     {
         var (contact1, contact2, contactList) = CreateContactsAndList();
@@ -62,6 +75,20 @@ public class HubSpotContactListApiIntegrationTests : HubSpotIntegrationTestBase
         using (new AssertionScope())
         {
             removalResult.UpdatedContactIds.Should().Contain(new[] { contact1.Id.Value, contact2.Id.Value });
+        }
+    }
+
+    [Fact]
+    public void DeleteContactList()
+    {
+        var createdContactList = RecreateTestContactList("StaticTestList");
+        ContactListApi.DeleteContactList(createdContactList.ListId);
+
+        var deletedContactList = ContactListApi.GetContactListById(createdContactList.ListId);
+
+        using (new AssertionScope())
+        {
+            deletedContactList.Should().BeNull();
         }
     }
 

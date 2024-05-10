@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Net;
 using HubSpot.NET.Api.ContactList.Dto;
+using HubSpot.NET.Core;
 using HubSpot.NET.Core.Extensions;
 using HubSpot.NET.Core.Interfaces;
 using RestSharp;
@@ -79,11 +81,20 @@ namespace HubSpot.NET.Api.ContactList
         /// <returns>The data</returns>
         public ContactListModel GetContactListById(long contactListId)
         {
-            var path = $"{new ContactListModel().RouteBasePath}/{contactListId}";
+            try
+            {
+                var path = $"{new ContactListModel().RouteBasePath}/{contactListId}";
 
-            var data = _client.ExecuteList<ContactListModel>(path, convertToPropertiesSchema: false);
+                var data = _client.ExecuteList<ContactListModel>(path, convertToPropertiesSchema: false);
 
-            return data;
+                return data;
+            }
+            catch (HubSpotException exception)
+            {
+                if (exception.ReturnedError.StatusCode == HttpStatusCode.NotFound)
+                    return null;
+                throw;
+            }
         }
 
         /// <summary>
