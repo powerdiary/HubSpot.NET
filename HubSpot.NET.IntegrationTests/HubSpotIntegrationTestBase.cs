@@ -164,11 +164,11 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
     }
 
     protected CompanyPropertyHubSpotModel RecreateTestCompanyProperty(string name = "TestPropertyName",
-        string type = "string", string fieldType = "text")
+        string type = "string", string fieldType = "text", string groupName = "TestGroup", string label = "TestLabel")
     {
-        var allProperties = CompanyPropertiesApi.GetAll();
+        var allProperties = CompanyPropertiesApi.GetAll().Results;
 
-        var existingProperty = allProperties.FirstOrDefault(p => p.Name == name);
+        var existingProperty = allProperties.Find(p => p.Name == name);
 
         if (existingProperty != null)
         {
@@ -179,7 +179,9 @@ public abstract class HubSpotIntegrationTestBase : IDisposable
         {
             Name = name,
             Type = type,
-            FieldType = fieldType
+            FieldType = fieldType,
+            GroupName = groupName,
+            Label = label
         };
 
         var createdProperty = CompanyPropertiesApi.Create(newProperty);
