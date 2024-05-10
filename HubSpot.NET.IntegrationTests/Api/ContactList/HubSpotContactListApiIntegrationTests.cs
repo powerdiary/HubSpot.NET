@@ -92,6 +92,47 @@ public class HubSpotContactListApiIntegrationTests : HubSpotIntegrationTestBase
         }
     }
 
+    [Fact]
+    public async Task GetContactLists()
+    {
+        var createdContactList1 = RecreateTestContactList("TestList1");
+        var createdContactList2 = RecreateTestContactList("TestList2");
+
+        // to make data searchable
+        await Task.Delay(10000);
+
+        var contactLists = ContactListApi.GetContactLists().Lists;
+
+        using (new AssertionScope())
+        {
+            contactLists.Should().NotBeNull();
+            contactLists.Should().Contain(c => c.ListId == createdContactList1.ListId);
+            contactLists.Should().Contain(c => c.ListId == createdContactList2.ListId);
+        }
+    }
+
+    // Note: The HubSpotContactListApi currently only allows for the creation of static lists,
+    // which is why these tests are designed around them. If future updates to the library
+    // add the ability to create dynamic lists, these tests should be revised to account for that.
+    [Fact]
+    public async Task GetStaticContactLists()
+    {
+        var createdContactList1 = RecreateTestContactList("StaticTestList1");
+        var createdContactList2 = RecreateTestContactList("StaticTestList2");
+
+        // to make data searchable
+        await Task.Delay(10000);
+
+        var contactLists = ContactListApi.GetStaticContactLists().Lists;
+
+        using (new AssertionScope())
+        {
+            contactLists.Should().NotBeNull();
+            contactLists.Should().Contain(c => c.ListId == createdContactList1.ListId);
+            contactLists.Should().Contain(c => c.ListId == createdContactList2.ListId);
+        }
+    }
+
     private (ContactHubSpotModel contact1, ContactHubSpotModel contact2, ContactListModel contactList)
         CreateContactsAndList()
     {
