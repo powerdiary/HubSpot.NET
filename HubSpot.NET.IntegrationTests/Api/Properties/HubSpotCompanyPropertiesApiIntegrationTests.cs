@@ -1,12 +1,13 @@
 ﻿using FluentAssertions;
 using FluentAssertions.Execution;
+using HubSpot.NET.Core;
 
 namespace HubSpot.NET.IntegrationTests.Api.Properties;
 
 public class HubSpotCompanyPropertiesApiIntegrationTests : HubSpotIntegrationTestBase
 {
     [Fact(Skip = "This test requires CreatePropertyGroup implementation")]
-    public async Task Create()
+    public void Create()
     {
         const string expectedName = "TestProperty";
         const string expectedType = "string";
@@ -45,5 +46,12 @@ public class HubSpotCompanyPropertiesApiIntegrationTests : HubSpotIntegrationTes
             allProperties.Should().Contain(p => p.Name == createdCompanyProperty1.Name);
             allProperties.Should().Contain(p => p.Name == createdCompanyProperty2.Name);
         }
+    }
+
+    [Fact]
+    public void GetAll_ShouldNotThrowException()
+    {
+        var act = () => CompanyPropertiesApi.GetAll().Results;
+        act.Should().NotThrow<HubSpotException>();
     }
 }
