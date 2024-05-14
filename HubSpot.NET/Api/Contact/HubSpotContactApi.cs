@@ -1,4 +1,6 @@
-﻿namespace HubSpot.NET.Api.Contact
+﻿using System.Threading.Tasks;
+
+namespace HubSpot.NET.Api.Contact
 {
     using System;
     using System.Collections.Generic;
@@ -170,12 +172,12 @@
         /// Best performance is with a maximum of 250 contacts.
         /// </summary>
         /// <typeparam name="T">Implementation of ContactHubSpotModel</typeparam>
-        /// <param name="contacts">The set of contacts to update/create</param>
-        public void Batch<T>(List<T> contacts) where T : ContactHubSpotModel, new()
+        /// <param name="entities">The set of contacts to update/create</param>
+        public void Batch<T>(List<T> entities) where T : ContactHubSpotModel, new()
         {
             var path =  $"{new T().RouteBasePath}/contact/batch";
 
-            _client.ExecuteBatch(path, contacts.Select(c => (object) c).ToList(), Method.POST, convertToPropertiesSchema: true);
+            _client.ExecuteBatch(path, entities.Select(c => (object) c).ToList(), Method.POST, convertToPropertiesSchema: true);
         }
 
         /// <summary>
@@ -249,6 +251,174 @@
 			ContactListHubSpotModel<T> data = _client.ExecuteList<ContactListHubSpotModel<T>>(path, opts, convertToPropertiesSchema: true);
 
             return data;
+        }
+
+        public Task<T> CreateAsync<T>(T entity) where T : ContactHubSpotModel, new()
+        {
+            var path = $"{entity.RouteBasePath}/contact";
+            return _client.ExecuteAsync<T>(path, entity, Method.POST, convertToPropertiesSchema: true);
+        }
+
+        public Task<T> CreateOrUpdateAsync<T>(T entity) where T : ContactHubSpotModel, new()
+        {
+            var path = $"{entity.RouteBasePath}/contact/createOrUpdate/email/{entity.Email}";
+
+            return _client.ExecuteAsync<T>(path, entity, Method.POST, convertToPropertiesSchema: true);
+        }
+
+        public Task DeleteAsync(long contactId)
+        {
+            var path = $"{new ContactHubSpotModel().RouteBasePath}/contact/vid/{contactId}";
+
+            return _client.ExecuteAsync(path, method: Method.DELETE, convertToPropertiesSchema: true);
+        }
+
+        public Task BatchAsync<T>(List<T> entities) where T : ContactHubSpotModel, new()
+        {
+            var path = $"{new T().RouteBasePath}/contact/batch";
+
+            return _client.ExecuteBatchAsync(path, entities.Select(c => (object)c).ToList(), Method.POST, convertToPropertiesSchema: true);
+        }
+
+        public async Task<T> GetByEmailAsync<T>(string email) where T : ContactHubSpotModel, new()
+        {
+            var path = $"{new T().RouteBasePath}/contact/email/{email}/profile";
+
+            try
+            {
+                T data = await _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
+                return data;
+            }
+            catch (HubSpotException exception)
+            {
+                if (exception.ReturnedError.StatusCode == HttpStatusCode.NotFound)
+                    return null;
+                throw;
+            }
+        }
+
+        public async Task<T> GetByIdAsync<T>(long contactId) where T : ContactHubSpotModel, new()
+        {
+            var path = $"{new T().RouteBasePath}/contact/vid/{contactId}/profile";
+
+            try
+            {
+                T data = await _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
+                return data;
+            }
+            catch (HubSpotException exception)
+            {
+                if (exception.ReturnedError.StatusCode == HttpStatusCode.NotFound)
+                    return null;
+                throw;
+            }
+        }
+
+        public async Task<T> GetByUserTokenAsync<T>(string userToken) where T : ContactHubSpotModel, new()
+        {
+            var path = $"{new T().RouteBasePath}/contact/utk/{userToken}/profile";
+
+            try
+            {
+                T data = await _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
+                return data;
+            }
+            catch (HubSpotException exception)
+            {
+                if (exception.ReturnedError.StatusCode == HttpStatusCode.NotFound)
+                    return null;
+                throw;
+            }
+        }
+
+        public async Task<ContactListHubSpotModel<T>> ListAsync<T>(ListRequestOptions opts = null) where T : ContactHubSpotModel, new()
+        {
+            if (opts == null)
+                opts = new ListRequestOptions();
+
+            var path = $"{new ContactHubSpotModel().RouteBasePath}/lists/all/contacts/all"
+                .SetQueryParam("count", opts.Limit);
+
+            if (opts.PropertiesToInclude.Any())
+                path = path.SetQueryParam("property", opts.PropertiesToInclude);
+
+            if (opts.Offset.HasValue)
+                path = path.SetQueryParam("vidOffset", opts.Offset);
+
+            var model = await _client.ExecuteAsync<ContactListHubSpotModel<T>>(path, method: Method.GET, convertToPropertiesSchema: true);
+            return model;
+
+        }
+
+        public Task UpdateAsync<T>(T contact) where T : ContactHubSpotModel, new()
+        {
+            if (contact.Id < 1)
+                throw new ArgumentException("Contact entity must have an id set!");
+
+            var path = $"{contact.RouteBasePath}/contact/vid/{contact.Id}/profile";
+
+            return _client.ExecuteAsync(path, contact, Method.POST, convertToPropertiesSchema: true);
+        }
+
+        public Task<ContactListHubSpotModel<T>> RecentlyCreatedAsync<T>(ListRecentRequestOptions opts = null) where T : ContactHubSpotModel, new()
+        {
+            if (opts == null)
+                opts = new ListRecentRequestOptions();
+
+            var path = $"{new ContactHubSpotModel().RouteBasePath}/lists/all/contacts/recent"
+                .SetQueryParam("count", opts.Limit);
+
+            if (opts.PropertiesToInclude.Any())
+                path = path.SetQueryParam("property", opts.PropertiesToInclude);
+
+            if (opts.Offset.HasValue)
+                path = path.SetQueryParam("vidOffset", opts.Offset);
+
+            if (!string.IsNullOrEmpty(opts.TimeOffset))
+                path = path.SetQueryParam("timeOffset", opts.TimeOffset);
+
+            path = path.SetQueryParam("propertyMode", opts.PropertyMode);
+
+            path = path.SetQueryParam("formSubmissionMode", opts.FormSubmissionMode);
+
+            path = path.SetQueryParam("showListMemberships", opts.ShowListMemberships);
+
+            return _client.ExecuteListAsync<ContactListHubSpotModel<T>>(path, opts, convertToPropertiesSchema: true);
+        }
+
+        public Task<ContactListHubSpotModel<T>> RecentlyUpdatedAsync<T>(ListRecentRequestOptions opts = null) where T : ContactHubSpotModel, new()
+        {
+            if (opts == null)
+                opts = new ListRecentRequestOptions();
+
+            var path = $"{new ContactHubSpotModel().RouteBasePath}/lists/recently_updated/contacts/recent"
+                .SetQueryParam("count", opts.Limit);
+
+            if (opts.PropertiesToInclude.Any())
+                path = path.SetQueryParam("property", opts.PropertiesToInclude);
+
+            if (opts.Offset.HasValue)
+                path = path.SetQueryParam("vidOffset", opts.Offset);
+
+            if (!string.IsNullOrEmpty(opts.TimeOffset))
+                path = path.SetQueryParam("timeOffset", opts.TimeOffset);
+
+            path = path.SetQueryParam("propertyMode", opts.PropertyMode);
+
+            path = path.SetQueryParam("formSubmissionMode", opts.FormSubmissionMode);
+
+            path = path.SetQueryParam("showListMemberships", opts.ShowListMemberships);
+
+            return _client.ExecuteListAsync<ContactListHubSpotModel<T>>(path, opts, convertToPropertiesSchema: true);
+        }
+
+        public Task<ContactSearchHubSpotModel<T>> SearchAsync<T>(SearchRequestOptions opts = null) where T : ContactHubSpotModel, new()
+        {
+            opts ??= new SearchRequestOptions();
+
+            const string path = "/crm/v3/objects/contacts/search";
+
+            return _client.ExecuteListAsync<ContactSearchHubSpotModel<T>>(path, opts, Method.POST, convertToPropertiesSchema: true);
         }
     }
 }
