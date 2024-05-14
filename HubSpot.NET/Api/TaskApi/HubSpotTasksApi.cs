@@ -10,11 +10,11 @@ using RestSharp;
 
 namespace HubSpot.NET.Api.TaskApi;
 
-public class HubSpotTasksesApi : IHubSpotTasksApi
+public class HubSpotTasksApi : IHubSpotTasksApi
 {
     private readonly IHubSpotClient _client;
 
-    public HubSpotTasksesApi(IHubSpotClient client)
+    public HubSpotTasksApi(IHubSpotClient client)
     {
         _client = client;
     }
@@ -37,11 +37,11 @@ public class HubSpotTasksesApi : IHubSpotTasksApi
     /// Gets a specific task by its ID
     /// </summary>
     /// <typeparam name="T">Implementation of TaskHubSpotModel</typeparam>
-    /// <param name="taskId">The ID</param>
+    /// <param name="dealId">The ID</param>
     /// <returns>The task entity or null if the task does not exist</returns>
-    public T GetById<T>(long taskId, List<string> propertiesToInclude = null) where T : HubSpotTaskModel, new()
+    public T GetById<T>(long dealId, List<string> propertiesToInclude = null) where T : HubSpotTaskModel, new()
     {
-        string path = $"{new T().RouteBasePath}/{taskId}";
+        string path = $"{new T().RouteBasePath}/{dealId}";
 
         if (propertiesToInclude == null)
             propertiesToInclude = new List<string>
@@ -109,10 +109,10 @@ public class HubSpotTasksesApi : IHubSpotTasksApi
     /// <summary>
     /// Deletes the given task
     /// </summary>
-    /// <param name="taskId">ID of the task</param>
-    public void Delete(long taskId)
+    /// <param name="dealId">ID of the task</param>
+    public void Delete(long dealId)
     {
-        var path = $"{new HubSpotTaskModel().RouteBasePath}/{taskId}";
+        var path = $"{new HubSpotTaskModel().RouteBasePath}/{dealId}";
 
         _client.Execute(path, method: Method.DELETE, convertToPropertiesSchema: true);
     }
