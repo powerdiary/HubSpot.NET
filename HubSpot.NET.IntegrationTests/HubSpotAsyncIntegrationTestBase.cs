@@ -9,12 +9,11 @@ using SearchRequestFilterGroup = HubSpot.NET.Api.SearchRequestFilterGroup;
 
 namespace HubSpot.NET.IntegrationTests;
 
-public abstract class HubSpotIntegrationTestBase : HubSpotIntegrationTestSetup
+public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSetup
 {
-    protected CompanyHubSpotModel RecreateTestCompany(string name = "Test Company", string country = "Test Country",
-        string website = "www.testwebsite.com")
+    protected async Task<CompanyHubSpotModel> RecreateTestCompanyAsync(string name = "Test Company", string country = "Test Country", string website = "www.testwebsite.com")
     {
-        var existingCompany = CompanyApi.Search<CompanyHubSpotModel>(new SearchRequestOptions
+        var existingCompany = (await CompanyApi.SearchAsync<CompanyHubSpotModel>(new SearchRequestOptions
         {
             FilterGroups = new List<SearchRequestFilterGroup>
             {
@@ -22,18 +21,15 @@ public abstract class HubSpotIntegrationTestBase : HubSpotIntegrationTestSetup
                 {
                     Filters = new List<SearchRequestFilter>
                     {
-                        new()
-                        {
-                            Operator = SearchRequestFilterOperatorType.EqualTo, Value = name, PropertyName = "name"
-                        }
+                        new() { Operator = SearchRequestFilterOperatorType.EqualTo, Value = name, PropertyName = "name" }
                     }
                 }
             }
-        }).Results.FirstOrDefault();
+        })).Results.FirstOrDefault();
 
         if (existingCompany != null)
         {
-            CompanyApi.Delete(existingCompany.Id.Value);
+            await CompanyApi.DeleteAsync(existingCompany.Id.Value);
             CompaniesToCleanup.Remove(existingCompany.Id.Value);
         }
 
@@ -43,46 +39,44 @@ public abstract class HubSpotIntegrationTestBase : HubSpotIntegrationTestSetup
             Country = country,
             Website = website
         };
-        var createdCompany = CompanyApi.Create(newCompany);
+        var createdCompany = await CompanyApi.CreateAsync(newCompany);
         CompaniesToCleanup.Add(createdCompany.Id.Value);
 
         return createdCompany;
     }
 
-    protected ContactHubSpotModel RecreateTestContact(string email = "test@email.com",
-        string firstname = "Test Firstname",
-        string lastname = "Test Lastname", string company = "Test Company", string phone = "1234567890")
+protected async Task<ContactHubSpotModel> RecreateTestContactAsync(string email = "test@email.com", string firstname = "Test Firstname",
+    string lastname = "Test Lastname", string company = "Test Company", string phone = "1234567890")
+{
+    var existingContact = await ContactApi.GetByEmailAsync<ContactHubSpotModel>(email);
+
+    if (existingContact != null)
     {
-        var existingContact = ContactApi.GetByEmail<ContactHubSpotModel>(email);
-
-        if (existingContact != null)
-        {
-            ContactApi.Delete(existingContact.Id.Value);
-            ContactsToCleanup.Remove(existingContact.Id.Value);
-        }
-
-        var newContact = new ContactHubSpotModel
-        {
-            Email = email,
-            FirstName = firstname,
-            LastName = lastname,
-            Company = company,
-            Phone = phone
-        };
-
-        var createdContact = ContactApi.Create(newContact);
-
-        ContactsToCleanup.Add(createdContact.Id.Value);
-
-        return createdContact;
+        await ContactApi.DeleteAsync(existingContact.Id.Value);
+        ContactsToCleanup.Remove(existingContact.Id.Value);
     }
 
-    protected void AssociateContactWithCompany(CompanyHubSpotModel company, ContactHubSpotModel contact)
+    var newContact = new ContactHubSpotModel
+    {
+        Email = email,
+        FirstName = firstname,
+        LastName = lastname,
+        Company = company,
+        Phone = phone
+    };
+
+    var createdContact = await ContactApi.CreateAsync(newContact);
+
+    ContactsToCleanup.Add(createdContact.Id.Value);
+
+    return createdContact;
+}
+    protected async Task AssociateContactWithCompanyAsync(CompanyHubSpotModel company, ContactHubSpotModel contact)
     {
         try
         {
-            HubSpotApi.Associations.AssociationToObject(HubSpotObjectIds.Company, company.Id.Value.ToString(),
-                HubSpotObjectIds.Contact, contact.Id.Value.ToString());
+            await HubSpotApi.Associations.AssociationToObjectAsync(HubSpotObjectIds.Company, company.Id.Value.ToString(),
+               HubSpotObjectIds.Contact, contact.Id.Value.ToString());
         }
         catch (Exception ex)
         {
@@ -90,9 +84,9 @@ public abstract class HubSpotIntegrationTestBase : HubSpotIntegrationTestSetup
         }
     }
 
-    protected ContactListModel RecreateTestContactList(string name = "Test Contact List")
+    protected async Task<ContactListModel> RecreateTestContactListAsync(string name = "Test Contact List")
     {
-        var contactLists = ContactListApi.GetContactLists().Lists;
+        var contactLists = (await ContactListApi.GetContactListsAsync()).Lists;
 
         var existingList = contactLists.Find(cl => cl.Name.Equals(name));
 
@@ -112,7 +106,7 @@ public abstract class HubSpotIntegrationTestBase : HubSpotIntegrationTestSetup
 
         try
         {
-            createdContactList = ContactListApi.CreateStaticContactList(newContactList.Name);
+            createdContactList = await ContactListApi.CreateStaticContactListAsync(newContactList.Name);
             ContactListToCleanup.Add(createdContactList.ListId);
         }
         catch (HubSpotException ex)
@@ -127,16 +121,16 @@ public abstract class HubSpotIntegrationTestBase : HubSpotIntegrationTestSetup
         return createdContactList;
     }
 
-    protected CompanyPropertyHubSpotModel RecreateTestCompanyProperty(string name = "TestPropertyName",
+    protected async Task<CompanyPropertyHubSpotModel> RecreateTestCompanyPropertyAsync(string name = "TestPropertyName",
         string type = "string", string fieldType = "text", string groupName = "TestGroup", string label = "TestLabel")
     {
-        var allProperties = CompanyPropertiesApi.GetAll().Results;
+        var allProperties = (await CompanyPropertiesApi.GetAllAsync()).Results;
 
         var existingProperty = allProperties.Find(p => p.Name == name);
 
         if (existingProperty != null)
         {
-            CompanyPropertiesApi.Delete(existingProperty.Name);
+            await CompanyPropertiesApi.DeleteAsync(existingProperty.Name);
         }
 
         var newProperty = new CompanyPropertyHubSpotModel
@@ -148,7 +142,7 @@ public abstract class HubSpotIntegrationTestBase : HubSpotIntegrationTestSetup
             Label = label
         };
 
-        var createdProperty = CompanyPropertiesApi.Create(newProperty);
+        var createdProperty = await CompanyPropertiesApi.CreateAsync(newProperty);
 
         CompanyPropertiesToCleanup.Add(createdProperty.Name);
 
