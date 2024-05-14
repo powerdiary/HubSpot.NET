@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using HubSpot.NET.Api;
+using HubSpot.NET.Api.TaskApi.Dto;
 using HubSpot.NET.Core.Attributes;
 using HubSpot.NET.Core.Extensions;
 using HubSpot.NET.Core.Interfaces;
@@ -247,7 +248,7 @@ namespace HubSpot.NET.Core.Requests
                 var taskIdProp = dtoProps.SingleOrDefault(q => q.GetPropSerializedName() == "taskId");
                 taskIdProp?.SetValue(dto, taskIdData);
             }
-            else if (dto is Api.Task.Dto.TaskHubSpotModel && expandoDict.TryGetValue("id", out taskIdData))
+            else if (dto is HubSpotTaskModel && expandoDict.TryGetValue("id", out taskIdData))
             {
                 // TODO use properly serialized name of prop to find it
                 var taskIdProp = dtoProps.SingleOrDefault(q => q.GetPropSerializedName() == "taskId");

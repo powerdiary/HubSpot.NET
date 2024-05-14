@@ -34,7 +34,7 @@ namespace HubSpot.NET.Core
         public IHubSpotEngagementApi Engagement { get; protected set; }
         public IHubSpotCosFileApi File { get; protected set; }
         public IHubSpotOwnerApi Owner { get; protected set; }
-		public IHubSpotTaskApi Task { get; protected set; }
+		public IHubSpotTasksApi Tasks { get; protected set; }
 		public IHubSpotCompanyPropertiesApi CompanyProperties { get; protected set; }
         public IHubSpotCustomObjectPropertiesApi CustomObjectProperties { get; protected set; }
         public IHubSpotContactListApi ContactLists { get; protected set; }

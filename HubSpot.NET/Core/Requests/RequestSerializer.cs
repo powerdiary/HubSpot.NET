@@ -2,6 +2,7 @@
 using System.Dynamic;
 using System.Linq;
 using System.Runtime.Serialization;
+using HubSpot.NET.Api.TaskApi.Dto;
 using HubSpot.NET.Core.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -72,7 +73,7 @@ namespace HubSpot.NET.Core.Requests
             if (serialisationType == SerialisationType.PropertyBag)
             {
                 _obj = new { properties = obj };
-                if (obj is Api.Task.Dto.TaskHubSpotModel)
+                if (obj is HubSpotTaskModel)
                 {
                     _obj.properties.Id = null;
                 }
