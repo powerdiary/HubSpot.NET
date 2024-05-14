@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using HubSpot.NET.Core.Interfaces;
 using RestSharp;
 
@@ -48,7 +49,26 @@ public class HubSpotAssociationsApi : IHubSpotAssociationsApi
         };
         var body = new[] {label};
         _client.Execute(associationPath, body, Method.PUT, convertToPropertiesSchema: false);
-        
     }
-    
+
+    public Task AssociationToObjectAsync(string objectType, string objectId, string toObjectType, string toObjectId)
+    {
+        var associationPath =
+            $"/crm/v4/objects/{objectType}/{objectId}/associations/default/{toObjectType}/{toObjectId}";
+        return _client.ExecuteAsync(associationPath, null, Method.PUT, convertToPropertiesSchema: false);
+    }
+
+    public Task AssociationToObjectByLabelAsync(string objectType, string objectId, string toObjectType, string toObjectId,
+                                                 string associationCategory, int associationTypeId)
+    {
+        var associationPath =
+            $"/crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}/{toObjectId}";
+        var label = new
+        {
+            associationCategory,
+            associationTypeId
+        };
+        var body = new[] {label};
+        return _client.ExecuteAsync(associationPath, body, Method.PUT, convertToPropertiesSchema: false);
+    }
 }
