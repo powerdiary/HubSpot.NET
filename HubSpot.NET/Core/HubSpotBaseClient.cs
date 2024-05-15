@@ -273,31 +273,25 @@ namespace HubSpot.NET.Core
             bool convertToPropertiesSchema = true)
             where T : IHubSpotModel, new()
         {
-            SerialisationType serialisationType =
-                convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw;
-
-            return SendRequestAsync(absoluteUriPath, method, null, responseData =>
-                (T)_serializer.DeserializeEntity<T>(responseData, serialisationType != SerialisationType.Raw));
+            return ExecuteAsync<T>(absoluteUriPath, method,
+                convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw);
         }
 
-        public Task<T> ExecuteAsync<T>(string absoluteUriPath, Method method = Method.GET,
+        public async Task<T> ExecuteAsync<T>(string absoluteUriPath, Method method = Method.GET,
             SerialisationType serialisationType = SerialisationType.PropertyBag) where T : IHubSpotModel, new()
         {
-            return SendRequestAsync(absoluteUriPath, method, null, responseData =>
-                (T)_serializer.DeserializeEntity<T>(responseData, serialisationType != SerialisationType.Raw));
+            T data = await SendRequestAsync(absoluteUriPath, method, null,
+                responseData =>
+                    (T)_serializer.DeserializeEntity<T>(responseData, serialisationType != SerialisationType.Raw));
+
+            return data;
         }
 
-        public async Task ExecuteAsync(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public Task ExecuteAsync(string absoluteUriPath, object entity = null, Method method = Method.GET,
             bool convertToPropertiesSchema = true)
         {
-            SerialisationType serialisationType =
-                convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw;
-
-            string json = (method == Method.GET || entity == null)
-                ? null
-                : _serializer.SerializeEntity(entity, serialisationType);
-
-            await SendRequestAsync(absoluteUriPath, method, json);
+            return ExecuteAsync(absoluteUriPath, entity, method,
+                convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw);
         }
 
         public async Task ExecuteAsync(string absoluteUriPath, object entity = null, Method method = Method.GET,
