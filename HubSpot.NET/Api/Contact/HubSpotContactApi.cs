@@ -353,7 +353,7 @@ public class HubSpotContactApi : IHubSpotContactApi
         if (opts.Offset.HasValue)
             path = path.SetQueryParam("vidOffset", opts.Offset);
 
-        var model = await _client.ExecuteAsync<ContactListHubSpotModel<T>>(path, method: Method.GET,
+        var model = await _client.ExecuteListAsync<ContactListHubSpotModel<T>>(path,
             convertToPropertiesSchema: true);
         return model;
     }
