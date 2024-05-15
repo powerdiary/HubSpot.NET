@@ -11,7 +11,8 @@ namespace HubSpot.NET.IntegrationTests;
 
 public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSetup
 {
-    protected async Task<CompanyHubSpotModel> RecreateTestCompanyAsync(string name = "Test Company", string country = "Test Country", string website = "www.testwebsite.com")
+    protected async Task<CompanyHubSpotModel> RecreateTestCompanyAsync(string name = "Test Company",
+        string country = "Test Country", string website = "www.testwebsite.com")
     {
         var existingCompany = (await CompanyApi.SearchAsync<CompanyHubSpotModel>(new SearchRequestOptions
         {
@@ -21,7 +22,10 @@ public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSe
                 {
                     Filters = new List<SearchRequestFilter>
                     {
-                        new() { Operator = SearchRequestFilterOperatorType.EqualTo, Value = name, PropertyName = "name" }
+                        new()
+                        {
+                            Operator = SearchRequestFilterOperatorType.EqualTo, Value = name, PropertyName = "name"
+                        }
                     }
                 }
             }
@@ -45,38 +49,41 @@ public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSe
         return createdCompany;
     }
 
-protected async Task<ContactHubSpotModel> RecreateTestContactAsync(string email = "test@email.com", string firstname = "Test Firstname",
-    string lastname = "Test Lastname", string company = "Test Company", string phone = "1234567890")
-{
-    var existingContact = await ContactApi.GetByEmailAsync<ContactHubSpotModel>(email);
-
-    if (existingContact != null)
+    protected async Task<ContactHubSpotModel> RecreateTestContactAsync(string email = "test@email.com",
+        string firstname = "Test Firstname",
+        string lastname = "Test Lastname", string company = "Test Company", string phone = "1234567890")
     {
-        await ContactApi.DeleteAsync(existingContact.Id.Value);
-        ContactsToCleanup.Remove(existingContact.Id.Value);
+        var existingContact = await ContactApi.GetByEmailAsync<ContactHubSpotModel>(email);
+
+        if (existingContact != null)
+        {
+            await ContactApi.DeleteAsync(existingContact.Id.Value);
+            ContactsToCleanup.Remove(existingContact.Id.Value);
+        }
+
+        var newContact = new ContactHubSpotModel
+        {
+            Email = email,
+            FirstName = firstname,
+            LastName = lastname,
+            Company = company,
+            Phone = phone
+        };
+
+        var createdContact = await ContactApi.CreateAsync(newContact);
+
+        ContactsToCleanup.Add(createdContact.Id.Value);
+
+        return createdContact;
     }
 
-    var newContact = new ContactHubSpotModel
-    {
-        Email = email,
-        FirstName = firstname,
-        LastName = lastname,
-        Company = company,
-        Phone = phone
-    };
-
-    var createdContact = await ContactApi.CreateAsync(newContact);
-
-    ContactsToCleanup.Add(createdContact.Id.Value);
-
-    return createdContact;
-}
     protected async Task AssociateContactWithCompanyAsync(CompanyHubSpotModel company, ContactHubSpotModel contact)
     {
         try
         {
-            await HubSpotApi.Associations.AssociationToObjectAsync(HubSpotObjectIds.Company, company.Id.Value.ToString(),
-               HubSpotObjectIds.Contact, contact.Id.Value.ToString());
+            await HubSpotApi.Associations.AssociationToObjectAsync(HubSpotObjectIds.Company,
+                company.Id.Value.ToString(),
+                HubSpotObjectIds.Contact, contact.Id.Value.ToString());
         }
         catch (Exception ex)
         {
