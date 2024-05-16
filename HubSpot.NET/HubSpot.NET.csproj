@@ -2,18 +2,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Version>1.0.1</Version>
-    <Authors>HubSpot.NETCORE</Authors>
-    <Company>HubSpot.NETCORE</Company>
-    <Description>.NET CORE client library targeting the HubSpot APIs.</Description>
-    <Copyright>HubSpot.NET</Copyright>
+    <Authors>HubSpot.NET;PowerDiary</Authors>
+    <Company>PowerDiary</Company>
+    <Description>.NET client library targeting the HubSpot APIs.</Description>
+    <Copyright>HubSpot.NET;PowerDiary</Copyright>
     <PackageLicenseUrl>https://github.com/boomandbucket/HubSpot.NET/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/boomandbucket/HubSpot.NET</PackageProjectUrl>
     <RepositoryUrl>https://github.com/boomandbucket/HubSpot.NET.git</RepositoryUrl>
     <PackageTags>hubspot api wrapper c# contact company deal engagement properties crm custom objects</PackageTags>
     <PackageReleaseNotes>1.0.0</PackageReleaseNotes>
-    <PackageId>HubSpot.NETCORE</PackageId>
+    <PackageId>PowerDiary.HubSpot.NET</PackageId>
     <TargetFramework>net6.0</TargetFramework>
     <PackageVersion>1.0.0</PackageVersion>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -21,5 +22,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+    <None Include="README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
