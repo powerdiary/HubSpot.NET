@@ -13,7 +13,7 @@
     <PackageReleaseNotes>1.0.0</PackageReleaseNotes>
     <PackageId>PowerDiary.HubSpot.NET</PackageId>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <PackageVersion>1.0.0</PackageVersion>
+    <PackageVersion>1.0.1</PackageVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <LangVersion>8</LangVersion>
   </PropertyGroup>
