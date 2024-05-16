@@ -14,10 +14,10 @@
 
 ## Authorization
 
-<span>HubSpot.NET</span> supports authorization by API key or through HubSpot's OAuth workflow. [As is noted in HubSpot's API documentation](), it is recommended to use the OAuth form if your integration is going to be used commercially due to an increased level of security. However, we have made it optional to target OAuth or API key authentication so you can develop against the authentication provider that best suits your needs.
+<span>HubSpot.NET</span> supports authorization by API key or through HubSpot's OAuth workflow.
 
 ## Getting Started
-To get started, install the [Nuget package](https://www.nuget.org/packages/SquaredUp.HubSpot.NET/) and create a instance of `HubSpotApi` passing your API Key as the only parameter; or if using OAuth pass in the Client ID, Client Secret, and App ID.
+To get started, install the [Nuget package](https://www.nuget.org/packages/PowerDiary.HubSpot.NET/) and create a instance of `HubSpotApi` passing your API Key as the only parameter; or if using OAuth pass in the Client ID, Client Secret, and App ID.
 
 ### API Key
 ```csharp
@@ -71,8 +71,13 @@ These properties should be of type `string` and set as a semicolon delimitered l
 ## Contributing
 Please read [CONTRIBUTING.md](https://github.com/squaredup/HubSpot.NET/blob/master/CONTRIBUTING.md) for more information on how to contribute. PRs welcome!
 
-## Authors
+## Maintainers
+* [PowerDairy](https://github.com/powerdiary)
+
+## Original Authors
 * Dave Clarke
+
+This project is a fork of [HubSpot.NET](https://github.com/boomandbucket/HubSpot.NET), originally created by Dave Clarke. We are grateful for their work and contribution.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/squaredup/HubSpot.NET/blob/master/LICENSE) file for details
