@@ -6,201 +6,204 @@ using HubSpot.NET.Core.Extensions;
 using HubSpot.NET.Core.Interfaces;
 using RestSharp;
 
-namespace HubSpot.NET.Api.CustomObject;
-
-public class HubSpotCustomObjectApi : IHubSpotCustomObjectApi
+namespace HubSpot.NET.Api.CustomObject
 {
-    private readonly IHubSpotClient _client;
-
-    private readonly string RouteBasePath = "crm/v3/objects";
-    private readonly IHubSpotAssociationsApi _hubSpotAssociationsApi;
-
-    public HubSpotCustomObjectApi(IHubSpotClient client, IHubSpotAssociationsApi hubSpotAssociationsApi)
+    public class HubSpotCustomObjectApi : IHubSpotCustomObjectApi
     {
-        _client = client;
-        _hubSpotAssociationsApi = hubSpotAssociationsApi;
-    }
+        private readonly IHubSpotClient _client;
 
-    /// <summary>
-    /// List all objects of a custom object type in your system
-    /// </summary>
-    /// <param name="idForCustomObject">Should be prefaced with "2-"</param>
-    /// <param name="opts"></param>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    public CustomObjectListHubSpotModel<T> List<T>(string idForCustomObject, ListRequestOptions opts = null)
-        where T : CustomObjectHubSpotModel, new()
-    {
-        opts ??= new ListRequestOptions();
+        private readonly string RouteBasePath = "crm/v3/objects";
+        private readonly IHubSpotAssociationsApi _hubSpotAssociationsApi;
 
-        var path = $"{RouteBasePath}/{idForCustomObject}"
-            .SetQueryParam("count", opts.Limit);
+        public HubSpotCustomObjectApi(IHubSpotClient client, IHubSpotAssociationsApi hubSpotAssociationsApi)
+        {
+            _client = client;
+            _hubSpotAssociationsApi = hubSpotAssociationsApi;
+        }
 
-        if (opts.PropertiesToInclude.Any())
-            path = path.SetQueryParam("property", opts.PropertiesToInclude);
+        /// <summary>
+        /// List all objects of a custom object type in your system
+        /// </summary>
+        /// <param name="idForCustomObject">Should be prefaced with "2-"</param>
+        /// <param name="opts"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public CustomObjectListHubSpotModel<T> List<T>(string idForCustomObject, ListRequestOptions opts = null)
+            where T : CustomObjectHubSpotModel, new()
+        {
+            opts ??= new ListRequestOptions();
 
-        if (opts.Offset.HasValue)
-            path = path.SetQueryParam("vidOffset", opts.Offset);
+            var path = $"{RouteBasePath}/{idForCustomObject}"
+                .SetQueryParam("count", opts.Limit);
 
-        var response = _client.ExecuteList<CustomObjectListHubSpotModel<T>>(path, convertToPropertiesSchema: false);
-        return response;
-    }
+            if (opts.PropertiesToInclude.Any())
+                path = path.SetQueryParam("property", opts.PropertiesToInclude);
 
-    /// <summary>
-    /// Get the list of associations between two objects (BOTH CUSTOM and NOT)
-    /// </summary>
-    /// <param name="objectTypeId"></param>
-    /// <param name="customObjectId"></param>
-    /// <param name="idForDesiredAssociation"></param>
-    /// <param name="cancellationToken"></param>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    public CustomObjectListAssociationsModel<T> GetAssociationsToCustomObject<T>(string objectTypeId,
-        string customObjectId,
-        string idForDesiredAssociation, CancellationToken cancellationToken)
-        where T : CustomObjectAssociationModel, new()
-    {
-        var path = $"{RouteBasePath}/{objectTypeId}/{customObjectId}/associations/{idForDesiredAssociation}";
+            if (opts.Offset.HasValue)
+                path = path.SetQueryParam("vidOffset", opts.Offset);
 
-        var response =
-            _client.ExecuteList<CustomObjectListAssociationsModel<T>>(path, convertToPropertiesSchema: false);
-        return response;
-    }
+            var response = _client.ExecuteList<CustomObjectListHubSpotModel<T>>(path, convertToPropertiesSchema: false);
+            return response;
+        }
 
-    /// <summary>
-    /// Adds the ability to create a custom object inside hubspot
-    /// </summary>
-    /// <param name="entity"></param>
-    /// <param name="associateObjectType"></param>
-    /// <param name="associateToObjectId"></param>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    public string CreateWithDefaultAssociationToObject<T>(T entity, string associateObjectType,
-        string associateToObjectId) where T : CreateCustomObjectHubSpotModel, new()
-    {
-        var path = $"{RouteBasePath}/{entity.SchemaId}";
+        /// <summary>
+        /// Get the list of associations between two objects (BOTH CUSTOM and NOT)
+        /// </summary>
+        /// <param name="objectTypeId"></param>
+        /// <param name="customObjectId"></param>
+        /// <param name="idForDesiredAssociation"></param>
+        /// <param name="cancellationToken"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public CustomObjectListAssociationsModel<T> GetAssociationsToCustomObject<T>(string objectTypeId,
+            string customObjectId,
+            string idForDesiredAssociation, CancellationToken cancellationToken)
+            where T : CustomObjectAssociationModel, new()
+        {
+            var path = $"{RouteBasePath}/{objectTypeId}/{customObjectId}/associations/{idForDesiredAssociation}";
 
-        var response =
-            _client.Execute<CreateCustomObjectHubSpotModel>(path, entity, Method.POST,
+            var response =
+                _client.ExecuteList<CustomObjectListAssociationsModel<T>>(path, convertToPropertiesSchema: false);
+            return response;
+        }
+
+        /// <summary>
+        /// Adds the ability to create a custom object inside hubspot
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="associateObjectType"></param>
+        /// <param name="associateToObjectId"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public string CreateWithDefaultAssociationToObject<T>(T entity, string associateObjectType,
+            string associateToObjectId) where T : CreateCustomObjectHubSpotModel, new()
+        {
+            var path = $"{RouteBasePath}/{entity.SchemaId}";
+
+            var response =
+                _client.Execute<CreateCustomObjectHubSpotModel>(path, entity, Method.POST,
+                    convertToPropertiesSchema: false);
+
+            if (response.Properties.TryGetValue("hs_object_id", out var parsedId))
+            {
+                _hubSpotAssociationsApi.AssociationToObject(entity.SchemaId, parsedId.ToString(), associateObjectType,
+                    associateToObjectId);
+                return parsedId.ToString();
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Update a custom object inside hubspot
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public string UpdateObject<T>(T entity) where T : UpdateCustomObjectHubSpotModel, new()
+        {
+            var path = $"{RouteBasePath}/{entity.SchemaId}/{entity.Id}";
+
+            _client.Execute<UpdateCustomObjectHubSpotModel>(path, entity, Method.PATCH,
                 convertToPropertiesSchema: false);
 
-        if (response.Properties.TryGetValue("hs_object_id", out var parsedId))
-        {
-            _hubSpotAssociationsApi.AssociationToObject(entity.SchemaId, parsedId.ToString(), associateObjectType,
-                associateToObjectId);
-            return parsedId.ToString();
+            return string.Empty;
         }
 
-        return string.Empty;
-    }
-
-    /// <summary>
-    /// Update a custom object inside hubspot
-    /// </summary>
-    /// <param name="entity"></param>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    public string UpdateObject<T>(T entity) where T : UpdateCustomObjectHubSpotModel, new()
-    {
-        var path = $"{RouteBasePath}/{entity.SchemaId}/{entity.Id}";
-
-        _client.Execute<UpdateCustomObjectHubSpotModel>(path, entity, Method.PATCH, convertToPropertiesSchema: false);
-
-        return string.Empty;
-    }
-
-    public T GetEquipmentDataById<T>(string schemaId, string entityId, string properties = "")
-        where T : HubspotEquipmentObjectModel, new()
-    {
-        if (properties == "")
+        public T GetEquipmentDataById<T>(string schemaId, string entityId, string properties = "")
+            where T : HubspotEquipmentObjectModel, new()
         {
-            properties = EquipmentObjectList.GetEquipmentPropsList();
+            if (properties == "")
+            {
+                properties = EquipmentObjectList.GetEquipmentPropsList();
+            }
+
+            var path = $"{RouteBasePath}/{schemaId}/{entityId}";
+
+            path = path.SetQueryParam("properties",
+                properties); //properties is comma seperated value of properties to include
+
+            var res = _client.Execute<T>(path, Method.GET, convertToPropertiesSchema: true);
+
+            return res;
         }
 
-        var path = $"{RouteBasePath}/{schemaId}/{entityId}";
+        public async Task<CustomObjectListHubSpotModel<T>> ListAsync<T>(string idForCustomObject,
+            ListRequestOptions opts = null) where T : CustomObjectHubSpotModel, new()
+        {
+            opts ??= new ListRequestOptions();
 
-        path = path.SetQueryParam("properties",
-            properties); //properties is comma seperated value of properties to include
+            var path = $"{RouteBasePath}/{idForCustomObject}"
+                .SetQueryParam("count", opts.Limit);
 
-        var res = _client.Execute<T>(path, Method.GET, convertToPropertiesSchema: true);
+            if (opts.PropertiesToInclude.Any())
+                path = path.SetQueryParam("property", opts.PropertiesToInclude);
 
-        return res;
-    }
+            if (opts.Offset.HasValue)
+                path = path.SetQueryParam("vidOffset", opts.Offset);
 
-    public async Task<CustomObjectListHubSpotModel<T>> ListAsync<T>(string idForCustomObject,
-        ListRequestOptions opts = null) where T : CustomObjectHubSpotModel, new()
-    {
-        opts ??= new ListRequestOptions();
+            var response =
+                await _client.ExecuteListAsync<CustomObjectListHubSpotModel<T>>(path, convertToPropertiesSchema: false);
+            return response;
+        }
 
-        var path = $"{RouteBasePath}/{idForCustomObject}"
-            .SetQueryParam("count", opts.Limit);
+        public async Task<CustomObjectListAssociationsModel<T>> GetAssociationsToCustomObjectAsync<T>(
+            string objectTypeId,
+            string customObjectId,
+            string idForDesiredAssociation, CancellationToken cancellationToken)
+            where T : CustomObjectAssociationModel, new()
+        {
+            var path = $"{RouteBasePath}/{objectTypeId}/{customObjectId}/associations/{idForDesiredAssociation}";
 
-        if (opts.PropertiesToInclude.Any())
-            path = path.SetQueryParam("property", opts.PropertiesToInclude);
+            var response =
+                await _client.ExecuteListAsync<CustomObjectListAssociationsModel<T>>(path,
+                    convertToPropertiesSchema: false);
+            return response;
+        }
 
-        if (opts.Offset.HasValue)
-            path = path.SetQueryParam("vidOffset", opts.Offset);
+        public async Task<string> CreateWithDefaultAssociationToObjectAsync<T>(T entity, string associateObjectType,
+            string associateToObjectId) where T : CreateCustomObjectHubSpotModel, new()
+        {
+            var path = $"{RouteBasePath}/{entity.SchemaId}";
 
-        var response =
-            await _client.ExecuteListAsync<CustomObjectListHubSpotModel<T>>(path, convertToPropertiesSchema: false);
-        return response;
-    }
+            var response =
+                await _client.ExecuteAsync<CreateCustomObjectHubSpotModel>(path, entity, Method.POST,
+                    convertToPropertiesSchema: false);
 
-    public async Task<CustomObjectListAssociationsModel<T>> GetAssociationsToCustomObjectAsync<T>(string objectTypeId,
-        string customObjectId,
-        string idForDesiredAssociation, CancellationToken cancellationToken)
-        where T : CustomObjectAssociationModel, new()
-    {
-        var path = $"{RouteBasePath}/{objectTypeId}/{customObjectId}/associations/{idForDesiredAssociation}";
+            if (response.Properties.TryGetValue("hs_object_id", out var parsedId))
+            {
+                await _hubSpotAssociationsApi.AssociationToObjectAsync(entity.SchemaId, parsedId.ToString(),
+                    associateObjectType, associateToObjectId);
+                return parsedId.ToString();
+            }
 
-        var response =
-            await _client.ExecuteListAsync<CustomObjectListAssociationsModel<T>>(path,
-                convertToPropertiesSchema: false);
-        return response;
-    }
+            return string.Empty;
+        }
 
-    public async Task<string> CreateWithDefaultAssociationToObjectAsync<T>(T entity, string associateObjectType,
-        string associateToObjectId) where T : CreateCustomObjectHubSpotModel, new()
-    {
-        var path = $"{RouteBasePath}/{entity.SchemaId}";
+        public async Task<string> UpdateObjectAsync<T>(T entity) where T : UpdateCustomObjectHubSpotModel, new()
+        {
+            var path = $"{RouteBasePath}/{entity.SchemaId}/{entity.Id}";
 
-        var response =
-            await _client.ExecuteAsync<CreateCustomObjectHubSpotModel>(path, entity, Method.POST,
+            await _client.ExecuteAsync<UpdateCustomObjectHubSpotModel>(path, entity, Method.PATCH,
                 convertToPropertiesSchema: false);
 
-        if (response.Properties.TryGetValue("hs_object_id", out var parsedId))
-        {
-            await _hubSpotAssociationsApi.AssociationToObjectAsync(entity.SchemaId, parsedId.ToString(),
-                associateObjectType, associateToObjectId);
-            return parsedId.ToString();
+            return string.Empty;
         }
 
-        return string.Empty;
-    }
-
-    public async Task<string> UpdateObjectAsync<T>(T entity) where T : UpdateCustomObjectHubSpotModel, new()
-    {
-        var path = $"{RouteBasePath}/{entity.SchemaId}/{entity.Id}";
-
-        await _client.ExecuteAsync<UpdateCustomObjectHubSpotModel>(path, entity, Method.PATCH,
-            convertToPropertiesSchema: false);
-
-        return string.Empty;
-    }
-
-    public Task<T> GetEquipmentDataByIdAsync<T>(string schemaId, string entityId, string properties = "")
-        where T : HubspotEquipmentObjectModel, new()
-    {
-        if (properties == "")
+        public Task<T> GetEquipmentDataByIdAsync<T>(string schemaId, string entityId, string properties = "")
+            where T : HubspotEquipmentObjectModel, new()
         {
-            properties = EquipmentObjectList.GetEquipmentPropsList();
+            if (properties == "")
+            {
+                properties = EquipmentObjectList.GetEquipmentPropsList();
+            }
+
+            var path = $"{RouteBasePath}/{schemaId}/{entityId}";
+
+            path = path.SetQueryParam("properties",
+                properties); //properties is comma seperated value of properties to include
+
+            return _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
         }
-
-        var path = $"{RouteBasePath}/{schemaId}/{entityId}";
-
-        path = path.SetQueryParam("properties",
-            properties); //properties is comma seperated value of properties to include
-
-        return _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
     }
 }

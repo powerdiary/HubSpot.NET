@@ -3,27 +3,28 @@ using System.Runtime.Serialization;
 using HubSpot.NET.Core.Interfaces;
 using Newtonsoft.Json;
 
-namespace HubSpot.NET.Api.CustomObject;
-
-[DataContract]
-public class UpdateCustomObjectHubSpotModel : IHubSpotModel
+namespace HubSpot.NET.Api.CustomObject
 {
-    [DataMember(Name = "id")] public string Id { get; set; }
-
-    [IgnoreDataMember] public string SchemaId { get; set; }
-
-    [JsonProperty(PropertyName = "properties")]
-    public Dictionary<string, object> Properties { get; set; } = new();
-
-    public bool IsNameValue => false;
-
-    public void ToHubSpotDataEntity(ref dynamic dataEntity)
+    [DataContract]
+    public class UpdateCustomObjectHubSpotModel : IHubSpotModel
     {
-    }
+        [DataMember(Name = "id")] public string Id { get; set; }
 
-    public void FromHubSpotDataEntity(dynamic hubspotData)
-    {
-    }
+        [IgnoreDataMember] public string SchemaId { get; set; }
 
-    public string RouteBasePath => "crm/v3/objects";
+        [JsonProperty(PropertyName = "properties")]
+        public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
+
+        public bool IsNameValue => false;
+
+        public void ToHubSpotDataEntity(ref dynamic dataEntity)
+        {
+        }
+
+        public void FromHubSpotDataEntity(dynamic hubspotData)
+        {
+        }
+
+        public string RouteBasePath => "crm/v3/objects";
+    }
 }

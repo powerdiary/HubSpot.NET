@@ -3,29 +3,30 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using HubSpot.NET.Core.Interfaces;
 
-namespace HubSpot.NET.Api.Properties.Dto;
-
-[DataContract]
-public class PropertiesListHubSpotModel<T> : IHubSpotModel where T : IHubSpotModel
+namespace HubSpot.NET.Api.Properties.Dto
 {
-    [DataMember(Name = "results")] public List<T> Results { get; set; }
-
-    public string RouteBasePath
+    [DataContract]
+    public class PropertiesListHubSpotModel<T> : IHubSpotModel where T : IHubSpotModel
     {
-        get
+        [DataMember(Name = "results")] public List<T> Results { get; set; }
+
+        public string RouteBasePath
         {
-            var entity = (T)Activator.CreateInstance(typeof(T));
-            return "crm/v3/properties" + entity.RouteBasePath;
+            get
+            {
+                var entity = (T)Activator.CreateInstance(typeof(T));
+                return "crm/v3/properties" + entity.RouteBasePath;
+            }
         }
-    }
 
-    public bool IsNameValue => false;
+        public bool IsNameValue => false;
 
-    public virtual void ToHubSpotDataEntity(ref dynamic dataEntity)
-    {
-    }
+        public virtual void ToHubSpotDataEntity(ref dynamic dataEntity)
+        {
+        }
 
-    public virtual void FromHubSpotDataEntity(dynamic hubspotData)
-    {
+        public virtual void FromHubSpotDataEntity(dynamic hubspotData)
+        {
+        }
     }
 }
