@@ -9,6 +9,7 @@ using SearchRequestFilterGroup = HubSpot.NET.Api.SearchRequestFilterGroup;
 
 namespace HubSpot.NET.IntegrationTests;
 
+[Collection("Integration tests collection")]
 public abstract class HubSpotIntegrationTestBase : HubSpotIntegrationTestSetup
 {
     protected CompanyHubSpotModel RecreateTestCompany(string name = "Test Company", string country = "Test Country",

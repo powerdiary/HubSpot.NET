@@ -9,6 +9,7 @@ using SearchRequestFilterGroup = HubSpot.NET.Api.SearchRequestFilterGroup;
 
 namespace HubSpot.NET.IntegrationTests;
 
+[Collection("Integration tests collection")]
 public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSetup
 {
     protected async Task<CompanyHubSpotModel> RecreateTestCompanyAsync(string name = "Test Company",
