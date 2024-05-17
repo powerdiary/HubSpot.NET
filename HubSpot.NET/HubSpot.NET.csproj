@@ -12,13 +12,16 @@
     <PackageTags>hubspot api wrapper c# contact company deal engagement properties crm custom objects</PackageTags>
     <PackageReleaseNotes>1.0.0</PackageReleaseNotes>
     <PackageId>PowerDiary.HubSpot.NET</PackageId>
-    <TargetFramework>net6.0</TargetFramework>
-    <PackageVersion>1.0.0</PackageVersion>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <PackageVersion>1.0.1</PackageVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="RestSharp" Version="106.12.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
