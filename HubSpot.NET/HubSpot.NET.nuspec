@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PowerDiary.HubSpot.NET</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>PowerDiary's Fork of HubSpot.NET</title>
     <authors>PowerDiary</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -10,7 +10,7 @@
     <!-- <icon>icon.png</icon> -->
     <projectUrl>https://github.com/powerdiary/HubSpot.NET</projectUrl>
     <description>This is PowerDiary's custom fork of HubSpot.NET. This library modification includes adding support for asynchronous methods and upgrading the RestSharp and Newtonsoft.Net libraries. It also addresses several identified issues in the code.</description>
-    <releaseNotes>Downgraded from C# 10 to C# 8; Target set to netstandard2.1.</releaseNotes>
+    <releaseNotes>Target set to netstandard2.1 and net48.</releaseNotes>
     <copyright>Copyright © PowerDiary Ltd 2024</copyright>
     <tags>HubSpot PowerDiary HubSpot.NET</tags>
   </metadata>
