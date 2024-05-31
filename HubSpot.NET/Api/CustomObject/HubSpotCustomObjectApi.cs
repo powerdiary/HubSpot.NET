@@ -37,7 +37,7 @@ namespace HubSpot.NET.Api.CustomObject
                 .SetQueryParam("count", opts.Limit);
 
             if (opts.PropertiesToInclude.Any())
-                path = path.SetQueryParam("property", opts.PropertiesToInclude);
+                path = path.SetQueryParam("properties", opts.PropertiesToInclude);
 
             if (opts.Offset.HasValue)
                 path = path.SetQueryParam("vidOffset", opts.Offset);
@@ -137,7 +137,7 @@ namespace HubSpot.NET.Api.CustomObject
                 .SetQueryParam("count", opts.Limit);
 
             if (opts.PropertiesToInclude.Any())
-                path = path.SetQueryParam("property", opts.PropertiesToInclude);
+                path = path.SetQueryParam("properties", opts.PropertiesToInclude);
 
             if (opts.Offset.HasValue)
                 path = path.SetQueryParam("vidOffset", opts.Offset);
