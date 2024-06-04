@@ -33,6 +33,10 @@ namespace HubSpot.NET.Core.Interfaces
         string UpdateObject<T>(T entity)
             where T : UpdateCustomObjectHubSpotModel, new();
 
+        TReturn UpdateObject<TUpdate, TReturn>(TUpdate entity)
+            where TUpdate : UpdateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new();
+
         Task<string> UpdateObjectAsync<T>(T entity)
             where T : UpdateCustomObjectHubSpotModel, new();
 

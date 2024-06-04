@@ -111,6 +111,18 @@ namespace HubSpot.NET.Api.CustomObject
             return string.Empty;
         }
 
+        public TReturn UpdateObject<TUpdate, TReturn>(TUpdate entity)
+            where TUpdate : UpdateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new()
+        {
+            var path = $"{RouteBasePath}/{entity.SchemaId}/{entity.Id}";
+
+            var updatedObject = _client.Execute<TReturn>(path, entity, Method.PATCH,
+                convertToPropertiesSchema: false);
+
+            return updatedObject;
+        }
+
         public T GetEquipmentDataById<T>(string schemaId, string entityId, string properties = "")
             where T : HubspotEquipmentObjectModel, new()
         {
