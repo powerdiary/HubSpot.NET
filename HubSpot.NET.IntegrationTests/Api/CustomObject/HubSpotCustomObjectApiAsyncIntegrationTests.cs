@@ -8,6 +8,8 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomObject;
 public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIntegrationTestBase
 {
     private const string CustomObjectTypeName = "machine";
+    private const string MachineModelValue = "Model X";
+    private const string MachineYearValue = "2022-01-01";
 
     [Fact]
     public async Task List_GivenUnknownObjectId_ShouldThrowException()
@@ -85,11 +87,21 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
     [Fact]
     public async Task GetCustomObjectAsync_ShouldGetMachineObject()
     {
+        const string customPropertyModel = "model";
+        const string customPropertyYear = "year";
+        var propertiesToInclude = new List<string> { customPropertyModel, customPropertyYear };
         var machineId = await CreateCustomObjectMachine();
 
-        var customObject = await CustomObjectApi.GetObjectAsync<CustomObjectHubSpotModel>(CustomObjectTypeName, machineId);
+        var customObject = await CustomObjectApi.GetObjectAsync<CustomObjectHubSpotModel>(CustomObjectTypeName, machineId, propertiesToInclude);
 
-        customObject.Id.Should().Be(machineId);
+        using (new AssertionScope())
+        {
+            customObject.Id.Should().Be(machineId);
+            customObject.Properties.Should().ContainKey(customPropertyModel);
+            customObject.Properties.Should().ContainKey(customPropertyYear);
+            customObject.Properties.Should().Contain(new KeyValuePair<string, string>(customPropertyModel, MachineModelValue));
+            customObject.Properties.Should().Contain(new KeyValuePair<string, string>(customPropertyYear, MachineYearValue));
+        }
 
         await CustomObjectApi.DeleteObjectAsync(CustomObjectTypeName, customObject.Id);
     }
@@ -100,7 +112,7 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
         var machineId = await CreateCustomObjectMachine();
         await CustomObjectApi.DeleteObjectAsync(CustomObjectTypeName, machineId);
 
-        var act = async () => await CustomObjectApi.GetObjectAsync<CustomObjectHubSpotModel>(CustomObjectTypeName, machineId);
+        var act = async () => await CustomObjectApi.GetObjectAsync<CustomObjectHubSpotModel>(CustomObjectTypeName, machineId, null);
 
         (await act.Should().ThrowAsync<HubSpotException>())
             .WithMessage("Error from HubSpot, Response = Status: NotFound; Description: Not Found");
@@ -116,8 +128,8 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
             SchemaId = CustomObjectTypeName,
             Properties = new Dictionary<string, object>
             {
-                { "model", "Model X" },
-                { "year", "2022-01-01" },
+                { "model", MachineModelValue },
+                { "year", MachineYearValue },
                 { "km", "5000" }
             }
         };

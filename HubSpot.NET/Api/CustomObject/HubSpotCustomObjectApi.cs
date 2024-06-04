@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -190,10 +191,17 @@ namespace HubSpot.NET.Api.CustomObject
             return string.Empty;
         }
 
-        public Task<T> GetObjectAsync<T>(string schemaId, string objectId)
+        public Task<T> GetObjectAsync<T>(string schemaId, string objectId, List<string> properties)
             where T : CustomObjectHubSpotModel, new()
         {
+            properties ??= new List<string>();
+
             var path = $"{RouteBasePath}/{schemaId}/{objectId}";
+
+            foreach (var property in properties)
+            {
+                path = path.SetQueryParam("properties", property);
+            }
             return _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: false);
         }
 

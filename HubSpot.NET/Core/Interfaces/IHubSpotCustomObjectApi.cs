@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using HubSpot.NET.Api.CustomObject;
@@ -38,7 +39,7 @@ namespace HubSpot.NET.Core.Interfaces
         T GetEquipmentDataById<T>(string schemaId, string entityId, string properties = "")
             where T : HubspotEquipmentObjectModel, new();
 
-        Task<T> GetObjectAsync<T>(string schemaId, string objectId)
+        Task<T> GetObjectAsync<T>(string schemaId, string objectId, List<string> properties)
             where T : CustomObjectHubSpotModel, new();
     }
 }
