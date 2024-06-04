@@ -30,6 +30,10 @@ namespace HubSpot.NET.Core.Interfaces
             string associateToObjectId)
             where T : CreateCustomObjectHubSpotModel, new();
 
+        Task<TReturn> CreateObjectAsync<TCreate, TReturn>(TCreate entity)
+            where TCreate : CreateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new();
+
         string UpdateObject<T>(T entity)
             where T : UpdateCustomObjectHubSpotModel, new();
 

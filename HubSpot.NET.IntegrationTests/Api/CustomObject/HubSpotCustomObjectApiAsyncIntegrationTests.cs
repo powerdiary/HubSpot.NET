@@ -7,6 +7,8 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomObject;
 
 public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIntegrationTestBase
 {
+    private const string CustomPropertyModel = "model";
+    private const string CustomPropertyYear = "year";
     private const string CustomObjectTypeName = "machine";
     private const string MachineModelValue = "Model X";
     private const string MachineYearValue = "2022-01-01";
@@ -82,6 +84,34 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
             customObjectList.Results.Should().HaveCountGreaterThan(0);
             customObjectList.Results.Should().OnlyContain(obj => obj.Properties.ContainsKey(customProperty));
         }
+    }
+
+    [Fact]
+    public async Task CreateCustomObject_ShouldCreateMachineObject()
+    {
+        var machine = new CreateCustomObjectHubSpotModel
+        {
+            SchemaId = CustomObjectTypeName,
+            Properties = new Dictionary<string, object>
+            {
+                { CustomPropertyModel, MachineModelValue },
+                { CustomPropertyYear, MachineYearValue },
+                { "km", "5000" }
+            }
+        };
+
+        var createdMachine = await CustomObjectApi.CreateObjectAsync<CreateCustomObjectHubSpotModel, CustomObjectHubSpotModel>(machine);
+
+        using (new AssertionScope())
+        {
+            createdMachine.Id.Should().NotBeEmpty();
+            createdMachine.Properties.Should().ContainKey(CustomPropertyModel);
+            createdMachine.Properties.Should().ContainKey(CustomPropertyYear);
+            createdMachine.Properties.Should().Contain(new KeyValuePair<string, string>(CustomPropertyModel, MachineModelValue));
+            createdMachine.Properties.Should().Contain(new KeyValuePair<string, string>(CustomPropertyYear, MachineYearValue));
+        }
+
+        await CustomObjectApi.DeleteObjectAsync(CustomObjectTypeName, createdMachine.Id);
     }
 
     [Fact]
