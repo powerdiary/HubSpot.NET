@@ -14,7 +14,7 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
     private const string MachineYearValue = "2022-01-01";
 
     [Fact]
-    public async Task List_GivenUnknownObjectId_ShouldThrowException()
+    public async Task ListAsync_GivenUnknownObjectId_ShouldThrowException()
     {
         const string idForCustomObject = "unknown_known_custom_object_id";
         var opts = new ListRequestOptions();
@@ -48,9 +48,11 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
 
         var opts = new ListRequestOptions
         {
-            Limit = 4,
+            Limit = 10,
             PropertiesToInclude = new List<string> { "hs_created_by_user_id", customProperty }
         };
+
+        await Task.Delay(7000);
 
         var customObjectList = (await CustomObjectApi.ListAsync<CustomObjectHubSpotModel>(CustomObjectTypeName, opts)).Results;
 
@@ -64,7 +66,7 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
     }
 
     [Fact]
-    public async Task List_GivenExistingObject_ShouldGetResults()
+    public async Task ListAsync_GivenExistingObject_ShouldGetResults()
     {
         const string customProperty = "model";
 
@@ -87,7 +89,7 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
     }
 
     [Fact]
-    public async Task CreateCustomObject_ShouldCreateMachineObject()
+    public async Task CreateCustomObjectAsync_ShouldCreateMachineObject()
     {
         var machine = new CreateCustomObjectHubSpotModel
         {
@@ -137,7 +139,7 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
     }
 
     [Fact]
-    public async Task UpdateCustomObject_ShouldUpdateMachineObject()
+    public async Task UpdateCustomObjectAsync_ShouldUpdateMachineObject()
     {
         const string customPropertyModel = "model";
         const string customPropertyYear = "year";
@@ -190,21 +192,17 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
 
     private async Task<string> CreateCustomObjectMachine()
     {
-        const string associateObjectTypeName = "company";
-        var company = await RecreateTestCompanyAsync();
-
         var machine = new CreateCustomObjectHubSpotModel
         {
             SchemaId = CustomObjectTypeName,
             Properties = new Dictionary<string, object>
             {
-                { "model", MachineModelValue },
-                { "year", MachineYearValue },
+                { CustomPropertyModel, MachineModelValue },
+                { CustomPropertyYear, MachineYearValue },
                 { "km", "5000" }
             }
         };
 
-        return await CustomObjectApi.CreateWithDefaultAssociationToObjectAsync<CreateCustomObjectHubSpotModel>(machine, associateObjectTypeName,
-            company.Id.ToString());
+        return (await CustomObjectApi.CreateObjectAsync<CreateCustomObjectHubSpotModel, CustomObjectHubSpotModel>(machine)).Id;
     }
 }
