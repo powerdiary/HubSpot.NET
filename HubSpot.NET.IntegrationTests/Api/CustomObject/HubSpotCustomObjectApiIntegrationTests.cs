@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentAssertions.Execution;
 using HubSpot.NET.Api.CustomObject;
 using HubSpot.NET.Core;
 
@@ -6,6 +7,10 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomObject;
 
 public sealed class HubSpotCustomObjectApiIntegrationTests : HubSpotIntegrationTestBase
 {
+    private const string CustomObjectTypeName = "machine";
+    private const string MachineModelValue = "Model X";
+    private const string MachineYearValue = "2022-01-01";
+
     [Fact]
     public void List_GivenUnknownObjectId_ShouldThrowException()
     {
@@ -33,5 +38,59 @@ public sealed class HubSpotCustomObjectApiIntegrationTests : HubSpotIntegrationT
         var customObjectList = CustomObjectApi.List<CustomObjectHubSpotModel>(idForCustomObject, opts).Results;
 
         customObjectList.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void GetCustomObject_ShouldGetMachineObject()
+    {
+        const string customPropertyModel = "model";
+        const string customPropertyYear = "year";
+        var propertiesToInclude = new List<string> { customPropertyModel, customPropertyYear };
+        var machineId = CreateCustomObjectMachine();
+
+        var customObject = CustomObjectApi.GetObject<CustomObjectHubSpotModel>(CustomObjectTypeName, machineId, propertiesToInclude);
+
+        using (new AssertionScope())
+        {
+            customObject.Id.Should().Be(machineId);
+            customObject.Properties.Should().ContainKey(customPropertyModel);
+            customObject.Properties.Should().ContainKey(customPropertyYear);
+            customObject.Properties.Should().Contain(new KeyValuePair<string, string>(customPropertyModel, MachineModelValue));
+            customObject.Properties.Should().Contain(new KeyValuePair<string, string>(customPropertyYear, MachineYearValue));
+        }
+
+        CustomObjectApi.DeleteObject(CustomObjectTypeName, customObject.Id);
+    }
+
+    [Fact]
+    public void DeleteCustomObject_ShouldDeleteMachine()
+    {
+        var machineId = CreateCustomObjectMachine();
+        CustomObjectApi.DeleteObject(CustomObjectTypeName, machineId);
+
+        var act = () => CustomObjectApi.GetObject<CustomObjectHubSpotModel>(CustomObjectTypeName, machineId, null);
+
+        act.Should().Throw<HubSpotException>()
+            .WithMessage("Error from HubSpot, Response = Status: NotFound; Description: Not Found");
+    }
+
+    private string CreateCustomObjectMachine()
+    {
+        const string associateObjectTypeName = "company";
+        var company = RecreateTestCompany();
+
+        var machine = new CreateCustomObjectHubSpotModel
+        {
+            SchemaId = CustomObjectTypeName,
+            Properties = new Dictionary<string, object>
+            {
+                { "model", MachineModelValue },
+                { "year", MachineYearValue },
+                { "km", "5000" }
+            }
+        };
+
+        return CustomObjectApi.CreateWithDefaultAssociationToObject<CreateCustomObjectHubSpotModel>(machine, associateObjectTypeName,
+            company.Id.ToString());
     }
 }

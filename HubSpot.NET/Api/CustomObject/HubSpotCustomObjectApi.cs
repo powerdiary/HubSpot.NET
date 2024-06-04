@@ -205,10 +205,30 @@ namespace HubSpot.NET.Api.CustomObject
             return _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: false);
         }
 
+        public T GetObject<T>(string schemaId, string objectId, List<string> properties)
+            where T : CustomObjectHubSpotModel, new()
+        {
+            properties ??= new List<string>();
+
+            var path = $"{RouteBasePath}/{schemaId}/{objectId}";
+
+            foreach (var property in properties)
+            {
+                path = path.SetQueryParam("properties", property);
+            }
+            return _client.Execute<T>(path, Method.GET, convertToPropertiesSchema: false);
+        }
+
         public Task DeleteObjectAsync(string objectType, string objectId)
         {
             var path = $"{RouteBasePath}/{objectType}/{objectId}";
             return _client.ExecuteAsync(path, null, Method.DELETE, convertToPropertiesSchema: false);
+        }
+
+        public void DeleteObject(string objectType, string objectId)
+        {
+            var path = $"{RouteBasePath}/{objectType}/{objectId}";
+            _client.Execute(path, null, Method.DELETE, convertToPropertiesSchema: false);
         }
     }
 }
