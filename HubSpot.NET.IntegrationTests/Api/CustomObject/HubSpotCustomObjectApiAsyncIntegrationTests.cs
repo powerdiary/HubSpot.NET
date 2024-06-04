@@ -72,7 +72,7 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
             PropertiesToInclude = new List<string> { "hs_created_by_user_id", customProperty }
         };
 
-        var customObjectList = (await CustomObjectApi.ListAsync<CustomObjectHubSpotModel>(CustomObjectTypeName, opts));
+        var customObjectList = await CustomObjectApi.ListAsync<CustomObjectHubSpotModel>(CustomObjectTypeName, opts);
 
         using (new AssertionScope())
         {
@@ -82,7 +82,31 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
         }
     }
 
-    private async Task CreateCustomObjectMachine()
+    [Fact]
+    public async Task GetCustomObjectAsync_ShouldGetMachineObject()
+    {
+        var machineId = await CreateCustomObjectMachine();
+
+        var customObject = await CustomObjectApi.GetObjectAsync<CustomObjectHubSpotModel>(CustomObjectTypeName, machineId);
+
+        customObject.Id.Should().Be(machineId);
+
+        await CustomObjectApi.DeleteObjectAsync(CustomObjectTypeName, customObject.Id);
+    }
+
+    [Fact]
+    public async Task DeleteCustomObjectAsync_ShouldDeleteMachine()
+    {
+        var machineId = await CreateCustomObjectMachine();
+        await CustomObjectApi.DeleteObjectAsync(CustomObjectTypeName, machineId);
+
+        var act = async () => await CustomObjectApi.GetObjectAsync<CustomObjectHubSpotModel>(CustomObjectTypeName, machineId);
+
+        (await act.Should().ThrowAsync<HubSpotException>())
+            .WithMessage("Error from HubSpot, Response = Status: NotFound; Description: Not Found");
+    }
+
+    private async Task<string> CreateCustomObjectMachine()
     {
         const string associateObjectTypeName = "company";
         var company = await RecreateTestCompanyAsync();
@@ -98,7 +122,7 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
             }
         };
 
-        await CustomObjectApi.CreateWithDefaultAssociationToObjectAsync<CreateCustomObjectHubSpotModel>(machine, associateObjectTypeName,
+        return await CustomObjectApi.CreateWithDefaultAssociationToObjectAsync<CreateCustomObjectHubSpotModel>(machine, associateObjectTypeName,
             company.Id.ToString());
     }
 }

@@ -190,20 +190,17 @@ namespace HubSpot.NET.Api.CustomObject
             return string.Empty;
         }
 
-        public Task<T> GetEquipmentDataByIdAsync<T>(string schemaId, string entityId, string properties = "")
-            where T : HubspotEquipmentObjectModel, new()
+        public Task<T> GetObjectAsync<T>(string schemaId, string objectId)
+            where T : CustomObjectHubSpotModel, new()
         {
-            if (properties == "")
-            {
-                properties = EquipmentObjectList.GetEquipmentPropsList();
-            }
+            var path = $"{RouteBasePath}/{schemaId}/{objectId}";
+            return _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: false);
+        }
 
-            var path = $"{RouteBasePath}/{schemaId}/{entityId}";
-
-            path = path.SetQueryParam("properties",
-                properties); //properties is comma seperated value of properties to include
-
-            return _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
+        public Task DeleteObjectAsync(string objectType, string objectId)
+        {
+            var path = $"{RouteBasePath}/{objectType}/{objectId}";
+            return _client.ExecuteAsync(path, null, Method.DELETE, convertToPropertiesSchema: false);
         }
     }
 }

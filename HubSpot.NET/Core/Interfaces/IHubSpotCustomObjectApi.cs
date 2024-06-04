@@ -38,7 +38,7 @@ namespace HubSpot.NET.Core.Interfaces
         T GetEquipmentDataById<T>(string schemaId, string entityId, string properties = "")
             where T : HubspotEquipmentObjectModel, new();
 
-        Task<T> GetEquipmentDataByIdAsync<T>(string schemaId, string entityId, string properties = "")
-            where T : HubspotEquipmentObjectModel, new();
+        Task<T> GetObjectAsync<T>(string schemaId, string objectId)
+            where T : CustomObjectHubSpotModel, new();
     }
 }
