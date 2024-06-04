@@ -37,8 +37,9 @@ namespace HubSpot.NET.Core.Interfaces
             where TUpdate : UpdateCustomObjectHubSpotModel, new()
             where TReturn : CustomObjectHubSpotModel, new();
 
-        Task<string> UpdateObjectAsync<T>(T entity)
-            where T : UpdateCustomObjectHubSpotModel, new();
+        Task<TReturn> UpdateObjectAsync<TUpdate, TReturn>(TUpdate entity)
+            where TUpdate : UpdateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new();
 
         T GetEquipmentDataById<T>(string schemaId, string entityId, string properties = "")
             where T : HubspotEquipmentObjectModel, new();

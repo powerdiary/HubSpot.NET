@@ -193,14 +193,16 @@ namespace HubSpot.NET.Api.CustomObject
             return string.Empty;
         }
 
-        public async Task<string> UpdateObjectAsync<T>(T entity) where T : UpdateCustomObjectHubSpotModel, new()
+        public async Task<TReturn> UpdateObjectAsync<TUpdate, TReturn>(TUpdate entity)
+            where TUpdate : UpdateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new()
         {
             var path = $"{RouteBasePath}/{entity.SchemaId}/{entity.Id}";
 
-            await _client.ExecuteAsync<UpdateCustomObjectHubSpotModel>(path, entity, Method.PATCH,
+            var updatedObject = await _client.ExecuteAsync<TReturn>(path, entity, Method.PATCH,
                 convertToPropertiesSchema: false);
 
-            return string.Empty;
+            return updatedObject;
         }
 
         public Task<T> GetObjectAsync<T>(string schemaId, string objectId, List<string> properties)

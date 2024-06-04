@@ -107,6 +107,46 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
     }
 
     [Fact]
+    public async Task UpdateCustomObject_ShouldUpdateMachineObject()
+    {
+        const string customPropertyModel = "model";
+        const string customPropertyYear = "year";
+
+        const string customPropertyModelValue = "Nissan Leaf";
+        const string customPropertyYearValue = "2012-01-01";
+        var propertiesToInclude = new List<string> { customPropertyModel, customPropertyYear };
+        var machineId = await CreateCustomObjectMachine();
+
+        var customObject = await CustomObjectApi.GetObjectAsync<CustomObjectHubSpotModel>(CustomObjectTypeName, machineId, propertiesToInclude);
+
+        var updateCustomObjectHubSpotModel = new UpdateCustomObjectHubSpotModel
+        {
+            Id = customObject.Id,
+            SchemaId = CustomObjectTypeName,
+            Properties = new Dictionary<string, object>
+            {
+                {customPropertyModel, customPropertyModelValue},
+                {customPropertyYear, customPropertyYearValue}
+            }
+        };
+
+        var updatedCustomObject = await CustomObjectApi.UpdateObjectAsync<UpdateCustomObjectHubSpotModel, CustomObjectHubSpotModel>(updateCustomObjectHubSpotModel);
+
+        using (new AssertionScope())
+        {
+            updatedCustomObject.Id.Should().Be(customObject.Id);
+            updatedCustomObject.Properties.Should().ContainKey(customPropertyModel);
+            updatedCustomObject.Properties.Should().ContainKey(customPropertyYear);
+            updatedCustomObject.Properties.Should().NotContain(new KeyValuePair<string, string>(customPropertyModel, MachineModelValue));
+            updatedCustomObject.Properties.Should().NotContain(new KeyValuePair<string, string>(customPropertyYear, MachineYearValue));
+            updatedCustomObject.Properties.Should().Contain(new KeyValuePair<string, string>(customPropertyModel, customPropertyModelValue));
+            updatedCustomObject.Properties.Should().Contain(new KeyValuePair<string, string>(customPropertyYear, customPropertyYearValue));
+        }
+
+        await CustomObjectApi.DeleteObjectAsync(CustomObjectTypeName, customObject.Id);
+    }
+
+    [Fact]
     public async Task DeleteCustomObjectAsync_ShouldDeleteMachine()
     {
         var machineId = await CreateCustomObjectMachine();
