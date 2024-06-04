@@ -7,6 +7,8 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomObject;
 
 public sealed class HubSpotCustomObjectApiIntegrationTests : HubSpotIntegrationTestBase
 {
+    private const string CustomPropertyModel = "model";
+    private const string CustomPropertyYear = "year";
     private const string CustomObjectTypeName = "machine";
     private const string MachineModelValue = "Model X";
     private const string MachineYearValue = "2022-01-01";
@@ -22,22 +24,53 @@ public sealed class HubSpotCustomObjectApiIntegrationTests : HubSpotIntegrationT
             .WithMessage("*Unable to infer object type from: unknown_known_custom_object_id*");
     }
 
-    [Fact(Skip = "Setup your own CustomObject and provide an ID for it.")]
+    [Fact]
     public void List_GivenExistingObject_ShouldGetResults()
     {
-        // Arrange a custom object at https://app.hubspot.com/ with a property
-        const string customProperty = "machine_name";
-        const string idForCustomObject = "2-29369202";
+        CreateCustomObjectMachine();
 
         var opts = new ListRequestOptions
         {
-            Limit = 2,
-            PropertiesToInclude = new List<string> { "hs_created_by_user_id", customProperty }
+            Limit = 10,
+            PropertiesToInclude = new List<string> { CustomPropertyModel }
         };
 
-        var customObjectList = CustomObjectApi.List<CustomObjectHubSpotModel>(idForCustomObject, opts).Results;
+        var customObjectList = CustomObjectApi.List<CustomObjectHubSpotModel>(CustomObjectTypeName, opts);
 
-        customObjectList.Should().NotBeNull();
+        using (new AssertionScope())
+        {
+            customObjectList.Results.Should().NotBeNull();
+            customObjectList.Results.Should().HaveCountGreaterThan(0);
+            customObjectList.Results.Should().OnlyContain(obj => obj.Properties.ContainsKey(CustomPropertyModel));
+        }
+    }
+
+    [Fact]
+    public void CreateCustomObject_ShouldCreateMachineObject()
+    {
+        var machine = new CreateCustomObjectHubSpotModel
+        {
+            SchemaId = CustomObjectTypeName,
+            Properties = new Dictionary<string, object>
+            {
+                { CustomPropertyModel, MachineModelValue },
+                { CustomPropertyYear, MachineYearValue },
+                { "km", "5000" }
+            }
+        };
+
+        var createdMachine = CustomObjectApi.CreateObject<CreateCustomObjectHubSpotModel, CustomObjectHubSpotModel>(machine);
+
+        using (new AssertionScope())
+        {
+            createdMachine.Id.Should().NotBeEmpty();
+            createdMachine.Properties.Should().ContainKey(CustomPropertyModel);
+            createdMachine.Properties.Should().ContainKey(CustomPropertyYear);
+            createdMachine.Properties.Should().Contain(new KeyValuePair<string, string>(CustomPropertyModel, MachineModelValue));
+            createdMachine.Properties.Should().Contain(new KeyValuePair<string, string>(CustomPropertyYear, MachineYearValue));
+        }
+
+        CustomObjectApi.DeleteObject(CustomObjectTypeName, createdMachine.Id);
     }
 
     [Fact]
@@ -116,21 +149,17 @@ public sealed class HubSpotCustomObjectApiIntegrationTests : HubSpotIntegrationT
 
     private string CreateCustomObjectMachine()
     {
-        const string associateObjectTypeName = "company";
-        var company = RecreateTestCompany();
-
         var machine = new CreateCustomObjectHubSpotModel
         {
             SchemaId = CustomObjectTypeName,
             Properties = new Dictionary<string, object>
             {
-                { "model", MachineModelValue },
-                { "year", MachineYearValue },
+                { CustomPropertyModel, MachineModelValue },
+                { CustomPropertyYear, MachineYearValue },
                 { "km", "5000" }
             }
         };
 
-        return CustomObjectApi.CreateWithDefaultAssociationToObject<CreateCustomObjectHubSpotModel>(machine, associateObjectTypeName,
-            company.Id.ToString());
+        return CustomObjectApi.CreateObject<CreateCustomObjectHubSpotModel, CustomObjectHubSpotModel>(machine).Id;
     }
 }

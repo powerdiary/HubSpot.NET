@@ -193,6 +193,16 @@ namespace HubSpot.NET.Api.CustomObject
             return string.Empty;
         }
 
+        public TReturn CreateObject<TCreate, TReturn>(TCreate entity)
+            where TCreate : CreateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new()
+        {
+            var path = $"{RouteBasePath}/{entity.SchemaId}";
+
+            return _client.Execute<TReturn>(path, entity, Method.POST,
+                convertToPropertiesSchema: false);
+        }
+
         public Task<TReturn> CreateObjectAsync<TCreate, TReturn>(TCreate entity)
             where TCreate : CreateCustomObjectHubSpotModel, new()
             where TReturn : CustomObjectHubSpotModel, new()
