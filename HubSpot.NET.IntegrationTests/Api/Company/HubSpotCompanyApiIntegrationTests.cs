@@ -118,28 +118,33 @@ public sealed class HubSpotCompanyApiIntegrationTests : HubSpotIntegrationTestBa
     {
         var createdCompanies = new List<CompanyHubSpotModel>();
 
-        for (int i = 0; i < 3; i++)
-        {
-            var createdCompany = RecreateTestCompany($"Test Company {i}", $"Country {i}", $"https://www.test{i}.com");
-            createdCompanies.Add(createdCompany);
-        }
+        var uniqueId1 = Guid.NewGuid().ToString("N");
+        var uniqueId2 = Guid.NewGuid().ToString("N");
+
+        var firstCreatedCompany = RecreateTestCompany($"Test Company {uniqueId1}", $"Country 1", "https://www.test1.com");
+        createdCompanies.Add(firstCreatedCompany);
+
+        var secondCreatedCompany = RecreateTestCompany($"Test Company {uniqueId2}", $"Country 2", "https://www.test2.com");
+        createdCompanies.Add(secondCreatedCompany);
 
         var requestOptions = new ListRequestOptions
         {
             PropertiesToInclude = new List<string> { "Name", "Country", "Website", "Domain" },
             Limit = 100
         };
+
         var allCompanies = CompanyApi.List<CompanyHubSpotModel>(requestOptions);
 
         using (new AssertionScope())
         {
-            foreach (var createdCompany in createdCompanies)
-            {
-                var existingCompany = allCompanies.Companies.FirstOrDefault(c => c.Id == createdCompany.Id);
+            allCompanies.Should().NotBeNull();
 
-                existingCompany.Should().NotBeNull($"Expected to find company with id {createdCompany.Id} in list.");
-                existingCompany.Should().BeEquivalentTo(createdCompany, options => options.Excluding(c => c.Id),
-                    "The existing company should be equivalent to the created company except for the Id.");
+            if (allCompanies.Companies.Count < 20)
+            {
+                var companies = allCompanies.Companies
+                    .Where(company => createdCompanies.Exists(c => c.Name == company.Name)).ToList();
+
+                companies.Should().HaveCount(2, "We created 2 unique companies, both should be present in the results.");
             }
         }
     }

@@ -5,6 +5,7 @@ using HubSpot.NET.Core;
 
 namespace HubSpot.NET.IntegrationTests.Api.CustomObject;
 
+// WARNING: This test requires creation of the 'Machine' custom object schema. See README.md for more details.
 public sealed class HubSpotCustomObjectApiIntegrationTests : HubSpotIntegrationTestBase
 {
     private const string CustomPropertyModel = "model";
