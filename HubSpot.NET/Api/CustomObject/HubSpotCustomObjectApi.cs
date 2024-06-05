@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +38,7 @@ namespace HubSpot.NET.Api.CustomObject
                 .SetQueryParam("count", opts.Limit);
 
             if (opts.PropertiesToInclude.Any())
-                path = path.SetQueryParam("property", opts.PropertiesToInclude);
+                path = path.SetQueryParam("properties", opts.PropertiesToInclude);
 
             if (opts.Offset.HasValue)
                 path = path.SetQueryParam("vidOffset", opts.Offset);
@@ -110,6 +111,18 @@ namespace HubSpot.NET.Api.CustomObject
             return string.Empty;
         }
 
+        public TReturn UpdateObject<TUpdate, TReturn>(TUpdate entity)
+            where TUpdate : UpdateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new()
+        {
+            var path = $"{RouteBasePath}/{entity.SchemaId}/{entity.Id}";
+
+            var updatedObject = _client.Execute<TReturn>(path, entity, Method.PATCH,
+                convertToPropertiesSchema: false);
+
+            return updatedObject;
+        }
+
         public T GetEquipmentDataById<T>(string schemaId, string entityId, string properties = "")
             where T : HubspotEquipmentObjectModel, new()
         {
@@ -137,7 +150,7 @@ namespace HubSpot.NET.Api.CustomObject
                 .SetQueryParam("count", opts.Limit);
 
             if (opts.PropertiesToInclude.Any())
-                path = path.SetQueryParam("property", opts.PropertiesToInclude);
+                path = path.SetQueryParam("properties", opts.PropertiesToInclude);
 
             if (opts.Offset.HasValue)
                 path = path.SetQueryParam("vidOffset", opts.Offset);
@@ -180,30 +193,76 @@ namespace HubSpot.NET.Api.CustomObject
             return string.Empty;
         }
 
-        public async Task<string> UpdateObjectAsync<T>(T entity) where T : UpdateCustomObjectHubSpotModel, new()
+        public TReturn CreateObject<TCreate, TReturn>(TCreate entity)
+            where TCreate : CreateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new()
+        {
+            var path = $"{RouteBasePath}/{entity.SchemaId}";
+
+            return _client.Execute<TReturn>(path, entity, Method.POST,
+                convertToPropertiesSchema: false);
+        }
+
+        public Task<TReturn> CreateObjectAsync<TCreate, TReturn>(TCreate entity)
+            where TCreate : CreateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new()
+        {
+            var path = $"{RouteBasePath}/{entity.SchemaId}";
+
+            return _client.ExecuteAsync<TReturn>(path, entity, Method.POST,
+                    convertToPropertiesSchema: false);
+        }
+
+        public async Task<TReturn> UpdateObjectAsync<TUpdate, TReturn>(TUpdate entity)
+            where TUpdate : UpdateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new()
         {
             var path = $"{RouteBasePath}/{entity.SchemaId}/{entity.Id}";
 
-            await _client.ExecuteAsync<UpdateCustomObjectHubSpotModel>(path, entity, Method.PATCH,
+            var updatedObject = await _client.ExecuteAsync<TReturn>(path, entity, Method.PATCH,
                 convertToPropertiesSchema: false);
 
-            return string.Empty;
+            return updatedObject;
         }
 
-        public Task<T> GetEquipmentDataByIdAsync<T>(string schemaId, string entityId, string properties = "")
-            where T : HubspotEquipmentObjectModel, new()
+        public Task<T> GetObjectAsync<T>(string schemaId, string objectId, List<string> properties)
+            where T : CustomObjectHubSpotModel, new()
         {
-            if (properties == "")
+            properties ??= new List<string>();
+
+            var path = $"{RouteBasePath}/{schemaId}/{objectId}";
+
+            foreach (var property in properties)
             {
-                properties = EquipmentObjectList.GetEquipmentPropsList();
+                path = path.SetQueryParam("properties", property);
             }
+            return _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: false);
+        }
 
-            var path = $"{RouteBasePath}/{schemaId}/{entityId}";
+        public T GetObject<T>(string schemaId, string objectId, List<string> properties)
+            where T : CustomObjectHubSpotModel, new()
+        {
+            properties ??= new List<string>();
 
-            path = path.SetQueryParam("properties",
-                properties); //properties is comma seperated value of properties to include
+            var path = $"{RouteBasePath}/{schemaId}/{objectId}";
 
-            return _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
+            foreach (var property in properties)
+            {
+                path = path.SetQueryParam("properties", property);
+            }
+            return _client.Execute<T>(path, Method.GET, convertToPropertiesSchema: false);
+        }
+
+        public Task DeleteObjectAsync(string objectType, string objectId)
+        {
+            var path = $"{RouteBasePath}/{objectType}/{objectId}";
+            return _client.ExecuteAsync(path, null, Method.DELETE, convertToPropertiesSchema: false);
+        }
+
+        public void DeleteObject(string objectType, string objectId)
+        {
+            var path = $"{RouteBasePath}/{objectType}/{objectId}";
+            _client.Execute(path, null, Method.DELETE, convertToPropertiesSchema: false);
         }
     }
 }

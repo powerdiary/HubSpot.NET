@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using HubSpot.NET.Api.CustomObject;
@@ -29,16 +30,36 @@ namespace HubSpot.NET.Core.Interfaces
             string associateToObjectId)
             where T : CreateCustomObjectHubSpotModel, new();
 
+        TReturn CreateObject<TCreate, TReturn>(TCreate entity)
+            where TCreate : CreateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new();
+
+        Task<TReturn> CreateObjectAsync<TCreate, TReturn>(TCreate entity)
+            where TCreate : CreateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new();
+
         string UpdateObject<T>(T entity)
             where T : UpdateCustomObjectHubSpotModel, new();
 
-        Task<string> UpdateObjectAsync<T>(T entity)
-            where T : UpdateCustomObjectHubSpotModel, new();
+        TReturn UpdateObject<TUpdate, TReturn>(TUpdate entity)
+            where TUpdate : UpdateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new();
+
+        Task<TReturn> UpdateObjectAsync<TUpdate, TReturn>(TUpdate entity)
+            where TUpdate : UpdateCustomObjectHubSpotModel, new()
+            where TReturn : CustomObjectHubSpotModel, new();
 
         T GetEquipmentDataById<T>(string schemaId, string entityId, string properties = "")
             where T : HubspotEquipmentObjectModel, new();
 
-        Task<T> GetEquipmentDataByIdAsync<T>(string schemaId, string entityId, string properties = "")
-            where T : HubspotEquipmentObjectModel, new();
+        T GetObject<T>(string schemaId, string objectId, List<string> properties)
+            where T : CustomObjectHubSpotModel, new();
+
+        Task<T> GetObjectAsync<T>(string schemaId, string objectId, List<string> properties)
+            where T : CustomObjectHubSpotModel, new();
+
+        Task DeleteObjectAsync(string objectType, string objectId);
+
+        void DeleteObject(string objectType, string objectId);
     }
 }
