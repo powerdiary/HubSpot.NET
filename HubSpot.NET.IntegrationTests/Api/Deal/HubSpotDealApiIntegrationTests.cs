@@ -23,6 +23,38 @@ public sealed class HubSpotDealApiIntegrationTests : HubSpotIntegrationTestBase
     }
 
     [Fact]
+    public async Task CreateDeal_WithAssociation_ShouldBeSuccessful()
+    {
+        var createdCompany = RecreateTestCompany("My Test Company");
+        var createdContact = RecreateTestContact(email: "TestContact@test.tt");
+
+        var newDeal = new DealHubSpotModel
+        {
+            Name = Guid.NewGuid().ToString(),
+            Associations =
+            {
+                AssociatedCompany = new[] { createdCompany.Id.Value },
+                AssociatedContacts = new[] { createdContact.Id.Value }
+            }
+        };
+        var createdDeal = DealApi.Create(newDeal);
+
+        await Task.Delay(10000);
+
+        var retrievedDeal = DealApi.GetById<DealHubSpotModel>(createdDeal.Id.Value);
+
+        using (new AssertionScope())
+        {
+            createdDeal.Associations.AssociatedCompany[0].Should().Be(createdCompany.Id.Value);
+            createdDeal.Associations.AssociatedContacts[0].Should().Be(createdContact.Id.Value);
+            retrievedDeal.Associations.AssociatedCompany[0].Should().Be(createdCompany.Id.Value);
+            retrievedDeal.Associations.AssociatedContacts[0].Should().Be(createdContact.Id.Value);
+        }
+
+        DealApi.Delete(createdDeal.Id ?? 0);
+    }
+
+    [Fact]
     public async Task GetDealById()
     {
         var (_, createdDeal) = await PrepareDeal();
