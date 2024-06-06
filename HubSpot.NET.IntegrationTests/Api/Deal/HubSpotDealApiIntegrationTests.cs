@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using FluentAssertions.Execution;
+using HubSpot.NET.Api;
 using HubSpot.NET.Api.Deal;
 using HubSpot.NET.Api.Deal.Dto;
 
@@ -106,6 +107,52 @@ public sealed class HubSpotDealApiIntegrationTests : HubSpotIntegrationTestBase
             }
         }
     }
+    
+    [Fact]
+    public async Task SearchDeals()
+    {
+        const double amount = 42;
+        var createdDeal = CreateTestDeal(amount: amount);
+
+        await Task.Delay(10000);
+    
+        var filterGroup = new SearchRequestFilterGroup { Filters = new List<SearchRequestFilter>() };
+        filterGroup.Filters.Add(new SearchRequestFilter
+        {
+            PropertyName = "dealname",
+            Operator = SearchRequestFilterOperatorType.EqualTo,
+            Value = createdDeal.Name
+        });
+    
+        var searchOptions = new SearchRequestOptions
+        {
+            FilterGroups = new List<SearchRequestFilterGroup>(),
+            PropertiesToInclude = new List<string>
+            {
+                "dealname", "DateCreated", "dealstage", "amount",
+                "closedate", "owner", "associatedcompanyid", "associatedcontactids", "dealtype"
+            }
+        };
+    
+        searchOptions.FilterGroups.Add(filterGroup);
+    
+        var searchResults = DealApi.Search<DealHubSpotModel>(searchOptions);
+    
+        using (new AssertionScope())
+        {
+            var foundDeal = searchResults.Results.FirstOrDefault(c => c.Id == createdDeal.Id);
+
+            foundDeal.Should().NotBeNull("Expected to find the created deal in search results.");
+            foundDeal.DateCreated.Should().NotBeNull("Expected CreatedAt to have a value.");
+            foundDeal.Stage.Should().BeNull();
+            foundDeal.OwnerId.Should().BeNull();
+            foundDeal.DealType.Should().BeNull();
+            foundDeal.Amount.Should().Be(amount);
+            foundDeal.Name.Should().Be(createdDeal.Name);
+        }
+
+        DealApi.Delete(createdDeal.Id.Value);
+    }
 
     private async Task<(DealHubSpotModel NewDeal, DealHubSpotModel CreatedDeal)> PrepareDeal()
     {
@@ -118,10 +165,10 @@ public sealed class HubSpotDealApiIntegrationTests : HubSpotIntegrationTestBase
         return (newDeal, createdDeal);
     }
 
-    private DealHubSpotModel CreateTestDeal(string? dealName = null)
+    private DealHubSpotModel CreateTestDeal(string? dealName = null, double? amount = null)
     {
         dealName ??= "Unique Deal Name " + Guid.NewGuid().ToString("N");
-        var newDeal = new DealHubSpotModel { Name = dealName };
+        var newDeal = new DealHubSpotModel { Name = dealName, Amount = amount};
         return DealApi.Create(newDeal);
     }
 }
