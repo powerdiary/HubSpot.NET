@@ -50,10 +50,10 @@ public sealed class HubSpotDealApiIntegrationTests : HubSpotIntegrationTestBase
         var uniqueName1 = Guid.NewGuid().ToString("N");
         var uniqueName2 = Guid.NewGuid().ToString("N");
 
-        var firstCreatedDeal = RecreateTestDeal($"Test Deal {uniqueName1}");
+        var firstCreatedDeal = CreateTestDeal($"Test Deal {uniqueName1}");
         createdDeals.Add(firstCreatedDeal);
 
-        var secondCreatedDeal = RecreateTestDeal($"Test Deal {uniqueName2}");
+        var secondCreatedDeal = CreateTestDeal($"Test Deal {uniqueName2}");
         createdDeals.Add(secondCreatedDeal);
 
         var requestOptions = new DealListRequestOptions
@@ -80,6 +80,33 @@ public sealed class HubSpotDealApiIntegrationTests : HubSpotIntegrationTestBase
         }
     }
 
+    [Fact]
+    public void UpdateDeal()
+    {
+        var createdDeal = CreateTestDeal();
+        createdDeal.Name += "New Name";
+        createdDeal.Amount += 1;
+
+        var updatedDeal = DealApi.Update(createdDeal);
+        ValidateDeal(updatedDeal);
+
+        var retrievedDeal = DealApi.GetById<DealHubSpotModel>(createdDeal.Id.Value);
+        ValidateDeal(retrievedDeal);
+
+        DealApi.Delete(createdDeal.Id.Value);
+
+        void ValidateDeal(DealHubSpotModel dealToValidate)
+        {
+            using (new AssertionScope())
+            {
+                dealToValidate.Should().NotBeNull();
+                dealToValidate.Id.Should().Be(createdDeal.Id);
+                dealToValidate.Name.Should().Be(createdDeal.Name);
+                dealToValidate.Amount.Should().Be(createdDeal.Amount);
+            }
+        }
+    }
+
     private async Task<(DealHubSpotModel NewDeal, DealHubSpotModel CreatedDeal)> PrepareDeal()
     {
         var newDeal = new DealHubSpotModel
@@ -91,8 +118,9 @@ public sealed class HubSpotDealApiIntegrationTests : HubSpotIntegrationTestBase
         return (newDeal, createdDeal);
     }
 
-    private DealHubSpotModel RecreateTestDeal(string dealName)
+    private DealHubSpotModel CreateTestDeal(string? dealName = null)
     {
+        dealName ??= "Unique Deal Name " + Guid.NewGuid().ToString("N");
         var newDeal = new DealHubSpotModel { Name = dealName };
         return DealApi.Create(newDeal);
     }
