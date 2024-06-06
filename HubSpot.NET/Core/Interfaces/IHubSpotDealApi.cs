@@ -1,4 +1,5 @@
 ﻿using HubSpot.NET.Api;
+using HubSpot.NET.Api.Deal;
 using HubSpot.NET.Api.Deal.Dto;
 
 namespace HubSpot.NET.Core.Interfaces
@@ -10,8 +11,7 @@ namespace HubSpot.NET.Core.Interfaces
         T GetById<T>(long dealId) where T : DealHubSpotModel, new();
         T Update<T>(T entity) where T : DealHubSpotModel, new();
 
-        DealListHubSpotModel<T> List<T>(bool includeAssociations, ListRequestOptions opts = null)
-            where T : DealHubSpotModel, new();
+        DealListHubSpotModel<T> List<T>(DealListRequestOptions opts = null) where T : DealHubSpotModel, new();
 
         DealRecentListHubSpotModel<T> RecentlyCreated<T>(DealRecentRequestOptions opts = null)
             where T : DealHubSpotModel, new();

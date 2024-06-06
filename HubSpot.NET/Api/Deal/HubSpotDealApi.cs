@@ -72,30 +72,24 @@
             return data;
         }
 
-        /// <summary>
-        /// Gets a list of deals
-        /// </summary>
-        /// <typeparam name="T">Implementation of DealListHubSpotModel</typeparam>
-        /// <param name="opts">Options (limit, offset) relating to request</param>
-        /// <returns>List of deals</returns>
-        public DealListHubSpotModel<T> List<T>(bool includeAssociations, ListRequestOptions opts = null) where T : DealHubSpotModel, new()
+        public DealListHubSpotModel<T> List<T>(DealListRequestOptions opts = null) where T : DealHubSpotModel, new()
         {
             if (opts == null)
-                opts = new ListRequestOptions(250);
+                opts = new DealListRequestOptions();
 
-            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}/deal/paged"
+            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}/deals"
                 .SetQueryParam("limit", opts.Limit);
 
             if (opts.Offset.HasValue)
-                path = path.SetQueryParam("offset", opts.Offset);
+                path = path.SetQueryParam("after", opts.Offset);
 
-            if (includeAssociations)
-                path = path.SetQueryParam("includeAssociations", "true");
+            if (opts.Associations.Any())
+                path = path.SetQueryParam("associations", opts.Associations);
 
             if (opts.PropertiesToInclude.Any())
                 path = path.SetQueryParam("properties", opts.PropertiesToInclude);
 
-            var data = _client.ExecuteList<DealListHubSpotModel<T>>(path, convertToPropertiesSchema: true);
+            var data = _client.ExecuteList<DealListHubSpotModel<T>>(path, convertToPropertiesSchema: false);
 
             return data;
         }
