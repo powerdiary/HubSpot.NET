@@ -3,6 +3,7 @@ using HubSpot.NET.Api.Company;
 using HubSpot.NET.Api.Contact;
 using HubSpot.NET.Api.ContactList;
 using HubSpot.NET.Api.CustomObject;
+using HubSpot.NET.Api.Deal;
 using HubSpot.NET.Api.Properties;
 using HubSpot.NET.Core;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,8 @@ public abstract class HubSpotIntegrationTestSetup : IDisposable
     protected readonly HubSpotContactListApi ContactListApi;
     protected readonly HubSpotCompaniesPropertiesApi CompanyPropertiesApi;
     protected readonly HubSpotCustomObjectApi CustomObjectApi;
+    protected readonly HubSpotDealApi DealApi;
+
 
     protected readonly HubSpotApi HubSpotApi;
 
@@ -44,6 +47,7 @@ public abstract class HubSpotIntegrationTestSetup : IDisposable
         ContactListApi = new HubSpotContactListApi(client);
         CompanyPropertiesApi = new HubSpotCompaniesPropertiesApi(client);
         CustomObjectApi = new HubSpotCustomObjectApi(client, AssociationsApi);
+        DealApi = new HubSpotDealApi(client);
         HubSpotApi = new HubSpotApi(apiKey);
     }
 

@@ -1,4 +1,6 @@
-﻿namespace HubSpot.NET.Api.Deal
+﻿using System.Threading.Tasks;
+
+namespace HubSpot.NET.Api.Deal
 {
     using System;
     using System.Collections.Generic;
@@ -32,6 +34,12 @@
             return data;
         }
 
+        public Task<T> CreateAsync<T>(T entity) where T : DealHubSpotModel, new()
+        {
+            var path = $"{entity.RouteBasePath}/deal";
+            return _client.ExecuteAsync<T>(path, entity, Method.POST, convertToPropertiesSchema: true);
+        }
+
         /// <summary>
         /// Gets a single deal by ID
         /// </summary>
@@ -55,6 +63,22 @@
             }
         }
 
+        public Task<T> GetByIdAsync<T>(long dealId) where T : DealHubSpotModel, new()
+        {
+            var path = $"{new T().RouteBasePath}/deal/{dealId}";
+
+            try
+            {
+                return _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
+            }
+            catch (HubSpotException exception)
+            {
+                if (exception.ReturnedError.StatusCode == HttpStatusCode.NotFound)
+                    return Task.FromResult<T>(null);
+                throw;
+            }
+        }
+
         /// <summary>
         /// Updates a given deal
         /// </summary>
@@ -72,34 +96,57 @@
             return data;
         }
 
-        /// <summary>
-        /// Gets a list of deals
-        /// </summary>
-        /// <typeparam name="T">Implementation of DealListHubSpotModel</typeparam>
-        /// <param name="opts">Options (limit, offset) relating to request</param>
-        /// <returns>List of deals</returns>
-        public DealListHubSpotModel<T> List<T>(bool includeAssociations, ListRequestOptions opts = null) where T : DealHubSpotModel, new()
+        public Task<T> UpdateAsync<T>(T entity) where T : DealHubSpotModel, new()
+        {
+            if (entity.Id < 1)
+                throw new ArgumentException("Deal entity must have an id set!");
+
+            var path = $"{entity.RouteBasePath}/deal/{entity.Id}";
+
+            return _client.ExecuteAsync<T>(path, entity, method: Method.PUT, convertToPropertiesSchema: true);
+        }
+
+        public DealListHubSpotModel<T> List<T>(DealListRequestOptions opts = null) where T : DealHubSpotModel, new()
         {
             if (opts == null)
-                opts = new ListRequestOptions(250);
+                opts = new DealListRequestOptions();
 
-            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}/deal/paged"
+            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}/deals"
                 .SetQueryParam("limit", opts.Limit);
 
             if (opts.Offset.HasValue)
-                path = path.SetQueryParam("offset", opts.Offset);
+                path = path.SetQueryParam("after", opts.Offset);
 
-            if (includeAssociations)
-                path = path.SetQueryParam("includeAssociations", "true");
+            if (opts.Associations.Any())
+                path = path.SetQueryParam("associations", opts.Associations);
 
             if (opts.PropertiesToInclude.Any())
                 path = path.SetQueryParam("properties", opts.PropertiesToInclude);
 
-            var data = _client.ExecuteList<DealListHubSpotModel<T>>(path, convertToPropertiesSchema: true);
+            var data = _client.ExecuteList<DealListHubSpotModel<T>>(path, convertToPropertiesSchema: false);
 
             return data;
         }
 
+        public Task<DealListHubSpotModel<T>> ListAsync<T>(DealListRequestOptions opts = null) where T : DealHubSpotModel, new()
+        {
+            if (opts == null)
+                opts = new DealListRequestOptions();
+
+            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}/deals"
+                .SetQueryParam("limit", opts.Limit);
+
+            if (opts.Offset.HasValue)
+                path = path.SetQueryParam("after", opts.Offset);
+
+            if (opts.Associations.Any())
+                path = path.SetQueryParam("associations", opts.Associations);
+
+            if (opts.PropertiesToInclude.Any())
+                path = path.SetQueryParam("properties", opts.PropertiesToInclude);
+
+            return _client.ExecuteListAsync<DealListHubSpotModel<T>>(path, convertToPropertiesSchema: false);
+        }
 
         /// <summary>
         /// Gets a list of deals associated to a hubSpot Object
@@ -141,6 +188,13 @@
             var path = $"{new DealHubSpotModel().RouteBasePath}/deal/{dealId}";
 
             _client.Execute(path, method: Method.DELETE, convertToPropertiesSchema: true);
+        }
+
+        public Task DeleteAsync(long dealId)
+        {
+            var path = $"{new DealHubSpotModel().RouteBasePath}/deal/{dealId}";
+
+            return _client.ExecuteAsync(path, method: Method.DELETE, convertToPropertiesSchema: true);
         }
 
         /// <summary>
@@ -216,6 +270,16 @@
             var data = _client.ExecuteList<SearchHubSpotModel<T>>(path, opts, Method.POST, convertToPropertiesSchema: true);
 
             return data;
+        }
+
+        public Task<SearchHubSpotModel<T>> SearchAsync<T>(SearchRequestOptions opts = null) where T : DealHubSpotModel, new()
+        {
+            if (opts == null)
+                opts = new SearchRequestOptions();
+
+            var path = "/crm/v3/objects/deals/search";
+
+            return _client.ExecuteListAsync<SearchHubSpotModel<T>>(path, opts, Method.POST, convertToPropertiesSchema: true);
         }
 
         /// <summary>
