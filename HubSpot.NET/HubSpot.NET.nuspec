@@ -2,7 +2,8 @@
 <package >
   <metadata>
     <id>PowerDiary.HubSpot.NET</id>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
+    <releaseNotes>Existing methods have been fixed, and new ones have been added for the CustomObject and Deals API.</releaseNotes>
     <title>PowerDiary's Fork of HubSpot.NET</title>
     <authors>PowerDiary</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -10,8 +11,7 @@
     <!-- <icon>icon.png</icon> -->
     <projectUrl>https://github.com/powerdiary/HubSpot.NET</projectUrl>
     <description>This is PowerDiary's custom fork of HubSpot.NET. This library modification includes adding support for asynchronous methods and upgrading the RestSharp and Newtonsoft.Net libraries. It also addresses several identified issues in the code.</description>
-    <releaseNotes>Target set to netstandard2.1 and net48.</releaseNotes>
-    <copyright>Copyright © PowerDiary Ltd 2024</copyright>
+    <copyright>Copyright ï¿½ PowerDiary Ltd 2024</copyright>
     <tags>HubSpot PowerDiary HubSpot.NET</tags>
   </metadata>
 </package>
