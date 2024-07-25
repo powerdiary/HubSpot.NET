@@ -89,10 +89,7 @@
                     builder.Append($"%20{OAuthScopeNameConversions[scope]}");
             }
 
-            RestRequest request = new RestRequest(MidRoute)
-            {
-                //JsonSerializer = new FakeSerializer()
-            };
+            RestRequest request = new RestRequest(MidRoute);
 
             Dictionary<string, string> jsonPreStringPairs = JsonConvert.DeserializeObject<Dictionary<string, string>>(JsonConvert.SerializeObject(model));
 
