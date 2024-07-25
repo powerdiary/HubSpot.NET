@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PowerDiary.HubSpot.NET</id>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <releaseNotes>Existing methods have been fixed, and new ones have been added for the CustomObject and Deals API.</releaseNotes>
     <title>PowerDiary's Fork of HubSpot.NET</title>
     <authors>PowerDiary</authors>
