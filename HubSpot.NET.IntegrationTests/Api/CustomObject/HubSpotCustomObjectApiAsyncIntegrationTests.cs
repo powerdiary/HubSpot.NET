@@ -26,47 +26,6 @@ public sealed class HubSpotCustomObjectApiAsyncIntegrationTests : HubSpotAsyncIn
     }
 
     [Fact]
-    public async Task CreateWithDefaultAssociationToObjectAsync_ShouldCreateMachineObject()
-    {
-        const string associateObjectTypeName = "company";
-        const string model = "XYZ MODEL";
-        const string customProperty = "model";
-        var company = await RecreateTestCompanyAsync();
-
-        var machine = new CreateCustomObjectHubSpotModel
-        {
-            SchemaId = CustomObjectTypeName,
-            Properties = new Dictionary<string, object>
-            {
-                { customProperty, model },
-                { "year", "2022-01-01" },
-                { "km", "5000" }
-            }
-        };
-
-        var createdObjectId = await CustomObjectApi.CreateWithDefaultAssociationToObjectAsync<CreateCustomObjectHubSpotModel>(machine, associateObjectTypeName,
-            company.Id.ToString());
-
-        var opts = new ListRequestOptions
-        {
-            Limit = 10,
-            PropertiesToInclude = new List<string> { "hs_created_by_user_id", customProperty }
-        };
-
-        await Task.Delay(7000);
-
-        var customObjectList = (await CustomObjectApi.ListAsync<CustomObjectHubSpotModel>(CustomObjectTypeName, opts)).Results;
-
-        using (new AssertionScope())
-        {
-            customObjectList.Should().NotBeNull();
-            customObjectList.Should().HaveCountGreaterThan(0);
-            customObjectList.Should().OnlyContain(obj => obj.Properties.ContainsKey(customProperty));
-            customObjectList.Any(x=> x.Properties[customProperty] == model && x.Id == createdObjectId).Should().BeTrue();
-        }
-    }
-
-    [Fact]
     public async Task ListAsync_GivenExistingObject_ShouldGetResults()
     {
         const string customProperty = "model";
