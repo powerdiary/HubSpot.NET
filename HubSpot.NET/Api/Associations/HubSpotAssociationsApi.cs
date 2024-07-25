@@ -25,7 +25,7 @@ namespace HubSpot.NET.Api.Associations
         {
             var associationPath =
                 $"/crm/v4/objects/{objectType}/{objectId}/associations/default/{toObjectType}/{toObjectId}";
-            _client.Execute(associationPath, null, Method.PUT, convertToPropertiesSchema: false);
+            _client.Execute(associationPath, null, Method.Put, convertToPropertiesSchema: false);
 
         }
 
@@ -50,14 +50,14 @@ namespace HubSpot.NET.Api.Associations
                 associationTypeId
             };
             var body = new[] { label };
-            _client.Execute(associationPath, body, Method.PUT, convertToPropertiesSchema: false);
+            _client.Execute(associationPath, body, Method.Put, convertToPropertiesSchema: false);
         }
 
         public Task AssociationToObjectAsync(string objectType, string objectId, string toObjectType, string toObjectId)
         {
             var associationPath =
                 $"/crm/v4/objects/{objectType}/{objectId}/associations/default/{toObjectType}/{toObjectId}";
-            return _client.ExecuteAsync(associationPath, null, Method.PUT, convertToPropertiesSchema: false);
+            return _client.ExecuteAsync(associationPath, null, Method.Put, convertToPropertiesSchema: false);
         }
 
         public Task AssociationToObjectByLabelAsync(string objectType, string objectId, string toObjectType,
@@ -72,7 +72,7 @@ namespace HubSpot.NET.Api.Associations
                 associationTypeId
             };
             var body = new[] { label };
-            return _client.ExecuteAsync(associationPath, body, Method.PUT, convertToPropertiesSchema: false);
+            return _client.ExecuteAsync(associationPath, body, Method.Put, convertToPropertiesSchema: false);
         }
     }
 }
