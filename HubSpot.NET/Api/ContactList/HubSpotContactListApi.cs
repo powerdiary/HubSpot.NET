@@ -109,7 +109,7 @@ namespace HubSpot.NET.Api.ContactList
             var model = new ContactListUpdateModel();
             var path = $"{model.RouteBasePath}/{listId}/add";
             model.ContactIds.AddRange(contactIds);
-            var data = _client.Execute<ContactListUpdateResponseModel>(path, model, Method.POST,
+            var data = _client.Execute<ContactListUpdateResponseModel>(path, model, Method.Post,
                 convertToPropertiesSchema: false);
 
             return data;
@@ -126,7 +126,7 @@ namespace HubSpot.NET.Api.ContactList
             var model = new ContactListUpdateModel();
             var path = $"{model.RouteBasePath}/{listId}/remove";
             model.ContactIds.AddRange(contactIds);
-            var data = _client.Execute<ContactListUpdateResponseModel>(path, model, Method.POST,
+            var data = _client.Execute<ContactListUpdateResponseModel>(path, model, Method.Post,
                 convertToPropertiesSchema: false);
 
             return data;
@@ -139,7 +139,7 @@ namespace HubSpot.NET.Api.ContactList
         public void DeleteContactList(long listId)
         {
             var path = $"{new ContactListModel().RouteBasePath}/{listId}";
-            _client.Execute(path, method: Method.DELETE, convertToPropertiesSchema: true);
+            _client.Execute(path, method: Method.Delete, convertToPropertiesSchema: true);
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace HubSpot.NET.Api.ContactList
                 Dynamic = false
             };
             var path = $"{model.RouteBasePath}";
-            var data = _client.Execute<ContactListModel>(path, model, Method.POST, convertToPropertiesSchema: false);
+            var data = _client.Execute<ContactListModel>(path, model, Method.Post, convertToPropertiesSchema: false);
             return data;
         }
 
@@ -215,7 +215,7 @@ namespace HubSpot.NET.Api.ContactList
             var path = $"{model.RouteBasePath}/{listId}/add";
             model.ContactIds.AddRange(contactIds);
 
-            return _client.ExecuteAsync<ContactListUpdateResponseModel>(path, model, Method.POST,
+            return _client.ExecuteAsync<ContactListUpdateResponseModel>(path, model, Method.Post,
                 convertToPropertiesSchema: false);
         }
 
@@ -226,14 +226,14 @@ namespace HubSpot.NET.Api.ContactList
             var path = $"{model.RouteBasePath}/{listId}/remove";
             model.ContactIds.AddRange(contactIds);
 
-            return _client.ExecuteAsync<ContactListUpdateResponseModel>(path, model, Method.POST,
+            return _client.ExecuteAsync<ContactListUpdateResponseModel>(path, model, Method.Post,
                 convertToPropertiesSchema: false);
         }
 
         public Task DeleteContactListAsync(long listId)
         {
             var path = $"{new ContactListModel().RouteBasePath}/{listId}";
-            return _client.ExecuteAsync(path, method: Method.DELETE, convertToPropertiesSchema: true);
+            return _client.ExecuteAsync(path, method: Method.Delete, convertToPropertiesSchema: true);
         }
 
         public Task<ContactListModel> CreateStaticContactListAsync(string contactListName)
@@ -244,7 +244,7 @@ namespace HubSpot.NET.Api.ContactList
                 Dynamic = false
             };
             var path = $"{model.RouteBasePath}";
-            return _client.ExecuteAsync<ContactListModel>(path, model, Method.POST, convertToPropertiesSchema: false);
+            return _client.ExecuteAsync<ContactListModel>(path, model, Method.Post, convertToPropertiesSchema: false);
         }
     }
 }

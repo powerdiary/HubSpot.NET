@@ -5,7 +5,6 @@ using HubSpot.NET.Core.Extensions;
 using HubSpot.NET.Core.Interfaces;
 using HubSpot.NET.Core.OAuth.Dto;
 using HubSpot.NET.Core.Requests;
-using HubSpot.NET.Core.Serializers;
 using RestSharp;
 
 namespace HubSpot.NET.Core
@@ -15,10 +14,7 @@ namespace HubSpot.NET.Core
         private readonly RequestSerializer _serializer = new RequestSerializer(new RequestDataConverter());
         private RestClient _client;
 
-        public static string BaseUrl
-        {
-            get => "https://api.hubapi.com";
-        }
+        private static string BaseUrl => "https://api.hubapi.com";
 
         private readonly HubSpotAuthenticationMode _mode;
 
@@ -54,17 +50,17 @@ namespace HubSpot.NET.Core
             Initialise();
         }
 
-        public T Execute<T>(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public T Execute<T>(string absoluteUriPath, object entity = null, Method method = Method.Get,
             bool convertToPropertiesSchema = true) where T : IHubSpotModel, new()
         {
             return Execute<T>(absoluteUriPath, entity, method,
                 convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw);
         }
 
-        public T Execute<T>(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public T Execute<T>(string absoluteUriPath, object entity = null, Method method = Method.Get,
             SerialisationType serialisationType = SerialisationType.PropertyBag) where T : IHubSpotModel, new()
         {
-            string json = (method == Method.GET || entity == null)
+            string json = (method == Method.Get || entity == null)
                 ? null
                 : _serializer.SerializeEntity(entity, serialisationType);
 
@@ -75,14 +71,14 @@ namespace HubSpot.NET.Core
             return data;
         }
 
-        public T Execute<T>(string absoluteUriPath, Method method = Method.GET, bool convertToPropertiesSchema = true)
+        public T Execute<T>(string absoluteUriPath, Method method = Method.Get, bool convertToPropertiesSchema = true)
             where T : IHubSpotModel, new()
         {
             return Execute<T>(absoluteUriPath, method,
                 convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw);
         }
 
-        public T Execute<T>(string absoluteUriPath, Method method = Method.GET,
+        public T Execute<T>(string absoluteUriPath, Method method = Method.Get,
             SerialisationType serialisationType = SerialisationType.PropertyBag) where T : IHubSpotModel, new()
         {
             T data = SendRequest(absoluteUriPath, method, null,
@@ -92,34 +88,34 @@ namespace HubSpot.NET.Core
             return data;
         }
 
-        public void Execute(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public void Execute(string absoluteUriPath, object entity = null, Method method = Method.Get,
             bool convertToPropertiesSchema = true)
         {
             Execute(absoluteUriPath, entity, method,
                 convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw);
         }
 
-        public void Execute(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public void Execute(string absoluteUriPath, object entity = null, Method method = Method.Get,
             SerialisationType serialisationType = SerialisationType.PropertyBag)
         {
-            string json = (method == Method.GET || entity == null)
+            string json = (method == Method.Get || entity == null)
                 ? null
                 : _serializer.SerializeEntity(entity, serialisationType);
 
             SendRequest(absoluteUriPath, method, json);
         }
 
-        public void ExecuteBatch(string absoluteUriPath, List<object> entities, Method method = Method.GET,
+        public void ExecuteBatch(string absoluteUriPath, List<object> entities, Method method = Method.Get,
             bool convertToPropertiesSchema = true)
         {
             ExecuteBatch(absoluteUriPath, entities, method,
                 convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw);
         }
 
-        public void ExecuteBatch(string absoluteUriPath, List<object> entities, Method method = Method.GET,
+        public void ExecuteBatch(string absoluteUriPath, List<object> entities, Method method = Method.Get,
             SerialisationType serialisationType = SerialisationType.PropertyBag)
         {
-            string json = (method == Method.GET || entities == null)
+            string json = (method == Method.Get || entities == null)
                 ? null
                 : _serializer.SerializeEntity(entities, serialisationType);
 
@@ -127,12 +123,12 @@ namespace HubSpot.NET.Core
         }
 
         public T ExecuteMultipart<T>(string absoluteUriPath, byte[] data, string filename,
-            Dictionary<string, string> parameters, Method method = Method.POST) where T : new()
+            Dictionary<string, string> parameters, Method method = Method.Post) where T : new()
         {
             string path = $"{BaseUrl}{absoluteUriPath}";
-            IRestRequest request = ConfigureRequestAuthentication(path, method, null);
+            var request = ConfigureRequestAuthentication(path, method, null);
 
-            request.AddFileBytes("file", data, filename);
+            request.AddFile("file", data, filename);
 
             foreach (KeyValuePair<string, string> kvp in parameters)
             {
@@ -144,7 +140,7 @@ namespace HubSpot.NET.Core
                 request.AddParameter(kvp.Key, kvp.Value);
             }
 
-            IRestResponse<T> response = _client.Execute<T>(request);
+            var response = _client.Execute<T>(request);
 
             T responseData = response.Data;
 
@@ -155,17 +151,17 @@ namespace HubSpot.NET.Core
             return responseData;
         }
 
-        public T ExecuteList<T>(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public T ExecuteList<T>(string absoluteUriPath, object entity = null, Method method = Method.Get,
             bool convertToPropertiesSchema = true) where T : IHubSpotModel, new()
         {
             return ExecuteList<T>(absoluteUriPath, entity, method,
                 convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw);
         }
 
-        public T ExecuteList<T>(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public T ExecuteList<T>(string absoluteUriPath, object entity = null, Method method = Method.Get,
             SerialisationType serialisationType = SerialisationType.PropertyBag) where T : IHubSpotModel, new()
         {
-            string json = (method == Method.GET || entity == null)
+            string json = (method == Method.Get || entity == null)
                 ? null
                 : _serializer.SerializeEntity(entity, true);
 
@@ -191,12 +187,12 @@ namespace HubSpot.NET.Core
 
         private string SendRequest(string path, Method method, string json)
         {
-            IRestRequest request = ConfigureRequestAuthentication(path, method);
+            RestRequest request = ConfigureRequestAuthentication(path, method);
 
-            if (method != Method.GET && !string.IsNullOrWhiteSpace(json))
+            if (method != Method.Get && !string.IsNullOrWhiteSpace(json))
                 request.AddParameter("application/json", json, ParameterType.RequestBody);
 
-            IRestResponse response = _client.Execute(request);
+            RestResponse response = _client.Execute(request);
 
             string responseData = response.Content;
 
@@ -217,7 +213,7 @@ namespace HubSpot.NET.Core
             RestRequest request = new RestRequest(path, method);
             request.RequestFormat = DataFormat.Json;
 #else
-            RestRequest request = new RestRequest(path, method, DataFormat.Json);
+            RestRequest request = new RestRequest(path, method);
 #endif
             switch (_mode)
             {
@@ -238,19 +234,18 @@ namespace HubSpot.NET.Core
                     break;
             }
 
-            request.JsonSerializer = new NewtonsoftRestSharpSerializer();
             return request;
         }
 
         private string GetAuthHeader(HubSpotToken token) => $"Bearer {token.AccessToken}";
 
-        public Task<T> ExecuteAsync<T>(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public Task<T> ExecuteAsync<T>(string absoluteUriPath, object entity = null, Method method = Method.Get,
             bool convertToPropertiesSchema = true) where T : IHubSpotModel, new()
         {
-            SerialisationType serialisationType =
+            var serialisationType =
                 convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw;
 
-            string json = (method == Method.GET || entity == null)
+            var json = (method == Method.Get || entity == null)
                 ? null
                 : _serializer.SerializeEntity(entity, serialisationType);
 
@@ -258,10 +253,10 @@ namespace HubSpot.NET.Core
                 (T)_serializer.DeserializeEntity<T>(responseData, serialisationType != SerialisationType.Raw));
         }
 
-        public Task<T> ExecuteAsync<T>(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public Task<T> ExecuteAsync<T>(string absoluteUriPath, object entity = null, Method method = Method.Get,
             SerialisationType serialisationType = SerialisationType.PropertyBag) where T : IHubSpotModel, new()
         {
-            string json = (method == Method.GET || entity == null)
+            var json = (method == Method.Get || entity == null)
                 ? null
                 : _serializer.SerializeEntity(entity, serialisationType);
 
@@ -269,7 +264,7 @@ namespace HubSpot.NET.Core
                 (T)_serializer.DeserializeEntity<T>(responseData, serialisationType != SerialisationType.Raw));
         }
 
-        public Task<T> ExecuteAsync<T>(string absoluteUriPath, Method method = Method.GET,
+        public Task<T> ExecuteAsync<T>(string absoluteUriPath, Method method = Method.Get,
             bool convertToPropertiesSchema = true)
             where T : IHubSpotModel, new()
         {
@@ -277,7 +272,7 @@ namespace HubSpot.NET.Core
                 convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw);
         }
 
-        public async Task<T> ExecuteAsync<T>(string absoluteUriPath, Method method = Method.GET,
+        public async Task<T> ExecuteAsync<T>(string absoluteUriPath, Method method = Method.Get,
             SerialisationType serialisationType = SerialisationType.PropertyBag) where T : IHubSpotModel, new()
         {
             T data = await SendRequestAsync(absoluteUriPath, method, null,
@@ -287,34 +282,34 @@ namespace HubSpot.NET.Core
             return data;
         }
 
-        public Task ExecuteAsync(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public Task ExecuteAsync(string absoluteUriPath, object entity = null, Method method = Method.Get,
             bool convertToPropertiesSchema = true)
         {
             return ExecuteAsync(absoluteUriPath, entity, method,
                 convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw);
         }
 
-        public async Task ExecuteAsync(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public async Task ExecuteAsync(string absoluteUriPath, object entity = null, Method method = Method.Get,
             SerialisationType serialisationType = SerialisationType.PropertyBag)
         {
-            string json = (method == Method.GET || entity == null)
+            string json = (method == Method.Get || entity == null)
                 ? null
                 : _serializer.SerializeEntity(entity, serialisationType);
 
             await SendRequestAsync(absoluteUriPath, method, json);
         }
 
-        public Task ExecuteBatchAsync(string absoluteUriPath, List<object> entities, Method method = Method.GET,
+        public Task ExecuteBatchAsync(string absoluteUriPath, List<object> entities, Method method = Method.Get,
             bool convertToPropertiesSchema = true)
         {
             return ExecuteBatchAsync(absoluteUriPath, entities, method,
                 convertToPropertiesSchema ? SerialisationType.PropertiesSchema : SerialisationType.Raw);
         }
 
-        public async Task ExecuteBatchAsync(string absoluteUriPath, List<object> entities, Method method = Method.GET,
+        public async Task ExecuteBatchAsync(string absoluteUriPath, List<object> entities, Method method = Method.Get,
             SerialisationType serialisationType = SerialisationType.PropertyBag)
         {
-            string json = (method == Method.GET || entities == null)
+            string json = (method == Method.Get || entities == null)
                 ? null
                 : _serializer.SerializeEntity(entities, serialisationType);
 
@@ -322,12 +317,12 @@ namespace HubSpot.NET.Core
         }
 
         public async Task<T> ExecuteMultipartAsync<T>(string absoluteUriPath, byte[] data, string filename,
-            Dictionary<string, string> parameters, Method method = Method.POST) where T : new()
+            Dictionary<string, string> parameters, Method method = Method.Post) where T : new()
         {
             string path = $"{BaseUrl}{absoluteUriPath}";
-            IRestRequest request = ConfigureRequestAuthentication(path, method, null);
+            RestRequest request = ConfigureRequestAuthentication(path, method, null);
 
-            request.AddFileBytes("file", data, filename);
+            request.AddFile("file", data, filename);
 
             foreach (KeyValuePair<string, string> kvp in parameters)
             {
@@ -339,18 +334,18 @@ namespace HubSpot.NET.Core
                 request.AddParameter(kvp.Key, kvp.Value);
             }
 
-            IRestResponse<T> response = await _client.ExecuteAsync<T>(request);
+            RestResponse<T> response = await _client.ExecuteAsync<T>(request);
 
             T responseData = response.Data;
 
-            if (!response.IsSuccessful())
+            if (!response.IsSuccessful)
                 throw new HubSpotException("Error from HubSpot",
                     new HubSpotError(response.StatusCode, response.StatusDescription));
 
             return responseData;
         }
 
-        public Task<T> ExecuteListAsync<T>(string absoluteUriPath, object entity = null, Method method = Method.GET,
+        public Task<T> ExecuteListAsync<T>(string absoluteUriPath, object entity = null, Method method = Method.Get,
             bool convertToPropertiesSchema = true) where T : IHubSpotModel, new()
         {
             return ExecuteListAsync<T>(absoluteUriPath, entity, method,
@@ -358,10 +353,10 @@ namespace HubSpot.NET.Core
         }
 
         public async Task<T> ExecuteListAsync<T>(string absoluteUriPath, object entity = null,
-            Method method = Method.GET,
+            Method method = Method.Get,
             SerialisationType serialisationType = SerialisationType.PropertyBag) where T : IHubSpotModel, new()
         {
-            string json = (method == Method.GET || entity == null)
+            string json = (method == Method.Get || entity == null)
                 ? null
                 : _serializer.SerializeEntity(entity, true);
 
@@ -388,16 +383,16 @@ namespace HubSpot.NET.Core
 
         private async Task<string> SendRequestAsync(string path, Method method, string json)
         {
-            IRestRequest request = ConfigureRequestAuthentication(path, method);
+            RestRequest request = ConfigureRequestAuthentication(path, method);
 
-            if (method != Method.GET && !string.IsNullOrWhiteSpace(json))
+            if (method != Method.Get && !string.IsNullOrWhiteSpace(json))
                 request.AddParameter("application/json", json, ParameterType.RequestBody);
 
-            IRestResponse response = await _client.ExecuteAsync(request);
+            RestResponse response = await _client.ExecuteAsync(request);
 
             string responseData = response.Content;
 
-            if (!response.IsSuccessful())
+            if (!response.IsSuccessful)
                 throw new HubSpotException("Error from HubSpot",
                     new HubSpotError(response.StatusCode, response.StatusDescription), responseData);
 

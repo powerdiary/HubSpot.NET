@@ -30,7 +30,7 @@ namespace HubSpot.NET.Api.Contact
         public T Create<T>(T entity) where T : ContactHubSpotModel, new()
         {
             var path = $"{entity.RouteBasePath}/contact";
-            return _client.Execute<T>(path, entity, Method.POST, convertToPropertiesSchema: true);
+            return _client.Execute<T>(path, entity, Method.Post, convertToPropertiesSchema: true);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace HubSpot.NET.Api.Contact
         public T CreateOrUpdate<T>(T entity) where T : ContactHubSpotModel, new()
         {
             var path = $"{entity.RouteBasePath}/contact/createOrUpdate/email/{entity.Email}/";
-            return _client.Execute<T>(path, entity, Method.POST, convertToPropertiesSchema: true);
+            return _client.Execute<T>(path, entity, Method.Post, convertToPropertiesSchema: true);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace HubSpot.NET.Api.Contact
 
             try
             {
-                T data = _client.Execute<T>(path, Method.GET, convertToPropertiesSchema: true);
+                T data = _client.Execute<T>(path, Method.Get, convertToPropertiesSchema: true);
                 return data;
             }
             catch (HubSpotException exception)
@@ -80,7 +80,7 @@ namespace HubSpot.NET.Api.Contact
 
             try
             {
-                T data = _client.Execute<T>(path, Method.GET, convertToPropertiesSchema: true);
+                T data = _client.Execute<T>(path, Method.Get, convertToPropertiesSchema: true);
                 return data;
             }
             catch (HubSpotException exception)
@@ -103,7 +103,7 @@ namespace HubSpot.NET.Api.Contact
 
             try
             {
-                T data = _client.Execute<T>(path, Method.GET, convertToPropertiesSchema: true);
+                T data = _client.Execute<T>(path, Method.Get, convertToPropertiesSchema: true);
                 return data;
             }
             catch (HubSpotException exception)
@@ -153,7 +153,7 @@ namespace HubSpot.NET.Api.Contact
 
             var path = $"{contact.RouteBasePath}/contact/vid/{contact.Id}/profile";
 
-            _client.Execute(path, contact, Method.POST, convertToPropertiesSchema: true);
+            _client.Execute(path, contact, Method.Post, convertToPropertiesSchema: true);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace HubSpot.NET.Api.Contact
         {
             var path = $"{new ContactHubSpotModel().RouteBasePath}/contact/vid/{contactId}";
 
-            _client.Execute(path, method: Method.DELETE, convertToPropertiesSchema: true);
+            _client.Execute(path, method: Method.Delete, convertToPropertiesSchema: true);
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace HubSpot.NET.Api.Contact
         {
             var path = $"{new T().RouteBasePath}/contact/batch";
 
-            _client.ExecuteBatch(path, entities.Select(c => (object)c).ToList(), Method.POST,
+            _client.ExecuteBatch(path, entities.Select(c => (object)c).ToList(), Method.Post,
                 convertToPropertiesSchema: true);
         }
 
@@ -221,7 +221,7 @@ namespace HubSpot.NET.Api.Contact
 
             const string path = "/crm/v3/objects/contacts/search";
 
-            var data = _client.ExecuteList<ContactSearchHubSpotModel<T>>(path, opts, Method.POST,
+            var data = _client.ExecuteList<ContactSearchHubSpotModel<T>>(path, opts, Method.Post,
                 convertToPropertiesSchema: true);
 
             return data;
@@ -263,28 +263,28 @@ namespace HubSpot.NET.Api.Contact
         public Task<T> CreateAsync<T>(T entity) where T : ContactHubSpotModel, new()
         {
             var path = $"{entity.RouteBasePath}/contact";
-            return _client.ExecuteAsync<T>(path, entity, Method.POST, convertToPropertiesSchema: true);
+            return _client.ExecuteAsync<T>(path, entity, Method.Post, convertToPropertiesSchema: true);
         }
 
         public Task<T> CreateOrUpdateAsync<T>(T entity) where T : ContactHubSpotModel, new()
         {
             var path = $"{entity.RouteBasePath}/contact/createOrUpdate/email/{entity.Email}";
 
-            return _client.ExecuteAsync<T>(path, entity, Method.POST, convertToPropertiesSchema: true);
+            return _client.ExecuteAsync<T>(path, entity, Method.Post, convertToPropertiesSchema: true);
         }
 
         public Task DeleteAsync(long contactId)
         {
             var path = $"{new ContactHubSpotModel().RouteBasePath}/contact/vid/{contactId}";
 
-            return _client.ExecuteAsync(path, method: Method.DELETE, convertToPropertiesSchema: true);
+            return _client.ExecuteAsync(path, method: Method.Delete, convertToPropertiesSchema: true);
         }
 
         public Task BatchAsync<T>(List<T> entities) where T : ContactHubSpotModel, new()
         {
             var path = $"{new T().RouteBasePath}/contact/batch";
 
-            return _client.ExecuteBatchAsync(path, entities.Select(c => (object)c).ToList(), Method.POST,
+            return _client.ExecuteBatchAsync(path, entities.Select(c => (object)c).ToList(), Method.Post,
                 convertToPropertiesSchema: true);
         }
 
@@ -294,7 +294,7 @@ namespace HubSpot.NET.Api.Contact
 
             try
             {
-                T data = await _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
+                T data = await _client.ExecuteAsync<T>(path, Method.Get, convertToPropertiesSchema: true);
                 return data;
             }
             catch (HubSpotException exception)
@@ -311,7 +311,7 @@ namespace HubSpot.NET.Api.Contact
 
             try
             {
-                T data = await _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
+                T data = await _client.ExecuteAsync<T>(path, Method.Get, convertToPropertiesSchema: true);
                 return data;
             }
             catch (HubSpotException exception)
@@ -328,7 +328,7 @@ namespace HubSpot.NET.Api.Contact
 
             try
             {
-                T data = await _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
+                T data = await _client.ExecuteAsync<T>(path, Method.Get, convertToPropertiesSchema: true);
                 return data;
             }
             catch (HubSpotException exception)
@@ -366,7 +366,7 @@ namespace HubSpot.NET.Api.Contact
 
             var path = $"{contact.RouteBasePath}/contact/vid/{contact.Id}/profile";
 
-            return _client.ExecuteAsync(path, contact, Method.POST, convertToPropertiesSchema: true);
+            return _client.ExecuteAsync(path, contact, Method.Post, convertToPropertiesSchema: true);
         }
 
         public Task<ContactListHubSpotModel<T>> RecentlyCreatedAsync<T>(ListRecentRequestOptions opts = null)
@@ -430,7 +430,7 @@ namespace HubSpot.NET.Api.Contact
 
             const string path = "/crm/v3/objects/contacts/search";
 
-            return _client.ExecuteListAsync<ContactSearchHubSpotModel<T>>(path, opts, Method.POST,
+            return _client.ExecuteListAsync<ContactSearchHubSpotModel<T>>(path, opts, Method.Post,
                 convertToPropertiesSchema: true);
         }
     }

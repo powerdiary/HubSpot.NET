@@ -26,7 +26,7 @@ namespace HubSpot.NET.Api.Properties
         {
             var path = $"{new PropertiesListHubSpotModel<CompanyPropertyHubSpotModel>().RouteBasePath}";
 
-            return _client.Execute<CompanyPropertyHubSpotModel>(path, property, Method.POST,
+            return _client.Execute<CompanyPropertyHubSpotModel>(path, property, Method.Post,
                 convertToPropertiesSchema: false);
         }
 
@@ -35,7 +35,7 @@ namespace HubSpot.NET.Api.Properties
             var path =
                 $"{new PropertiesListHubSpotModel<CompanyPropertyHubSpotModel>().RouteBasePath}/named/{property.Name}";
 
-            return _client.Execute<CompanyPropertyHubSpotModel>(path, property, Method.PUT,
+            return _client.Execute<CompanyPropertyHubSpotModel>(path, property, Method.Put,
                 convertToPropertiesSchema: false);
         }
 
@@ -44,7 +44,7 @@ namespace HubSpot.NET.Api.Properties
             var path =
                 $"{new PropertiesListHubSpotModel<CompanyPropertyHubSpotModel>().RouteBasePath}/named/{propertyName}";
 
-            _client.Execute(path, method: Method.DELETE, convertToPropertiesSchema: true);
+            _client.Execute(path, method: Method.Delete, convertToPropertiesSchema: true);
         }
 
         public Task<PropertiesListHubSpotModel<CompanyPropertyHubSpotModel>> GetAllAsync()
@@ -59,7 +59,7 @@ namespace HubSpot.NET.Api.Properties
         {
             var path = $"{new PropertiesListHubSpotModel<CompanyPropertyHubSpotModel>().RouteBasePath}";
 
-            return _client.ExecuteAsync<CompanyPropertyHubSpotModel>(path, property, Method.POST,
+            return _client.ExecuteAsync<CompanyPropertyHubSpotModel>(path, property, Method.Post,
                 convertToPropertiesSchema: false);
         }
 
@@ -68,7 +68,7 @@ namespace HubSpot.NET.Api.Properties
             var path =
                 $"{new PropertiesListHubSpotModel<CompanyPropertyHubSpotModel>().RouteBasePath}/named/{property.Name}";
 
-            return _client.ExecuteAsync<CompanyPropertyHubSpotModel>(path, property, Method.PUT,
+            return _client.ExecuteAsync<CompanyPropertyHubSpotModel>(path, property, Method.Put,
                 convertToPropertiesSchema: false);
         }
 
@@ -77,7 +77,7 @@ namespace HubSpot.NET.Api.Properties
             var path =
                 $"{new PropertiesListHubSpotModel<CompanyPropertyHubSpotModel>().RouteBasePath}/named/{propertyName}";
 
-            return _client.ExecuteAsync(path, method: Method.DELETE, convertToPropertiesSchema: true);
+            return _client.ExecuteAsync(path, method: Method.Delete, convertToPropertiesSchema: true);
         }
     }
 }

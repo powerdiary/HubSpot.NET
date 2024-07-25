@@ -30,14 +30,14 @@ namespace HubSpot.NET.Api.Deal
         public T Create<T>(T entity) where T : DealHubSpotModel, new()
         {
             var path = $"{entity.RouteBasePath}/deal";
-            var data = _client.Execute<T>(path, entity, Method.POST, convertToPropertiesSchema: true);
+            var data = _client.Execute<T>(path, entity, Method.Post, convertToPropertiesSchema: true);
             return data;
         }
 
         public Task<T> CreateAsync<T>(T entity) where T : DealHubSpotModel, new()
         {
             var path = $"{entity.RouteBasePath}/deal";
-            return _client.ExecuteAsync<T>(path, entity, Method.POST, convertToPropertiesSchema: true);
+            return _client.ExecuteAsync<T>(path, entity, Method.Post, convertToPropertiesSchema: true);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace HubSpot.NET.Api.Deal
 
             try
             {
-                var data = _client.Execute<T>(path, Method.GET, convertToPropertiesSchema: true);
+                var data = _client.Execute<T>(path, Method.Get, convertToPropertiesSchema: true);
                 return data;
             }
             catch (HubSpotException exception)
@@ -69,7 +69,7 @@ namespace HubSpot.NET.Api.Deal
 
             try
             {
-                return _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: true);
+                return _client.ExecuteAsync<T>(path, Method.Get, convertToPropertiesSchema: true);
             }
             catch (HubSpotException exception)
             {
@@ -92,7 +92,7 @@ namespace HubSpot.NET.Api.Deal
 
             var path = $"{entity.RouteBasePath}/deal/{entity.Id}";
 
-            var data = _client.Execute<T>(path, entity, method: Method.PUT, convertToPropertiesSchema: true);
+            var data = _client.Execute<T>(path, entity, method: Method.Put, convertToPropertiesSchema: true);
             return data;
         }
 
@@ -103,7 +103,7 @@ namespace HubSpot.NET.Api.Deal
 
             var path = $"{entity.RouteBasePath}/deal/{entity.Id}";
 
-            return _client.ExecuteAsync<T>(path, entity, method: Method.PUT, convertToPropertiesSchema: true);
+            return _client.ExecuteAsync<T>(path, entity, method: Method.Put, convertToPropertiesSchema: true);
         }
 
         public DealListHubSpotModel<T> List<T>(DealListRequestOptions opts = null) where T : DealHubSpotModel, new()
@@ -187,14 +187,14 @@ namespace HubSpot.NET.Api.Deal
         {
             var path = $"{new DealHubSpotModel().RouteBasePath}/deal/{dealId}";
 
-            _client.Execute(path, method: Method.DELETE, convertToPropertiesSchema: true);
+            _client.Execute(path, method: Method.Delete, convertToPropertiesSchema: true);
         }
 
         public Task DeleteAsync(long dealId)
         {
             var path = $"{new DealHubSpotModel().RouteBasePath}/deal/{dealId}";
 
-            return _client.ExecuteAsync(path, method: Method.DELETE, convertToPropertiesSchema: true);
+            return _client.ExecuteAsync(path, method: Method.Delete, convertToPropertiesSchema: true);
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace HubSpot.NET.Api.Deal
 
             var path = "/crm/v3/objects/deals/search";
 
-            var data = _client.ExecuteList<SearchHubSpotModel<T>>(path, opts, Method.POST, convertToPropertiesSchema: true);
+            var data = _client.ExecuteList<SearchHubSpotModel<T>>(path, opts, Method.Post, convertToPropertiesSchema: true);
 
             return data;
         }
@@ -279,7 +279,7 @@ namespace HubSpot.NET.Api.Deal
 
             var path = "/crm/v3/objects/deals/search";
 
-            return _client.ExecuteListAsync<SearchHubSpotModel<T>>(path, opts, Method.POST, convertToPropertiesSchema: true);
+            return _client.ExecuteListAsync<SearchHubSpotModel<T>>(path, opts, Method.Post, convertToPropertiesSchema: true);
         }
 
         /// <summary>
@@ -298,7 +298,7 @@ namespace HubSpot.NET.Api.Deal
                 toObjectId = companyId,
                 category = "HUBSPOT_DEFINED",
                 definitionId = 5 // see https://legacydocs.hubspot.com/docs/methods/crm-associations/crm-associations-overview
-            }, method: Method.PUT, convertToPropertiesSchema: true);
+            }, method: Method.Put, convertToPropertiesSchema: true);
             entity.Associations.AssociatedCompany = new[] { companyId };
             return entity;
         }
@@ -319,7 +319,7 @@ namespace HubSpot.NET.Api.Deal
                 toObjectId = contactId,
                 category = "HUBSPOT_DEFINED",
                 definitionId = 3 // see https://legacydocs.hubspot.com/docs/methods/crm-associations/crm-associations-overview
-            }, method: Method.PUT, convertToPropertiesSchema: true);
+            }, method: Method.Put, convertToPropertiesSchema: true);
             entity.Associations.AssociatedContacts = new[] { contactId };
             return entity;
         }

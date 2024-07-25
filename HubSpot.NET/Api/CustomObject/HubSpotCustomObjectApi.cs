@@ -82,7 +82,7 @@ namespace HubSpot.NET.Api.CustomObject
             var path = $"{RouteBasePath}/{entity.SchemaId}";
 
             var response =
-                _client.Execute<CreateCustomObjectHubSpotModel>(path, entity, Method.POST,
+                _client.Execute<CreateCustomObjectHubSpotModel>(path, entity, Method.Post,
                     convertToPropertiesSchema: false);
 
             if (response.Properties.TryGetValue("hs_object_id", out var parsedId))
@@ -105,7 +105,7 @@ namespace HubSpot.NET.Api.CustomObject
         {
             var path = $"{RouteBasePath}/{entity.SchemaId}/{entity.Id}";
 
-            _client.Execute<UpdateCustomObjectHubSpotModel>(path, entity, Method.PATCH,
+            _client.Execute<UpdateCustomObjectHubSpotModel>(path, entity, Method.Patch,
                 convertToPropertiesSchema: false);
 
             return string.Empty;
@@ -117,7 +117,7 @@ namespace HubSpot.NET.Api.CustomObject
         {
             var path = $"{RouteBasePath}/{entity.SchemaId}/{entity.Id}";
 
-            var updatedObject = _client.Execute<TReturn>(path, entity, Method.PATCH,
+            var updatedObject = _client.Execute<TReturn>(path, entity, Method.Patch,
                 convertToPropertiesSchema: false);
 
             return updatedObject;
@@ -136,7 +136,7 @@ namespace HubSpot.NET.Api.CustomObject
             path = path.SetQueryParam("properties",
                 properties); //properties is comma seperated value of properties to include
 
-            var res = _client.Execute<T>(path, Method.GET, convertToPropertiesSchema: true);
+            var res = _client.Execute<T>(path, Method.Get, convertToPropertiesSchema: true);
 
             return res;
         }
@@ -180,7 +180,7 @@ namespace HubSpot.NET.Api.CustomObject
             var path = $"{RouteBasePath}/{entity.SchemaId}";
 
             var response =
-                await _client.ExecuteAsync<CreateCustomObjectHubSpotModel>(path, entity, Method.POST,
+                await _client.ExecuteAsync<CreateCustomObjectHubSpotModel>(path, entity, Method.Post,
                     convertToPropertiesSchema: false);
 
             if (response.Properties.TryGetValue("hs_object_id", out var parsedId))
@@ -199,7 +199,7 @@ namespace HubSpot.NET.Api.CustomObject
         {
             var path = $"{RouteBasePath}/{entity.SchemaId}";
 
-            return _client.Execute<TReturn>(path, entity, Method.POST,
+            return _client.Execute<TReturn>(path, entity, Method.Post,
                 convertToPropertiesSchema: false);
         }
 
@@ -209,7 +209,7 @@ namespace HubSpot.NET.Api.CustomObject
         {
             var path = $"{RouteBasePath}/{entity.SchemaId}";
 
-            return _client.ExecuteAsync<TReturn>(path, entity, Method.POST,
+            return _client.ExecuteAsync<TReturn>(path, entity, Method.Post,
                     convertToPropertiesSchema: false);
         }
 
@@ -219,7 +219,7 @@ namespace HubSpot.NET.Api.CustomObject
         {
             var path = $"{RouteBasePath}/{entity.SchemaId}/{entity.Id}";
 
-            var updatedObject = await _client.ExecuteAsync<TReturn>(path, entity, Method.PATCH,
+            var updatedObject = await _client.ExecuteAsync<TReturn>(path, entity, Method.Patch,
                 convertToPropertiesSchema: false);
 
             return updatedObject;
@@ -236,7 +236,7 @@ namespace HubSpot.NET.Api.CustomObject
             {
                 path = path.SetQueryParam("properties", property);
             }
-            return _client.ExecuteAsync<T>(path, Method.GET, convertToPropertiesSchema: false);
+            return _client.ExecuteAsync<T>(path, Method.Get, convertToPropertiesSchema: false);
         }
 
         public T GetObject<T>(string schemaId, string objectId, List<string> properties)
@@ -250,19 +250,19 @@ namespace HubSpot.NET.Api.CustomObject
             {
                 path = path.SetQueryParam("properties", property);
             }
-            return _client.Execute<T>(path, Method.GET, convertToPropertiesSchema: false);
+            return _client.Execute<T>(path, Method.Get, convertToPropertiesSchema: false);
         }
 
         public Task DeleteObjectAsync(string objectType, string objectId)
         {
             var path = $"{RouteBasePath}/{objectType}/{objectId}";
-            return _client.ExecuteAsync(path, null, Method.DELETE, convertToPropertiesSchema: false);
+            return _client.ExecuteAsync(path, null, Method.Delete, convertToPropertiesSchema: false);
         }
 
         public void DeleteObject(string objectType, string objectId)
         {
             var path = $"{RouteBasePath}/{objectType}/{objectId}";
-            _client.Execute(path, null, Method.DELETE, convertToPropertiesSchema: false);
+            _client.Execute(path, null, Method.Delete, convertToPropertiesSchema: false);
         }
     }
 }
