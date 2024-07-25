@@ -2,8 +2,8 @@
 <package >
   <metadata>
     <id>PowerDiary.HubSpot.NET</id>
-    <version>1.0.3</version>
-    <releaseNotes>Existing methods have been fixed, and new ones have been added for the CustomObject and Deals API.</releaseNotes>
+    <version>1.0.4</version>
+    <releaseNotes>Updated the RestSharp package from version 106.12.0 to 111.4.0 to ensure compatibility with the latest version. This involved changing method calls from uppercase HTTP verbs to PascalCase (e.g., Method.GET to Method.Get) and adjusting code to account for other breaking changes in the update. Additionally, removed obsolete FakeSerializer and NewtonsoftRestSharpSerializer classes.</releaseNotes>
     <title>PowerDiary's Fork of HubSpot.NET</title>
     <authors>PowerDiary</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
