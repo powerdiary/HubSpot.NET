@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <Authors>HubSpot.NET;PowerDiary</Authors>
     <Company>PowerDiary</Company>
     <Description>.NET client library targeting the HubSpot APIs.</Description>
@@ -12,7 +12,7 @@
     <PackageTags>hubspot api wrapper c# contact company deal engagement properties crm custom objects</PackageTags>
     <PackageReleaseNotes>1.0.0</PackageReleaseNotes>
     <PackageId>PowerDiary.HubSpot.NET</PackageId>
-    <PackageVersion>1.0.4</PackageVersion>
+    <PackageVersion>1.0.5</PackageVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <LangVersion>8</LangVersion>
     <TargetFrameworks>netstandard2.1;net48</TargetFrameworks>
