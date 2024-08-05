@@ -6,9 +6,9 @@
     <Company>PowerDiary</Company>
     <Description>.NET client library targeting the HubSpot APIs.</Description>
     <Copyright>HubSpot.NET;PowerDiary</Copyright>
-    <PackageLicenseUrl>https://github.com/boomandbucket/HubSpot.NET/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/boomandbucket/HubSpot.NET</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/boomandbucket/HubSpot.NET.git</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/powerdiary/HubSpot.NET/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/powerdiary/HubSpot.NET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/powerdiary/HubSpot.NET.git</RepositoryUrl>
     <PackageTags>hubspot api wrapper c# contact company deal engagement properties crm custom objects</PackageTags>
     <PackageReleaseNotes>1.0.0</PackageReleaseNotes>
     <PackageId>PowerDiary.HubSpot.NET</PackageId>
