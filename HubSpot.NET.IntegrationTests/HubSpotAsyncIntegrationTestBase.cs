@@ -2,6 +2,7 @@
 using HubSpot.NET.Api.Company.Dto;
 using HubSpot.NET.Api.Contact.Dto;
 using HubSpot.NET.Api.ContactList.Dto;
+using HubSpot.NET.Api.Deal.Dto;
 using HubSpot.NET.Api.Properties.Dto;
 using HubSpot.NET.Core;
 using SearchRequestFilter = HubSpot.NET.Api.SearchRequestFilter;
@@ -155,5 +156,22 @@ public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSe
         CompanyPropertiesToCleanup.Add(createdProperty.Name);
 
         return createdProperty;
+    }
+
+    protected async Task<DealHubSpotModel> CreateTestDeal(string? dealName = null, double? amount = null)
+    {
+        dealName ??= "Test Deal " + Guid.NewGuid().ToString("N");
+
+        var newDeal = new DealHubSpotModel
+        {
+            Name = dealName,
+            Amount = amount ?? 1000  // Default amount if not provided
+        };
+
+        var createdDeal = await DealApi.CreateAsync(newDeal);
+
+        DealsToCleanup.Add(createdDeal.Id.Value);  // Add deal ID to cleanup list
+
+        return createdDeal;
     }
 }

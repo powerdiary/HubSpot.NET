@@ -4,13 +4,16 @@ using HubSpot.NET.Api.Contact;
 using HubSpot.NET.Api.ContactList;
 using HubSpot.NET.Api.CustomObject;
 using HubSpot.NET.Api.Deal;
+using HubSpot.NET.Api.LineItem.HubSpot.NET.Api.LineItems;
 using HubSpot.NET.Api.Properties;
 using HubSpot.NET.Core;
 using Microsoft.Extensions.Configuration;
 
 namespace HubSpot.NET.IntegrationTests;
 
-public abstract class HubSpotIntegrationTestSetup : IDisposable
+using Xunit;
+
+public abstract class HubSpotIntegrationTestSetup : IAsyncLifetime
 {
     protected readonly HubSpotAssociationsApi AssociationsApi;
     protected readonly HubSpotCompanyApi CompanyApi;
@@ -19,7 +22,7 @@ public abstract class HubSpotIntegrationTestSetup : IDisposable
     protected readonly HubSpotCompaniesPropertiesApi CompanyPropertiesApi;
     protected readonly HubSpotCustomObjectApi CustomObjectApi;
     protected readonly HubSpotDealApi DealApi;
-
+    protected readonly HubSpotLineItemApi LineItemApi;
 
     protected readonly HubSpotApi HubSpotApi;
 
@@ -27,6 +30,8 @@ public abstract class HubSpotIntegrationTestSetup : IDisposable
     protected readonly IList<long> ContactsToCleanup = new List<long>();
     protected readonly IList<long> ContactListToCleanup = new List<long>();
     protected readonly IList<string> CompanyPropertiesToCleanup = new List<string>();
+    protected readonly IList<long> DealsToCleanup = new List<long>();
+    protected readonly IList<long> LineItemsToCleanup = new List<long>();
 
     protected HubSpotIntegrationTestSetup()
     {
@@ -48,85 +53,113 @@ public abstract class HubSpotIntegrationTestSetup : IDisposable
         CompanyPropertiesApi = new HubSpotCompaniesPropertiesApi(client);
         CustomObjectApi = new HubSpotCustomObjectApi(client, AssociationsApi);
         DealApi = new HubSpotDealApi(client);
+        LineItemApi = new HubSpotLineItemApi(client);
         HubSpotApi = new HubSpotApi(apiKey);
     }
 
-    #region IDisposable Support
-    private bool _isDisposed;
-
-    public void Dispose()
+    public async Task InitializeAsync()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        // Any async initialization can be placed here if necessary
+        await Task.CompletedTask;
     }
 
-    protected virtual void Dispose(bool disposing)
+    public async Task DisposeAsync()
     {
-        if (_isDisposed || !disposing)
-            return;
-
-        CleanCompanies();
-        CleanContacts();
-        CleanContactLists();
-        CleanCompanyProperties();
-
-        _isDisposed = true;
+        // Perform async cleanup
+        await CleanCompaniesAsync();
+        await CleanContactsAsync();
+        await CleanContactListsAsync();
+        await CleanCompanyPropertiesAsync();
+        await CleanDealsAsync();
+        await CleanLineItemsAsync();
     }
 
-    private void CleanCompanies()
+    private async Task CleanCompaniesAsync()
     {
         foreach (var companyId in CompaniesToCleanup)
         {
-            CompanyApi.Delete(companyId);
+            try
+            {
+                await CompanyApi.DeleteAsync(companyId);
+            }
+            catch
+            {
+                // Ignore errors during cleanup
+            }
         }
     }
 
-    private void CleanContacts()
+    private async Task CleanContactsAsync()
     {
         foreach (var contactId in ContactsToCleanup)
         {
-            TryAction(() => ContactApi.Delete(contactId));
+            try
+            {
+                await ContactApi.DeleteAsync(contactId);
+            }
+            catch
+            {
+                // Ignore errors during cleanup
+            }
         }
     }
 
-    private void CleanContactLists()
+    private async Task CleanContactListsAsync()
     {
         foreach (var contactListId in ContactListToCleanup)
         {
-            TryAction(() => ContactListApi.DeleteContactList(contactListId));
+            try
+            {
+                await ContactListApi.DeleteContactListAsync(contactListId);
+            }
+            catch
+            {
+                // Ignore errors during cleanup
+            }
         }
     }
 
-    private void CleanCompanyProperties()
+    private async Task CleanCompanyPropertiesAsync()
     {
         foreach (var propertyName in CompanyPropertiesToCleanup)
         {
             try
             {
-                CompanyPropertiesApi.Delete(propertyName);
+                await CompanyPropertiesApi.DeleteAsync(propertyName);
             }
             catch
             {
-                // ignored
+                // Ignore errors during cleanup
             }
         }
     }
 
-    private void TryAction(Action action)
+    private async Task CleanDealsAsync()
     {
-        try
+        foreach (var dealId in DealsToCleanup)
         {
-            action();
-        }
-        catch
-        {
-            // ignored
+            try
+            {
+                await DealApi.DeleteAsync(dealId);
+            }
+            catch
+            {
+                // Ignore errors during cleanup
+            }
         }
     }
 
-    ~HubSpotIntegrationTestSetup()
+    private async Task CleanLineItemsAsync()
     {
-        Dispose(false);
+        var deleteTasks = LineItemsToCleanup.Select(lineItemId => LineItemApi.DeleteAsync(lineItemId));
+        try
+        {
+            await Task.WhenAll(deleteTasks);
+        }
+        catch
+        {
+            // Ignore errors during cleanup
+        }
     }
-    #endregion
 }
+
