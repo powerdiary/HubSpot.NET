@@ -9,7 +9,7 @@ namespace HubSpot.NET.Api.LineItem.DTO
     /// Models a set of results returned when querying for sets of line items.
     /// </summary>
     [DataContract]
-    public class LineItemListHubSpotModel<T> : IHubSpotModel where T : LineItemHubSpotModel, new()
+    public class LineItemListHubSpotModel<T> : IHubSpotModel where T : LineItemGetResponse, new()
     {
         [DataMember(Name = "results")]
         public IList<T> LineItems { get; set; } = new List<T>();

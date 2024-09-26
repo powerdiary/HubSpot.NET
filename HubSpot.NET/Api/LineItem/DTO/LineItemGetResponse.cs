@@ -4,13 +4,8 @@ using HubSpot.NET.Core.Interfaces;
 
 namespace HubSpot.NET.Api.LineItem.DTO
 {
-    /// <summary>
-    /// Models a Line Item entity within HubSpot. Default properties are included here
-    /// with the intention that you'd extend this class with properties specific to
-    /// your HubSpot account.
-    /// </summary>
     [DataContract]
-    public class LineItemHubSpotModel : IHubSpotModel
+    public class LineItemGetResponse : IHubSpotModel
     {
         /// <summary>
         /// Line Item's unique ID in HubSpot.
@@ -25,25 +20,26 @@ namespace HubSpot.NET.Api.LineItem.DTO
         public DateTime? CreatedAt { get; set; }
 
         /// <summary>
-        /// Indicates if the Line Item is archived.
-        /// </summary>
-        [DataMember(Name = "archived")]
-        public bool? IsArchived { get; set; }
-
-        /// <summary>
         /// The date the line item was last updated.
         /// </summary>
         [DataMember(Name = "updatedAt")]
         public DateTime? UpdatedAt { get; set; }
 
         /// <summary>
-        /// The associations for this Line Item.
+        /// Indicates if the Line Item is archived.
         /// </summary>
-        [IgnoreDataMember]
-        public LineItemHubSpotAssociations Associations { get; } = new LineItemHubSpotAssociations();
+        [DataMember(Name = "archived")]
+        public bool? IsArchived { get; set; }
+
+        /// <summary>
+        /// The associations of the Line Item, such as associated deals.
+        /// </summary>
+        [DataMember(Name = "associations")]
+        public LineItemAssociations Associations { get; set; }
 
         /// <summary>
         /// The properties of the Line Item.
+        /// Reuses the shared properties model.
         /// </summary>
         [DataMember(Name = "properties")]
         public LineItemPropertiesHubSpotModel Properties { get; set; } = new LineItemPropertiesHubSpotModel();

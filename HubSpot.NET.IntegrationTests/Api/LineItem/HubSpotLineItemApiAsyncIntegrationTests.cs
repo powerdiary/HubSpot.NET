@@ -16,10 +16,9 @@ public sealed class HubSpotLineItemApiAsyncIntegrationTests : HubSpotAsyncIntegr
         {
             createdLineItem.Id.Should().NotBeNull();
             createdLineItem.Properties.Name.Should().Be(newLineItem.Properties.Name);
-            (await LineItemApi.GetByIdAsync<LineItemHubSpotModel>(createdLineItem.Id.Value)).Should().NotBeNull();
+            createdLineItem.Properties.Price.Should().Be(newLineItem.Properties.Price);
+            (await LineItemApi.GetByIdAsync<LineItemGetResponse>(createdLineItem.Id.Value)).Should().NotBeNull();
         }
-
-        await LineItemApi.DeleteAsync(createdLineItem.Id ?? 0);
     }
 
     [Fact]
@@ -27,24 +26,18 @@ public sealed class HubSpotLineItemApiAsyncIntegrationTests : HubSpotAsyncIntegr
     {
         var createdDeal = await CreateTestDeal("Test Deal for Line Item");
 
-        var newLineItem = new LineItemHubSpotModel
+        var newLineItem = new LineItemCreateOrUpdateRequest
         {
             Properties = new LineItemPropertiesHubSpotModel { Name = Guid.NewGuid().ToString() },
-            Associations = { AssociatedDeals = new[] { createdDeal.Id.Value } }
+            AssociatedDeals = new[] { createdDeal.Id.Value }
         };
-        var createdLineItem = await LineItemApi.CreateAsync(newLineItem);
+        var createdLineItem = await LineItemApi.CreateAsync<LineItemCreateOrUpdateRequest, LineItemGetResponse>(newLineItem);
 
         await Task.Delay(10000);  // Allow some time for the association to be registered
 
-        var retrievedLineItem = await LineItemApi.GetByIdAsync<LineItemHubSpotModel>(createdLineItem.Id.Value);
+        var retrievedLineItem = await LineItemApi.GetByIdAsync<LineItemGetResponse>(createdLineItem.Id.Value);
 
-        using (new AssertionScope())
-        {
-            createdLineItem.Associations.AssociatedDeals[0].Should().Be(createdDeal.Id.Value);
-            retrievedLineItem.Associations.AssociatedDeals[0].Should().Be(createdDeal.Id.Value);
-        }
-
-        await LineItemApi.DeleteAsync(createdLineItem.Id ?? 0);
+        retrievedLineItem.Associations.Deals.Results[0].Id.Should().Be(createdDeal.Id.Value);
     }
 
     [Fact]
@@ -52,9 +45,7 @@ public sealed class HubSpotLineItemApiAsyncIntegrationTests : HubSpotAsyncIntegr
     {
         var (_, createdLineItem) = await PrepareLineItem();
 
-        (await LineItemApi.GetByIdAsync<LineItemHubSpotModel>(createdLineItem.Id.Value)).Should().NotBe(0);
-
-        await LineItemApi.DeleteAsync(createdLineItem.Id ?? 0);
+        (await LineItemApi.GetByIdAsync<LineItemGetResponse>(createdLineItem.Id.Value)).Should().NotBe(0);
     }
 
     [Fact]
@@ -64,7 +55,7 @@ public sealed class HubSpotLineItemApiAsyncIntegrationTests : HubSpotAsyncIntegr
         await LineItemApi.DeleteAsync(createdLineItem.Id ?? 0);
         await Task.Delay(5000);
 
-        var act = async () => { await LineItemApi.GetByIdAsync<LineItemHubSpotModel>(createdLineItem.Id.Value); };
+        var act = async () => { await LineItemApi.GetByIdAsync<LineItemGetResponse>(createdLineItem.Id.Value); };
 
         await act.Should().ThrowAsync<HubSpotException>()
             .WithMessage("Line item with ID * does not exist*");
@@ -73,16 +64,16 @@ public sealed class HubSpotLineItemApiAsyncIntegrationTests : HubSpotAsyncIntegr
     [Fact]
     public async Task ListLineItems()
     {
-        var createdLineItems = new List<LineItemHubSpotModel>();
+        var createdLineItems = new List<LineItemGetResponse>();
 
         var uniqueName1 = Guid.NewGuid().ToString("N");
         var uniqueName2 = Guid.NewGuid().ToString("N");
 
         var firstCreatedLineItem = await CreateTestLineItem($"Test Line Item {uniqueName1}");
-        createdLineItems.Add(firstCreatedLineItem);
+        createdLineItems.Add(firstCreatedLineItem.Item2);
 
         var secondCreatedLineItem = await CreateTestLineItem($"Test Line Item {uniqueName2}");
-        createdLineItems.Add(secondCreatedLineItem);
+        createdLineItems.Add(secondCreatedLineItem.Item2);
 
         var requestOptions = new LineItemListRequestOptions
         {
@@ -92,7 +83,7 @@ public sealed class HubSpotLineItemApiAsyncIntegrationTests : HubSpotAsyncIntegr
 
         await Task.Delay(5000);
 
-        var allLineItems = await LineItemApi.ListAsync<LineItemHubSpotModel>(requestOptions);
+        var allLineItems = await LineItemApi.ListAsync<LineItemGetResponse>(requestOptions);
 
         using (new AssertionScope())
         {
@@ -100,62 +91,45 @@ public sealed class HubSpotLineItemApiAsyncIntegrationTests : HubSpotAsyncIntegr
             allLineItems.LineItems.Count.Should().Be(1);
             allLineItems.Paging.Next.After.Should().NotBeEmpty();
         }
-
-        foreach (var lineItem in createdLineItems)
-        {
-            await LineItemApi.DeleteAsync(lineItem.Id.Value);
-        }
     }
 
     [Fact]
     public async Task UpdateLineItem()
     {
-        var createdLineItem = await CreateTestLineItem();
-        createdLineItem.Properties.Name += " Updated";
-        createdLineItem.Properties.Price += 100;
+        var (createLineItem, responseLineItem) = await CreateTestLineItem();
+        createLineItem.Properties.Name += " Updated";
+        createLineItem.Properties.Price += 100;
+        createLineItem.Id = responseLineItem.Id;
 
-        var updatedLineItem = await LineItemApi.UpdateAsync(createdLineItem);
+        var updatedLineItem = await LineItemApi.UpdateAsync<LineItemCreateOrUpdateRequest, LineItemGetResponse>(createLineItem);
+
+        responseLineItem.Properties.Name = createLineItem.Properties.Name;
+        responseLineItem.Properties.Price = createLineItem.Properties.Price;
         ValidateLineItem(updatedLineItem);
 
-        var retrievedLineItem = await LineItemApi.GetByIdAsync<LineItemHubSpotModel>(createdLineItem.Id.Value);
+        var retrievedLineItem = await LineItemApi.GetByIdAsync<LineItemGetResponse>(responseLineItem.Id.Value);
         ValidateLineItem(retrievedLineItem);
 
-        await LineItemApi.DeleteAsync(createdLineItem.Id.Value);
-
-        void ValidateLineItem(LineItemHubSpotModel lineItemToValidate)
+        void ValidateLineItem(LineItemGetResponse lineItemToValidate)
         {
             using (new AssertionScope())
             {
                 lineItemToValidate.Should().NotBeNull();
-                lineItemToValidate.Id.Should().Be(createdLineItem.Id);
-                lineItemToValidate.Properties.Name.Should().Be(createdLineItem.Properties.Name);
-                lineItemToValidate.Properties.Price.Should().Be(createdLineItem.Properties.Price);
+                lineItemToValidate.Id.Should().Be(responseLineItem.Id);
+                lineItemToValidate.Properties.Name.Should().Be(responseLineItem.Properties.Name);
+                lineItemToValidate.Properties.Price.Should().Be(responseLineItem.Properties.Price);
             }
         }
     }
 
-    private async Task<(LineItemHubSpotModel NewLineItem, LineItemHubSpotModel CreatedLineItem)> PrepareLineItem()
+    private async Task<(LineItemCreateOrUpdateRequest NewLineItem, LineItemGetResponse CreatedLineItem)> PrepareLineItem()
     {
-        var newLineItem = new LineItemHubSpotModel();
+        var newLineItem = new LineItemCreateOrUpdateRequest();
 
         newLineItem.Properties.Name = "Test Line Item " + Guid.NewGuid();
         newLineItem.Properties.Price = 100;
 
-        var createdLineItem = await LineItemApi.CreateAsync(newLineItem);
+        var createdLineItem = await LineItemApi.CreateAsync<LineItemCreateOrUpdateRequest, LineItemGetResponse>(newLineItem);
         return (newLineItem, createdLineItem);
-    }
-
-    private Task<LineItemHubSpotModel> CreateTestLineItem(string? lineItemName = null)
-    {
-        lineItemName ??= "Test Line Item " + Guid.NewGuid();
-        var newLineItem = new LineItemHubSpotModel
-        {
-            Properties = new LineItemPropertiesHubSpotModel
-            {
-                Name = lineItemName,
-                Price = 100
-            }
-        };
-        return LineItemApi.CreateAsync(newLineItem);
     }
 }

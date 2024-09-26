@@ -6,15 +6,19 @@ namespace HubSpot.NET.Core.Interfaces
 {
     public interface IHubSpotLineItemApi
     {
-        Task<T> CreateAsync<T>(T entity) where T : LineItemHubSpotModel, new();
+        Task<TResponse> CreateAsync<TRequest, TResponse>(TRequest entity)
+            where TRequest : LineItemCreateOrUpdateRequest, new()
+            where TResponse : LineItemGetResponse, new();
 
         Task DeleteAsync(long lineItemId);
 
-        Task<T> GetByIdAsync<T>(long lineItemId, LineItemListRequestOptions requestOptions = null) where T : LineItemHubSpotModel, new();
+        Task<T> GetByIdAsync<T>(long lineItemId, LineItemListRequestOptions requestOptions = null) where T : LineItemGetResponse, new();
 
-        Task<T> UpdateAsync<T>(T entity) where T : LineItemHubSpotModel, new();
+        Task<TResponse> UpdateAsync<TRequest, TResponse>(TRequest entity)
+            where TRequest : LineItemCreateOrUpdateRequest, new()
+            where TResponse : LineItemGetResponse, new();
 
         Task<LineItemListHubSpotModel<T>> ListAsync<T>(LineItemListRequestOptions opts = null)
-            where T : LineItemHubSpotModel, new();
+            where T : LineItemGetResponse, new();
     }
 }

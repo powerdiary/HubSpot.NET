@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HubSpot.NET.Api.LineItem.DTO;
@@ -21,10 +22,13 @@ namespace HubSpot.NET.Api.LineItem
                 _client = client;
             }
 
-            public Task<T> CreateAsync<T>(T entity) where T : LineItemHubSpotModel, new()
+            public Task<TResponse> CreateAsync<TRequest, TResponse>(TRequest entity)
+                where TRequest : LineItemCreateOrUpdateRequest, new()
+                where TResponse : LineItemGetResponse, new()
             {
                 var path = "/crm/v3/objects/line_items";
-                return _client.ExecuteAsync<T>(path, entity, Method.Post, convertToPropertiesSchema: false);
+
+                return _client.ExecuteAsync<TResponse>(path, entity, Method.Post, convertToPropertiesSchema: false);
             }
 
             public Task DeleteAsync(long lineItemId)
@@ -34,13 +38,18 @@ namespace HubSpot.NET.Api.LineItem
             }
 
             public async Task<T> GetByIdAsync<T>(long lineItemId, LineItemListRequestOptions requestOptions = null)
-                where T : LineItemHubSpotModel, new()
+                where T : LineItemGetResponse, new()
             {
                 requestOptions ??= new LineItemListRequestOptions();
 
                 if (requestOptions.PropertiesToInclude == null || requestOptions.PropertiesToInclude.Count == 0)
                 {
                     requestOptions.PropertiesToInclude = new List<string> { "name", "price" };
+                }
+
+                if (requestOptions.Associations == null || requestOptions.Associations.Count == 0)
+                {
+                    requestOptions.Associations = new List<string> { "deals" };
                 }
 
                 var propertiesQueryParam = string.Join(",", requestOptions.PropertiesToInclude);
@@ -69,17 +78,20 @@ namespace HubSpot.NET.Api.LineItem
                 }
             }
 
-            public Task<T> UpdateAsync<T>(T entity) where T : LineItemHubSpotModel, new()
+            public Task<TResponse> UpdateAsync<TRequest, TResponse>(TRequest entity)
+                where TRequest : LineItemCreateOrUpdateRequest, new()
+                where TResponse : LineItemGetResponse, new()
             {
                 if (entity.Id < 1)
                     throw new ArgumentException("Line Item entity must have an id set!");
 
                 var path = $"/crm/v3/objects/line_items/{entity.Id}";
-                return _client.ExecuteAsync<T>(path, entity, method: Method.Patch, convertToPropertiesSchema: false);
+
+                return _client.ExecuteAsync<TResponse>(path, entity, Method.Patch, convertToPropertiesSchema: false);
             }
 
             public Task<LineItemListHubSpotModel<T>> ListAsync<T>(LineItemListRequestOptions opts = null)
-                where T : LineItemHubSpotModel, new()
+                where T : LineItemGetResponse, new()
             {
                 if (opts == null)
                     opts = new LineItemListRequestOptions();

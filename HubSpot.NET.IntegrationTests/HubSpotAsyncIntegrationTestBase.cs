@@ -3,6 +3,7 @@ using HubSpot.NET.Api.Company.Dto;
 using HubSpot.NET.Api.Contact.Dto;
 using HubSpot.NET.Api.ContactList.Dto;
 using HubSpot.NET.Api.Deal.Dto;
+using HubSpot.NET.Api.LineItem.DTO;
 using HubSpot.NET.Api.Properties.Dto;
 using HubSpot.NET.Core;
 using SearchRequestFilter = HubSpot.NET.Api.SearchRequestFilter;
@@ -173,5 +174,23 @@ public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSe
         DealsToCleanup.Add(createdDeal.Id.Value);  // Add deal ID to cleanup list
 
         return createdDeal;
+    }
+
+    protected async Task<(LineItemCreateOrUpdateRequest, LineItemGetResponse)> CreateTestLineItem(string? lineItemName = null)
+    {
+        lineItemName ??= "Test Line Item " + Guid.NewGuid();
+        var newLineItem = new LineItemCreateOrUpdateRequest
+        {
+            Properties = new LineItemPropertiesHubSpotModel
+            {
+                Name = lineItemName,
+                Price = 100
+            }
+        };
+        var itemGetResponse =
+            await LineItemApi.CreateAsync<LineItemCreateOrUpdateRequest, LineItemGetResponse>(newLineItem);
+
+        LineItemsToCleanup.Add(itemGetResponse.Id.Value);
+        return (newLineItem, itemGetResponse);
     }
 }
