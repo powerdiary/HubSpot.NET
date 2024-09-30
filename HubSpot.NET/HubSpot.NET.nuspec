@@ -2,8 +2,8 @@
 <package >
   <metadata>
     <id>PowerDiary.HubSpot.NET</id>
-    <version>1.0.5</version>
-    <releaseNotes>Downgraded the RestSharp package to version 110.2.0 to make it compatible with other projects in PowerDiary.</releaseNotes>
+    <version>1.0.6</version>
+    <releaseNotes>Added the `HubSpotLineItemApi` with separate models for request and response due to differences in Deal associations.</releaseNotes>
     <title>PowerDiary's Fork of HubSpot.NET</title>
     <authors>PowerDiary</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

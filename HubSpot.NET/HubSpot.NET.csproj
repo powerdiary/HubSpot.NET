@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <Authors>HubSpot.NET;PowerDiary</Authors>
     <Company>PowerDiary</Company>
     <Description>.NET client library targeting the HubSpot APIs.</Description>
@@ -10,9 +10,9 @@
     <PackageProjectUrl>https://github.com/powerdiary/HubSpot.NET</PackageProjectUrl>
     <RepositoryUrl>https://github.com/powerdiary/HubSpot.NET.git</RepositoryUrl>
     <PackageTags>hubspot api wrapper c# contact company deal engagement properties crm custom objects</PackageTags>
-    <PackageReleaseNotes>1.0.0</PackageReleaseNotes>
+    <PackageReleaseNotes>Added `HubSpotLineItemApi` with separate models for requests and responses due to differences in Deal associations.</PackageReleaseNotes>
     <PackageId>PowerDiary.HubSpot.NET</PackageId>
-    <PackageVersion>1.0.5</PackageVersion>
+    <PackageVersion>1.0.6</PackageVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <LangVersion>8</LangVersion>
     <TargetFrameworks>netstandard2.1;net48</TargetFrameworks>
