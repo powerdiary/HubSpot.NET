@@ -109,6 +109,13 @@ public sealed class HubSpotContactApiAsyncIntegrationTests : HubSpotAsyncIntegra
         }
     }
 
+    [Fact]
+    public async Task GetContactByEmail_GivenNull_ShouldBeNull()
+    {
+        var contactByEmail = await ContactApi.GetByEmailAsync<ContactHubSpotModel>("XYZ");
+        contactByEmail.Should().BeNull();
+    }
+
     /*
     NOTE: The GetByUserToken method in the HubSpotContactApi cannot be integration tested
     because the User Token (contactUtk) is not retrieved when creating or updating a contact
