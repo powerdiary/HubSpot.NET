@@ -215,7 +215,6 @@ public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSe
         };
 
         var createdEventDefinition = await CustomEventApi.CreateAsync(newEventDefinition);
-        EventDefinitionsToCleanup.Add(createdEventDefinition.Name);
 
         return createdEventDefinition;
     }
