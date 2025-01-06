@@ -12,7 +12,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         [Fact]
         public async Task SendEventTrackingDataForContact_WhenValidData_ShouldSucceedWithNoException()
         {            
-            var eventDefinition = await GetOrCreateTestEventDefinition();
+            var eventDefinition = await GetTestEventDefinition();
             var contact = await RecreateTestContactAsync();
 
             var eventTracking = CreateTestEventTracking(contact.Email, eventDefinition.FullyQualifiedName);
@@ -36,7 +36,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         [Fact]
         public async Task SendEventTrackingDataForContact_WhenInvalidEmail_ShouldNotThrowException()
         {
-            var eventDefinition = await GetOrCreateTestEventDefinition();
+            var eventDefinition = await GetTestEventDefinition();
 
             var eventTracking = CreateTestEventTracking("invalid_email", eventDefinition.FullyQualifiedName);
 
@@ -64,7 +64,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         public async Task SendEventTrackingDataForCompany_WhenValidData_ShouldSucceedWithNoException()
         {
             var company = await RecreateTestCompanyAsync();
-            var eventDefinition = await GetOrCreateTestEventDefinition("test_event2", "COMPANY");
+            var eventDefinition = await GetTestEventDefinition("test_event2", "COMPANY");
             var eventTracking = CreateTestEventTracking(company.Id.Value, eventDefinition.FullyQualifiedName);
 
             Func<Task> act = async () => await CustomEventApi.SendEventTrackingData(eventTracking);
@@ -76,7 +76,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         public async Task SendEventTrackingDataForCompany_WhenInvalidObjectId_ShouldNotThrowException()
         {
             long randomNonExistingCompanyId = 10000234;
-            var eventDefinition = await GetOrCreateTestEventDefinition("test_event2", "COMPANY");
+            var eventDefinition = await GetTestEventDefinition("test_event2", "COMPANY");
             var eventTracking = CreateTestEventTracking(randomNonExistingCompanyId, eventDefinition.FullyQualifiedName);
 
             Func<Task> act = async () => await CustomEventApi.SendEventTrackingData(eventTracking);

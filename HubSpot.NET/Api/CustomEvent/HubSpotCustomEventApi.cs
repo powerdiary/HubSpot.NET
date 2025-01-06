@@ -21,12 +21,7 @@ namespace HubSpot.NET.Api.CustomEvent
             var path = "events/v3/send";
             return _client.ExecuteAsync(path, eventTracking, Method.Post, convertToPropertiesSchema: false);
         }
-
-        public Task<T> CreateAsync<T> (T entity) where T : EventDefinition, new()
-        {
-            var path = entity.RouteBasePath;
-            return _client.ExecuteAsync<T>(path, entity, Method.Post, convertToPropertiesSchema: false);
-        }
+        
 
         public Task<T> GetByNameAsync<T>(string eventName) where T : EventDefinition, new()
         {

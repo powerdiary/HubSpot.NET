@@ -5,9 +5,7 @@ namespace HubSpot.NET.Core.Interfaces
 {
     public interface IHubSpotCustomEventApi
     {
-        Task SendEventTrackingData(EventTracking eventTracking);
-
-        Task<T> CreateAsync<T>(T entity) where T : EventDefinition, new();
+        Task SendEventTrackingData(EventTracking eventTracking);        
 
         Task<T> GetByNameAsync<T>(string eventName) where T : EventDefinition, new();
     }

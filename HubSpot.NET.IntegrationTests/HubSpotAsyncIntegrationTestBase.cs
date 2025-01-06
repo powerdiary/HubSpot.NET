@@ -196,7 +196,7 @@ public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSe
         return (newLineItem, itemGetResponse);
     }
 
-    protected async Task<EventDefinition> GetOrCreateTestEventDefinition(string eventName = "test_event1",
+    protected async Task<EventDefinition> GetTestEventDefinition(string eventName = "test_event1",
         string primaryObject = "CONTACT")
     {
         var existingEventDef = await CustomEventApi.GetByNameAsync<EventDefinition>(eventName);
@@ -206,16 +206,6 @@ public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSe
             return existingEventDef;
         }
 
-        var newEventDefinition = new EventDefinition
-        {
-            Label = new SchemasLabelsModel() { Singular = eventName, Plural = "Test Events" },
-            Name = "testevent12345",
-            PrimaryObject = primaryObject,
-            Description = "test description"           
-        };
-
-        var createdEventDefinition = await CustomEventApi.CreateAsync(newEventDefinition);
-
-        return createdEventDefinition;
+        throw new KeyNotFoundException($"Event definition with name '{eventName}' was not found.");
     }
 }
