@@ -2,9 +2,11 @@
 using HubSpot.NET.Api.Company.Dto;
 using HubSpot.NET.Api.Contact.Dto;
 using HubSpot.NET.Api.ContactList.Dto;
+using HubSpot.NET.Api.CustomEvent.Dto;
 using HubSpot.NET.Api.Deal.Dto;
 using HubSpot.NET.Api.LineItem.DTO;
 using HubSpot.NET.Api.Properties.Dto;
+using HubSpot.NET.Api.Schemas;
 using HubSpot.NET.Core;
 using SearchRequestFilter = HubSpot.NET.Api.SearchRequestFilter;
 using SearchRequestFilterGroup = HubSpot.NET.Api.SearchRequestFilterGroup;
@@ -192,5 +194,18 @@ public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSe
 
         LineItemsToCleanup.Add(itemGetResponse.Id.Value);
         return (newLineItem, itemGetResponse);
+    }
+
+    protected async Task<EventDefinition> GetTestEventDefinition(string eventName = "test_event1",
+        string primaryObject = "CONTACT")
+    {
+        var existingEventDef = await CustomEventApi.GetByNameAsync<EventDefinition>(eventName);
+
+        if (existingEventDef != null)
+        {
+            return existingEventDef;
+        }
+
+        throw new KeyNotFoundException($"Event definition with name '{eventName}' was not found.");
     }
 }

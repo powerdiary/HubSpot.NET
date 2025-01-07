@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HubSpot.NET.IntegrationTests;
 
+using HubSpot.NET.Api.CustomEvent;
 using Xunit;
 
 public abstract class HubSpotIntegrationTestSetup : IAsyncLifetime
@@ -23,6 +24,7 @@ public abstract class HubSpotIntegrationTestSetup : IAsyncLifetime
     protected readonly HubSpotCustomObjectApi CustomObjectApi;
     protected readonly HubSpotDealApi DealApi;
     protected readonly HubSpotLineItemApi LineItemApi;
+    protected readonly HubSpotCustomEventApi CustomEventApi;
 
     protected readonly HubSpotApi HubSpotApi;
 
@@ -55,6 +57,7 @@ public abstract class HubSpotIntegrationTestSetup : IAsyncLifetime
         DealApi = new HubSpotDealApi(client);
         LineItemApi = new HubSpotLineItemApi(client);
         HubSpotApi = new HubSpotApi(apiKey);
+        CustomEventApi = new HubSpotCustomEventApi(client);
     }
 
     public async Task InitializeAsync()
