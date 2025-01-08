@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.0.8</Version>
+    <Version>1.0.9</Version>
     <Authors>HubSpot.NET;PowerDiary</Authors>
     <Company>PowerDiary</Company>
     <Description>.NET client library targeting the HubSpot APIs.</Description>
@@ -12,11 +12,10 @@
     <PackageTags>hubspot api wrapper c# contact company deal engagement properties crm custom objects</PackageTags>
     <PackageReleaseNotes>
       Added:
-      - Multi-targeting for .NET Standard 2.0, .NET Standard 2.1, and .NET Framework 4.8 for improved compatibility across different .NET platforms
-      - Added the `HubSpotLineItemApi` with separate models for request and response due to differences in Deal associations.
+      - Added support for custom event completion
     </PackageReleaseNotes>
     <PackageId>PowerDiary.HubSpot.NET</PackageId>
-    <PackageVersion>1.0.8</PackageVersion>
+    <PackageVersion>1.0.9</PackageVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <LangVersion>8</LangVersion>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net48</TargetFrameworks>
