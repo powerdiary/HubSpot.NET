@@ -2,11 +2,10 @@
 <package >
   <metadata>
     <id>PowerDiary.HubSpot.NET</id>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <releaseNotes>
       Added:
-      - Multi-targeting for .NET Standard 2.0, .NET Standard 2.1, and .NET Framework 4.8 for improved compatibility across different .NET platforms
-      - Added the `HubSpotLineItemApi` with separate models for request and response due to differences in Deal associations.
+      - Added support for custom event completion
     </releaseNotes>
     <title>PowerDiary's Fork of HubSpot.NET</title>
     <authors>PowerDiary</authors>
