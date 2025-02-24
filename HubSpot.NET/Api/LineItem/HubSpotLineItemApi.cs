@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HubSpot.NET.Api.LineItem.DTO;
@@ -103,6 +102,22 @@ namespace HubSpot.NET.Api.LineItem
                     path = path.SetQueryParam("after", opts.Offset);
 
                 return _client.ExecuteListAsync<LineItemListHubSpotModel<T>>(path, convertToPropertiesSchema: false);
+            }
+
+            /// <summary>
+            /// Gets a list of line items based on a search criteria
+            /// </summary>
+            /// <typeparam name="T">Implementation of <see cref="LineItemGetResponse"/></typeparam>
+            /// <param name="opts">Options (limit, offset) and search criteria relating to request</param>
+            /// <returns>List of line items</returns>
+            public Task<SearchHubSpotModel<T>> SearchAsync<T>(SearchRequestOptions opts = null) where T : LineItemGetResponse, new()
+            {
+                if (opts == null)
+                    opts = new SearchRequestOptions();
+
+                var path = "/crm/v3/objects/line_items/search";
+
+                return _client.ExecuteListAsync<SearchHubSpotModel<T>>(path, opts, Method.Post, convertToPropertiesSchema: false);
             }
         }
     }
