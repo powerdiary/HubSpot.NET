@@ -2,10 +2,10 @@
 <package >
   <metadata>
     <id>PowerDiary.HubSpot.NET</id>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
     <releaseNotes>
       Added:
-      - Added support for custom event completion
+	  - Adds the SearchAsync method to the HubSpotLineItemApi.
     </releaseNotes>
     <title>PowerDiary's Fork of HubSpot.NET</title>
     <authors>PowerDiary</authors>
