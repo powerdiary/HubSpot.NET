@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using HubSpot.NET.Api;
 using HubSpot.NET.Api.LineItem;
 using HubSpot.NET.Api.LineItem.DTO;
 
@@ -19,6 +20,9 @@ namespace HubSpot.NET.Core.Interfaces
             where TResponse : LineItemGetResponse, new();
 
         Task<LineItemListHubSpotModel<T>> ListAsync<T>(LineItemListRequestOptions opts = null)
+            where T : LineItemGetResponse, new();
+
+        Task<SearchHubSpotModel<T>> SearchAsync<T>(SearchRequestOptions opts = null)
             where T : LineItemGetResponse, new();
     }
 }

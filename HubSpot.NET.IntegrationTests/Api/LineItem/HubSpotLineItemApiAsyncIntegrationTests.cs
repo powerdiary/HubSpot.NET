@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using FluentAssertions.Execution;
+using HubSpot.NET.Api;
 using HubSpot.NET.Api.LineItem;
 using HubSpot.NET.Api.LineItem.DTO;
 using HubSpot.NET.Core;
@@ -119,6 +120,45 @@ public sealed class HubSpotLineItemApiAsyncIntegrationTests : HubSpotAsyncIntegr
                 lineItemToValidate.Properties.Name.Should().Be(responseLineItem.Properties.Name);
                 lineItemToValidate.Properties.Price.Should().Be(responseLineItem.Properties.Price);
             }
+        }
+    }
+
+    [Fact]
+    public async Task SearchLineItems()
+    {
+        var uniqueName1 = Guid.NewGuid().ToString("N");
+        var lineItemName = $"Test Line Item {uniqueName1}";
+        var createdLineItem = await CreateTestLineItem(lineItemName);
+
+        await Task.Delay(10000);
+
+        var filterGroup = new SearchRequestFilterGroup { Filters = new List<SearchRequestFilter>() };
+        filterGroup.Filters.Add(new SearchRequestFilter
+        {
+            PropertyName = "name",
+            Operator = SearchRequestFilterOperatorType.EqualTo,
+            Value = lineItemName
+        });
+
+        var searchOptions = new SearchRequestOptions
+        {
+            FilterGroups = new List<SearchRequestFilterGroup>(),
+            PropertiesToInclude = new List<string>
+            {
+                "price", "name"
+            }
+        };
+
+        searchOptions.FilterGroups.Add(filterGroup);
+
+        var searchResults = await LineItemApi.SearchAsync<LineItemGetResponse>(searchOptions);
+
+        using (new AssertionScope())
+        {
+            var foundLineItem= searchResults.Results.FirstOrDefault(c => c.Id == createdLineItem.Item2.Id);
+            foundLineItem.Should().NotBeNull();
+            foundLineItem?.Properties.Name.Should().Be(createdLineItem.Item2.Properties.Name);
+            foundLineItem?.Properties.Price.Should().Be(createdLineItem.Item2.Properties.Price);
         }
     }
 
