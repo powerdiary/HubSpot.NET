@@ -1,3 +1,4 @@
+using HubSpot.NET.Api.Associations.Dto;
 using System.Threading.Tasks;
 
 namespace HubSpot.NET.Core.Interfaces
@@ -13,5 +14,7 @@ namespace HubSpot.NET.Core.Interfaces
 
         Task AssociationToObjectByLabelAsync(string objectType, string objectId, string toObjectType, string toObjectId,
             string associationCategory, int associationTypeId);
+
+        Task<T> GetAssociationsAsync<T>(string objectType, string objectId, string toObjectType) where T : AssociationListHubSpotModel, new();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using FluentAssertions.Execution;
+using HubSpot.NET.Api.Associations.Dto;
 using HubSpot.NET.Api.Contact.Dto;
 
 namespace HubSpot.NET.IntegrationTests.Api.Associations;
@@ -58,6 +59,36 @@ public sealed class HubSpotAssociationsApiAsyncIntegrationTests : HubSpotAsyncIn
         {
             fetchedContact.AssociatedCompanyId.Should().Be(expectedCompany.Id.Value,
                 "The associated company ID should be present in the retrieved contact");
+        }
+    }
+
+    [Fact]
+    public async Task GetAssociationsAsync_GivenSourceIdTypeAndTargetType_ShouldReturnAssociations()
+    {
+        var expectedCompany = await RecreateTestCompanyAsync();
+        var expectedContact = await RecreateTestContactAsync();
+
+        var expectedObjectType = "Company";
+        var expectedObjectId = expectedCompany.Id.Value.ToString();
+        var expectedToObjectType = "Contact";
+        var expectedToObjectId = expectedContact.Id.Value.ToString();
+
+        await AssociationsApi.AssociationToObjectAsync(expectedObjectType, expectedObjectId, expectedToObjectType,
+            expectedToObjectId);
+
+        // Need to wait for data to be searchable.
+        await Task.Delay(10000);
+
+        var fromObjectType = expectedObjectType;
+        var fromObjectId = expectedObjectId;
+        var toObjectType = expectedToObjectType;
+        var associationListHubSpotModel = await AssociationsApi.GetAssociationsAsync<AssociationListHubSpotModel>(fromObjectType, fromObjectId, toObjectType);
+
+        using (new AssertionScope())
+        {
+            associationListHubSpotModel.Should().NotBeNull();
+            associationListHubSpotModel.Associations.Should().HaveCountGreaterThan(0);
+            associationListHubSpotModel.Associations[0].AssociatedObjectId.Should().Be(expectedContact.Id.Value);
         }
     }
 }

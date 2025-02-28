@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using HubSpot.NET.Api.Associations.Dto;
 using HubSpot.NET.Core.Interfaces;
 using RestSharp;
 
@@ -73,6 +74,20 @@ namespace HubSpot.NET.Api.Associations
             };
             var body = new[] { label };
             return _client.ExecuteAsync(associationPath, body, Method.Put, convertToPropertiesSchema: false);
+        }
+
+        /// <summary>
+        /// Retrieves alls associations of a given object to the specified object type
+        /// </summary>
+        /// <param name="objectType">Object type id of the object whose associations you're retrieving (e.g. "0-2" for company)</param>
+        /// <param name="objectId">Object id of the object whose associations you're retrieving</param>
+        /// <param name="toObjectType">Object type id of the associations to retrieve (e.g. "0-1" for contact)</param>
+        /// <returns></returns>
+        public Task<T> GetAssociationsAsync<T>(string objectType, string objectId, string toObjectType) where T : AssociationListHubSpotModel, new()
+        {
+            var associationPath = $"/crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}";            
+
+            return _client.ExecuteListAsync<T>(associationPath, Method.Get, convertToPropertiesSchema: false); ;
         }
     }
 }
