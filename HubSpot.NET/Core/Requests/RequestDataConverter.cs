@@ -339,7 +339,7 @@ namespace HubSpot.NET.Core.Requests
                         // if nullable and the value to convert is null or an empty string it should not be converted
                         targetProp.SetValue(dto, null);
                     }
-                    else
+                    else if(!string.IsNullOrEmpty(dynamicValue?.ToString()))
                     {
                         var value = dynamicValue.GetType() == type
                             ? dynamicValue
