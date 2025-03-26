@@ -8,7 +8,7 @@ namespace HubSpot.NET.IntegrationTests.Core.Requests
 {
     public class RequestDataConverterTests
     {
-        private RequestDataConverter _converver;
+        private readonly RequestDataConverter _converver;
 
         public RequestDataConverterTests()
         {
@@ -256,7 +256,6 @@ namespace HubSpot.NET.IntegrationTests.Core.Requests
 
             var destDto = new DestTestDto();
             var result = InvokeConvertSingleEntity(expando, destDto) as DestTestDto;
-
 
             using (new AssertionScope())
             {
