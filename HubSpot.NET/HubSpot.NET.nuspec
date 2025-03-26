@@ -2,10 +2,10 @@
 <package >
   <metadata>
     <id>PowerDiary.HubSpot.NET</id>
-    <version>1.0.11</version>
+    <version>1.0.12</version>
     <releaseNotes>
       Added:
-	  - Adds the GetAssociationsAsync method to the HubSpotAssociationsApi.
+	  - Added null or empty check before converting dynamic object values to ensure safe type conversion.
     </releaseNotes>
     <title>PowerDiary's Fork of HubSpot.NET</title>
     <authors>PowerDiary</authors>
