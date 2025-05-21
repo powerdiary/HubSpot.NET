@@ -22,7 +22,7 @@ namespace HubSpot.NET.Api.Company.Dto
         [DataMember(Name = "results")]
         public IList<T> Results { get; set; } = new List<T>();
 
-        public string RouteBasePath => "/crm/v3/objects/companies";
+        public string RouteBasePath => $"/crm/v3/objects/{Core.HubSpotObjectTypes.COMPANY}";
 
         public bool IsNameValue => false;
 

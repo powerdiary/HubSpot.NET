@@ -142,7 +142,7 @@ namespace HubSpot.NET.Api.Company
             if (opts == null)
                 opts = new SearchRequestOptions();
 
-            var path = "/crm/v3/objects/companies/search";
+            var path = $"/crm/v3/objects/{HubSpotObjectTypes.COMPANY}/search";
 
             CompanySearchHubSpotModel<T> data =
                 _client.ExecuteList<CompanySearchHubSpotModel<T>>(path, opts, Method.Post,
@@ -296,7 +296,7 @@ namespace HubSpot.NET.Api.Company
             if (opts == null)
                 opts = new SearchRequestOptions();
 
-            var path = "/crm/v3/objects/companies/search";
+            var path = $"/crm/v3/objects/{HubSpotObjectTypes.COMPANY}/search";
 
             return _client.ExecuteListAsync<CompanySearchHubSpotModel<T>>(path, opts, Method.Post,
                 convertToPropertiesSchema: true);
