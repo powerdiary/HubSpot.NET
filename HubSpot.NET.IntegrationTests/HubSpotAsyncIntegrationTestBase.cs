@@ -86,9 +86,9 @@ public abstract class HubSpotAsyncIntegrationTestBase : HubSpotIntegrationTestSe
     {
         try
         {
-            await HubSpotApi.Associations.AssociationToObjectAsync(HubSpotObjectIds.Company,
+            await HubSpotApi.Associations.AssociationToObjectAsync(HubSpotObjectTypes.COMPANY,
                 company.Id.Value.ToString(),
-                HubSpotObjectIds.Contact, contact.Id.Value.ToString());
+                HubSpotObjectTypes.CONTACT, contact.Id.Value.ToString());
         }
         catch (Exception ex)
         {
