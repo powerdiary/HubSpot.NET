@@ -25,14 +25,14 @@ namespace HubSpot.NET.Api.LineItem
                 where TRequest : LineItemCreateOrUpdateRequest, new()
                 where TResponse : LineItemGetResponse, new()
             {
-                var path = "/crm/v3/objects/line_items";
+                var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}";
 
                 return _client.ExecuteAsync<TResponse>(path, entity, Method.Post, convertToPropertiesSchema: false);
             }
 
             public Task DeleteAsync(long lineItemId)
             {
-                var path = $"/crm/v3/objects/line_items/{lineItemId}";
+                var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/{lineItemId}";
                 return _client.ExecuteAsync(path, method: Method.Delete, convertToPropertiesSchema: false);
             }
 
@@ -59,7 +59,7 @@ namespace HubSpot.NET.Api.LineItem
                         : "";
 
                 var path =
-                    $"/crm/v3/objects/line_items/{lineItemId}?properties={propertiesQueryParam}{associationsQueryParam}";
+                    $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/{lineItemId}?properties={propertiesQueryParam}{associationsQueryParam}";
 
                 try
                 {
@@ -84,7 +84,7 @@ namespace HubSpot.NET.Api.LineItem
                 if (entity.Id < 1)
                     throw new ArgumentException("Line Item entity must have an id set!");
 
-                var path = $"/crm/v3/objects/line_items/{entity.Id}";
+                var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/{entity.Id}";
 
                 return _client.ExecuteAsync<TResponse>(path, entity, Method.Patch, convertToPropertiesSchema: false);
             }
@@ -95,7 +95,7 @@ namespace HubSpot.NET.Api.LineItem
                 if (opts == null)
                     opts = new LineItemListRequestOptions();
 
-                var path = $"/crm/v3/objects/line_items"
+                var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}"
                     .SetQueryParam("limit", opts.Limit);
 
                 if (opts.Offset.HasValue)
@@ -115,7 +115,7 @@ namespace HubSpot.NET.Api.LineItem
                 if (opts == null)
                     opts = new SearchRequestOptions();
 
-                var path = "/crm/v3/objects/line_items/search";
+                var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/search";
 
                 return _client.ExecuteListAsync<SearchHubSpotModel<T>>(path, opts, Method.Post, convertToPropertiesSchema: false);
             }

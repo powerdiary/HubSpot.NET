@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using HubSpot.NET.Core;
 using HubSpot.NET.Core.Interfaces;
 
 namespace HubSpot.NET.Api.Properties.Dto
@@ -42,6 +39,6 @@ namespace HubSpot.NET.Api.Properties.Dto
         {
         }
 
-        public string RouteBasePath => "/companies";
+        public string RouteBasePath => $"/{HubSpotObjectTypes.COMPANY}";
     }
 }
