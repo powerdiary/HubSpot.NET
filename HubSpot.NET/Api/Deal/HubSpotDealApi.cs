@@ -111,7 +111,7 @@ namespace HubSpot.NET.Api.Deal
             if (opts == null)
                 opts = new DealListRequestOptions();
 
-            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}/deals"
+            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}"
                 .SetQueryParam("limit", opts.Limit);
 
             if (opts.Offset.HasValue)
@@ -133,7 +133,7 @@ namespace HubSpot.NET.Api.Deal
             if (opts == null)
                 opts = new DealListRequestOptions();
 
-            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}/deals"
+            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}"
                 .SetQueryParam("limit", opts.Limit);
 
             if (opts.Offset.HasValue)
