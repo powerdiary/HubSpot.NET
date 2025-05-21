@@ -107,7 +107,7 @@ public sealed class HubSpotDealApiAsyncIntegrationTests : HubSpotAsyncIntegratio
             allDeals.Should().NotBeNull();
             allDeals.Deals.Count.Should().Be(1);
             allDeals.Paging.Next.After.Should().NotBeEmpty();
-            allDeals.Paging.Next.Link.Should().Contain("https://api.hubapi.com/crm/v3/objects/deals?");
+            allDeals.Paging.Next.Link.Should().Contain($"https://api.hubapi.com/crm/v3/objects/{HubSpotObjectTypes.DEAL}?");
         }
 
         foreach (var deal in createdDeals)

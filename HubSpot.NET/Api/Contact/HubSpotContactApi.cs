@@ -219,7 +219,7 @@ namespace HubSpot.NET.Api.Contact
         {
             opts ??= new SearchRequestOptions();
 
-            const string path = "/crm/v3/objects/contacts/search";
+            var path = $"/crm/v3/objects/{HubSpotObjectTypes.CONTACT}/search";
 
             var data = _client.ExecuteList<ContactSearchHubSpotModel<T>>(path, opts, Method.Post,
                 convertToPropertiesSchema: true);
@@ -428,7 +428,7 @@ namespace HubSpot.NET.Api.Contact
         {
             opts ??= new SearchRequestOptions();
 
-            const string path = "/crm/v3/objects/contacts/search";
+            var path = $"/crm/v3/objects/{HubSpotObjectTypes.CONTACT}/search";
 
             return _client.ExecuteListAsync<ContactSearchHubSpotModel<T>>(path, opts, Method.Post,
                 convertToPropertiesSchema: true);
