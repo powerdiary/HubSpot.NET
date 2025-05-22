@@ -41,6 +41,42 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         }
 
         [Fact]
+        public async Task DeleteEventDefinitionAsync_WhenValidEvent_ShouldDeleteEvent()
+        {
+            // Arrange
+            var eventDefinition = new EventDefinition
+            {
+                Name = "test_event_" + Guid.NewGuid().ToString("N"),
+                Label = "Test Event",
+                Labels = new SchemasLabelsModel { Singular = "Test Event" },
+                Description = "Test event description",
+                PrimaryObjectId = "0-1",
+                TrackingType = "MANUAL"
+            };
+
+            var createdEvent = await CustomEventApi.CreateEventDefinitionAsync(eventDefinition);
+            createdEvent.Should().NotBeNull();
+
+            // Act
+            await CustomEventApi.DeleteEventDefinitionAsync(createdEvent.Name);
+
+            // Assert
+            var deletedEvent = await CustomEventApi.GetByNameAsync<EventDefinition>(createdEvent.Name);
+            deletedEvent.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task DeleteEventDefinitionAsync_WhenNonExistentEvent_ShouldNotThrowException()
+        {
+            // Arrange
+            var nonExistentEventName = "test_event_" + Guid.NewGuid().ToString("N");
+
+            // Act & Assert
+            await CustomEventApi.DeleteEventDefinitionAsync(nonExistentEventName);
+            // Should not throw an exception
+        }
+
+        [Fact]
         public async Task SendEventTrackingDataForContact_WhenValidData_ShouldSucceedWithNoException()
         {            
             var eventDefinition = await GetTestEventDefinition();

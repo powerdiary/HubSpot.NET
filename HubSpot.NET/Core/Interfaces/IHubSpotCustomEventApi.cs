@@ -10,5 +10,7 @@ namespace HubSpot.NET.Core.Interfaces
         Task<T> GetByNameAsync<T>(string eventName) where T : EventDefinition, new();
 
         Task<T> CreateEventDefinitionAsync<T>(T eventDefinition) where T : EventDefinition, new();
+
+        Task DeleteEventDefinitionAsync(string eventName);
     }
 }
