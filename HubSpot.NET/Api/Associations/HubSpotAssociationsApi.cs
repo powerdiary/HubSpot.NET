@@ -27,7 +27,6 @@ namespace HubSpot.NET.Api.Associations
             var associationPath =
                 $"/crm/v4/objects/{objectType}/{objectId}/associations/default/{toObjectType}/{toObjectId}";
             _client.Execute(associationPath, null, Method.Put, convertToPropertiesSchema: false);
-
         }
 
         /// <summary>
@@ -87,7 +86,7 @@ namespace HubSpot.NET.Api.Associations
         {
             var associationPath = $"/crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}";            
 
-            return _client.ExecuteListAsync<T>(associationPath, Method.Get, convertToPropertiesSchema: false); ;
+            return _client.ExecuteListAsync<T>(associationPath, Method.Get, convertToPropertiesSchema: false);
         }
     }
 }

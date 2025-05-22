@@ -2,6 +2,7 @@
 using FluentAssertions.Execution;
 using HubSpot.NET.Api.Associations.Dto;
 using HubSpot.NET.Api.Contact.Dto;
+using HubSpot.NET.Core;
 
 namespace HubSpot.NET.IntegrationTests.Api.Associations;
 
@@ -13,9 +14,9 @@ public sealed class HubSpotAssociationsApiAsyncIntegrationTests : HubSpotAsyncIn
         var expectedCompany = await RecreateTestCompanyAsync();
         var expectedContact = await RecreateTestContactAsync();
 
-        var expectedObjectType = "Company";
+        var expectedObjectType = HubSpotObjectTypes.COMPANY;
         var expectedObjectId = expectedCompany.Id.Value.ToString();
-        var expectedToObjectType = "Contact";
+        var expectedToObjectType = HubSpotObjectTypes.CONTACT;
         var expectedToObjectId = expectedContact.Id.Value.ToString();
 
         await AssociationsApi.AssociationToObjectAsync(expectedObjectType, expectedObjectId, expectedToObjectType,
@@ -39,9 +40,9 @@ public sealed class HubSpotAssociationsApiAsyncIntegrationTests : HubSpotAsyncIn
         var expectedCompany = await RecreateTestCompanyAsync();
         var expectedContact = await RecreateTestContactAsync();
 
-        var expectedObjectType = "Company";
+        var expectedObjectType = HubSpotObjectTypes.COMPANY;
         var expectedObjectId = expectedCompany.Id.Value.ToString();
-        var expectedToObjectType = "Contact";
+        var expectedToObjectType = HubSpotObjectTypes.CONTACT;
         var expectedToObjectId = expectedContact.Id.Value.ToString();
         var expectedAssociationCategory = "YOUR_ASSOCIATION_CATEGORY";
         var expectedAssociationTypeId = 0; // replace with your actual association type ID
@@ -68,9 +69,9 @@ public sealed class HubSpotAssociationsApiAsyncIntegrationTests : HubSpotAsyncIn
         var expectedCompany = await RecreateTestCompanyAsync();
         var expectedContact = await RecreateTestContactAsync();
 
-        var expectedObjectType = "Company";
+        var expectedObjectType = HubSpotObjectTypes.COMPANY;
         var expectedObjectId = expectedCompany.Id.Value.ToString();
-        var expectedToObjectType = "Contact";
+        var expectedToObjectType = HubSpotObjectTypes.CONTACT;
         var expectedToObjectId = expectedContact.Id.Value.ToString();
 
         await AssociationsApi.AssociationToObjectAsync(expectedObjectType, expectedObjectId, expectedToObjectType,
