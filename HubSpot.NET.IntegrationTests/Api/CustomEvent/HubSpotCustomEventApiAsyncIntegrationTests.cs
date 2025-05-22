@@ -8,7 +8,22 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
 {
     public class HubSpotCustomEventApiAsyncIntegrationTests : HubSpotAsyncIntegrationTestBase
     {
-        private const string EventName = "test_event_7f91f99b415f4643be52638bad48699f";
+        private async Task<EventDefinition> CreateUniqueEventDefinitionAsync(string primaryObjectId = "0-1")
+        {
+            var eventDefinition = new EventDefinition
+            {
+                Name = "test_event_" + Guid.NewGuid().ToString("N"),
+                Label = "Test Event",
+                Labels = new SchemasLabelsModel { Singular = "Test Event" },
+                Description = "Test event description",
+                PrimaryObjectId = primaryObjectId,
+                TrackingType = "MANUAL"
+            };
+
+            var createdEvent = await CustomEventApi.CreateEventDefinitionAsync(eventDefinition);
+            CustomEventsToCleanup.Add(createdEvent.Name);
+            return createdEvent;
+        }
 
         [Fact]
         public async Task CreateEventDefinitionAsync_WhenValidEvent_ShouldCreateEvent()
@@ -26,6 +41,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
 
             // Act
             var result = await CustomEventApi.CreateEventDefinitionAsync(eventDefinition);
+            CustomEventsToCleanup.Add(result.Name);
 
             // Assert
             using (new AssertionScope())
@@ -44,24 +60,14 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         public async Task DeleteEventDefinitionAsync_WhenValidEvent_ShouldDeleteEvent()
         {
             // Arrange
-            var eventDefinition = new EventDefinition
-            {
-                Name = "test_event_" + Guid.NewGuid().ToString("N"),
-                Label = "Test Event",
-                Labels = new SchemasLabelsModel { Singular = "Test Event" },
-                Description = "Test event description",
-                PrimaryObjectId = "0-1",
-                TrackingType = "MANUAL"
-            };
-
-            var createdEvent = await CustomEventApi.CreateEventDefinitionAsync(eventDefinition);
-            createdEvent.Should().NotBeNull();
+            var eventDefinition = await CreateUniqueEventDefinitionAsync();
 
             // Act
-            await CustomEventApi.DeleteEventDefinitionAsync(createdEvent.Name);
+            await CustomEventApi.DeleteEventDefinitionAsync(eventDefinition.Name);
+            CustomEventsToCleanup.Remove(eventDefinition.Name);
 
             // Assert
-            var deletedEvent = await CustomEventApi.GetByNameAsync<EventDefinition>(createdEvent.Name);
+            var deletedEvent = await CustomEventApi.GetByNameAsync<EventDefinition>(eventDefinition.Name);
             deletedEvent.Should().BeNull();
         }
 
@@ -78,15 +84,15 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
 
         [Fact]
         public async Task SendEventTrackingDataForContact_WhenValidData_ShouldSucceedWithNoException()
-        {            
-            var eventDefinition = await GetTestEventDefinition();
+        {
+            var eventDefinition = await CreateUniqueEventDefinitionAsync();
             var contact = await RecreateTestContactAsync();
 
             var eventTracking = CreateTestEventTracking(contact.Email, eventDefinition.FullyQualifiedName);
 
             Func<Task> act = async () => await CustomEventApi.SendEventTrackingData(eventTracking);
 
-            await act.Should().NotThrowAsync();            
+            await act.Should().NotThrowAsync();
         }
 
         [Fact]
@@ -103,23 +109,25 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         [Fact]
         public async Task SendEventTrackingDataForContact_WhenInvalidEmail_ShouldNotThrowException()
         {
-            var eventDefinition = await GetTestEventDefinition();
+            var eventDefinition = await CreateUniqueEventDefinitionAsync();
 
             var eventTracking = CreateTestEventTracking("invalid_email", eventDefinition.FullyQualifiedName);
 
             Func<Task> act = async () => await CustomEventApi.SendEventTrackingData(eventTracking);
 
             await act.Should().NotThrowAsync();
-        }        
+        }
 
         [Fact]
         public async Task GetByNameAsync_WhenValidEventName_ShouldReturnEvent()
         {
-            var result = await CustomEventApi.GetByNameAsync<EventDefinition>(EventName);
+            var eventDefinition = await CreateUniqueEventDefinitionAsync();
+
+            var result = await CustomEventApi.GetByNameAsync<EventDefinition>(eventDefinition.Name);
 
             result.Should().BeEquivalentTo(new EventDefinition
             {
-                Name = EventName,
+                Name = eventDefinition.Name,
                 Labels = new SchemasLabelsModel() { Singular = "Test Event" }
             }, options =>
             options
@@ -137,7 +145,8 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         public async Task SendEventTrackingDataForCompany_WhenValidData_ShouldSucceedWithNoException()
         {
             var company = await RecreateTestCompanyAsync();
-            var eventDefinition = await GetTestEventDefinition("test_event2", "COMPANY");
+            var eventDefinition = await CreateUniqueEventDefinitionAsync("0-2"); // 0-2 is the ID for COMPANY
+
             var eventTracking = CreateTestEventTracking(company.Id.Value, eventDefinition.FullyQualifiedName);
 
             Func<Task> act = async () => await CustomEventApi.SendEventTrackingData(eventTracking);
@@ -149,7 +158,8 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         public async Task SendEventTrackingDataForCompany_WhenInvalidObjectId_ShouldNotThrowException()
         {
             long randomNonExistingCompanyId = 10000234;
-            var eventDefinition = await GetTestEventDefinition("test_event2", "COMPANY");
+            var eventDefinition = await CreateUniqueEventDefinitionAsync("0-2"); // 0-2 is the ID for COMPANY
+
             var eventTracking = CreateTestEventTracking(randomNonExistingCompanyId, eventDefinition.FullyQualifiedName);
 
             Func<Task> act = async () => await CustomEventApi.SendEventTrackingData(eventTracking);
@@ -158,7 +168,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         }
 
         private EventTracking CreateTestEventTracking(string email, string eventName)
-        {            
+        {
             return new EventTracking
             {
                 EventName = eventName,
