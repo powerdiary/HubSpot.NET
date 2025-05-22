@@ -8,7 +8,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
 {
     public class HubSpotCustomEventApiAsyncIntegrationTests : HubSpotAsyncIntegrationTestBase
     {
-        private const string EventName = "test_event1";
+        private const string EventName = "test_event_7f91f99b415f4643be52638bad48699f";
 
         [Fact]
         public async Task CreateEventDefinitionAsync_WhenValidEvent_ShouldCreateEvent()
@@ -120,7 +120,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
             result.Should().BeEquivalentTo(new EventDefinition
             {
                 Name = EventName,
-                Labels = new SchemasLabelsModel() { Singular = "Test Event1" }
+                Labels = new SchemasLabelsModel() { Singular = "Test Event" }
             }, options =>
             options
                 .Excluding(e => e.Description)
