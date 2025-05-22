@@ -3,6 +3,7 @@ using FluentAssertions.Execution;
 using HubSpot.NET.Api.CustomEvent.Dto;
 using HubSpot.NET.Api.Schemas;
 using HubSpot.NET.Core;
+using System.Net;
 
 namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
 {
@@ -67,19 +68,21 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
             CustomEventsToCleanup.Remove(eventDefinition.Name);
 
             // Assert
-            var deletedEvent = await CustomEventApi.GetByNameAsync<EventDefinition>(eventDefinition.Name);
-            deletedEvent.Should().BeNull();
+            Func<Task> act = async () => await CustomEventApi.GetByNameAsync<EventDefinition>(eventDefinition.Name);
+            await act.Should().ThrowAsync<HubSpotException>()
+                .Where(e => e.ReturnedError.StatusCode == HttpStatusCode.BadRequest);
         }
 
         [Fact]
-        public async Task DeleteEventDefinitionAsync_WhenNonExistentEvent_ShouldNotThrowException()
+        public async Task DeleteEventDefinitionAsync_WhenNonExistentEvent_ShouldThrowException()
         {
             // Arrange
             var nonExistentEventName = "test_event_" + Guid.NewGuid().ToString("N");
 
             // Act & Assert
-            await CustomEventApi.DeleteEventDefinitionAsync(nonExistentEventName);
-            // Should not throw an exception
+            Func<Task> act = async () => await CustomEventApi.DeleteEventDefinitionAsync(nonExistentEventName);
+            await act.Should().ThrowAsync<HubSpotException>()
+                .Where(e => e.ReturnedError.StatusCode == HttpStatusCode.BadRequest);
         }
 
         [Fact]
