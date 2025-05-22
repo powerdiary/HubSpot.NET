@@ -10,115 +10,112 @@ using RestSharp;
 
 namespace HubSpot.NET.Api.LineItem
 {
-    namespace HubSpot.NET.Api.LineItems
+    public class HubSpotLineItemApi : IHubSpotLineItemApi
     {
-        public class HubSpotLineItemApi : IHubSpotLineItemApi
+        private readonly IHubSpotClient _client;
+
+        public HubSpotLineItemApi(IHubSpotClient client)
         {
-            private readonly IHubSpotClient _client;
+            _client = client;
+        }
 
-            public HubSpotLineItemApi(IHubSpotClient client)
+        public Task<TResponse> CreateAsync<TRequest, TResponse>(TRequest entity)
+            where TRequest : LineItemCreateOrUpdateRequest, new()
+            where TResponse : LineItemGetResponse, new()
+        {
+            var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}";
+
+            return _client.ExecuteAsync<TResponse>(path, entity, Method.Post, convertToPropertiesSchema: false);
+        }
+
+        public Task DeleteAsync(long lineItemId)
+        {
+            var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/{lineItemId}";
+            return _client.ExecuteAsync(path, method: Method.Delete, convertToPropertiesSchema: false);
+        }
+
+        public async Task<T> GetByIdAsync<T>(long lineItemId, LineItemListRequestOptions requestOptions = null)
+            where T : LineItemGetResponse, new()
+        {
+            requestOptions ??= new LineItemListRequestOptions();
+
+            if (requestOptions.PropertiesToInclude == null || requestOptions.PropertiesToInclude.Count == 0)
             {
-                _client = client;
+                requestOptions.PropertiesToInclude = new List<string> { "name", "price" };
             }
 
-            public Task<TResponse> CreateAsync<TRequest, TResponse>(TRequest entity)
-                where TRequest : LineItemCreateOrUpdateRequest, new()
-                where TResponse : LineItemGetResponse, new()
+            if (requestOptions.Associations == null || requestOptions.Associations.Count == 0)
             {
-                var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}";
-
-                return _client.ExecuteAsync<TResponse>(path, entity, Method.Post, convertToPropertiesSchema: false);
+                requestOptions.Associations = new List<string> { "deals" };
             }
 
-            public Task DeleteAsync(long lineItemId)
+            var propertiesQueryParam = string.Join(",", requestOptions.PropertiesToInclude);
+
+            var associationsQueryParam =
+                requestOptions.Associations != null && requestOptions.Associations.Count > 0
+                    ? $"&associations={string.Join(",", requestOptions.Associations)}"
+                    : "";
+
+            var path =
+                $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/{lineItemId}?properties={propertiesQueryParam}{associationsQueryParam}";
+
+            try
             {
-                var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/{lineItemId}";
-                return _client.ExecuteAsync(path, method: Method.Delete, convertToPropertiesSchema: false);
+                return await _client.ExecuteAsync<T>(path, Method.Get, convertToPropertiesSchema: false);
             }
-
-            public async Task<T> GetByIdAsync<T>(long lineItemId, LineItemListRequestOptions requestOptions = null)
-                where T : LineItemGetResponse, new()
+            catch (HubSpotException hubSpotEx)
             {
-                requestOptions ??= new LineItemListRequestOptions();
-
-                if (requestOptions.PropertiesToInclude == null || requestOptions.PropertiesToInclude.Count == 0)
+                if (hubSpotEx.ReturnedError.StatusCode == HttpStatusCode.NotFound)
                 {
-                    requestOptions.PropertiesToInclude = new List<string> { "name", "price" };
+                    throw new HubSpotException($"Line item with ID {lineItemId} does not exist.",
+                        new HubSpotError(hubSpotEx.ReturnedError.StatusCode, hubSpotEx.ReturnedError.Description));
                 }
 
-                if (requestOptions.Associations == null || requestOptions.Associations.Count == 0)
-                {
-                    requestOptions.Associations = new List<string> { "deals" };
-                }
-
-                var propertiesQueryParam = string.Join(",", requestOptions.PropertiesToInclude);
-
-                var associationsQueryParam =
-                    requestOptions.Associations != null && requestOptions.Associations.Count > 0
-                        ? $"&associations={string.Join(",", requestOptions.Associations)}"
-                        : "";
-
-                var path =
-                    $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/{lineItemId}?properties={propertiesQueryParam}{associationsQueryParam}";
-
-                try
-                {
-                    return await _client.ExecuteAsync<T>(path, Method.Get, convertToPropertiesSchema: false);
-                }
-                catch (HubSpotException hubSpotEx)
-                {
-                    if (hubSpotEx.ReturnedError.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        throw new HubSpotException($"Line item with ID {lineItemId} does not exist.",
-                            new HubSpotError(hubSpotEx.ReturnedError.StatusCode, hubSpotEx.ReturnedError.Description));
-                    }
-
-                    throw;
-                }
+                throw;
             }
+        }
 
-            public Task<TResponse> UpdateAsync<TRequest, TResponse>(TRequest entity)
-                where TRequest : LineItemCreateOrUpdateRequest, new()
-                where TResponse : LineItemGetResponse, new()
-            {
-                if (entity.Id < 1)
-                    throw new ArgumentException("Line Item entity must have an id set!");
+        public Task<TResponse> UpdateAsync<TRequest, TResponse>(TRequest entity)
+            where TRequest : LineItemCreateOrUpdateRequest, new()
+            where TResponse : LineItemGetResponse, new()
+        {
+            if (entity.Id < 1)
+                throw new ArgumentException("Line Item entity must have an id set!");
 
-                var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/{entity.Id}";
+            var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/{entity.Id}";
 
-                return _client.ExecuteAsync<TResponse>(path, entity, Method.Patch, convertToPropertiesSchema: false);
-            }
+            return _client.ExecuteAsync<TResponse>(path, entity, Method.Patch, convertToPropertiesSchema: false);
+        }
 
-            public Task<LineItemListHubSpotModel<T>> ListAsync<T>(LineItemListRequestOptions opts = null)
-                where T : LineItemGetResponse, new()
-            {
-                if (opts == null)
-                    opts = new LineItemListRequestOptions();
+        public Task<LineItemListHubSpotModel<T>> ListAsync<T>(LineItemListRequestOptions opts = null)
+            where T : LineItemGetResponse, new()
+        {
+            if (opts == null)
+                opts = new LineItemListRequestOptions();
 
-                var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}"
-                    .SetQueryParam("limit", opts.Limit);
+            var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}"
+                .SetQueryParam("limit", opts.Limit);
 
-                if (opts.Offset.HasValue)
-                    path = path.SetQueryParam("after", opts.Offset);
+            if (opts.Offset.HasValue)
+                path = path.SetQueryParam("after", opts.Offset);
 
-                return _client.ExecuteListAsync<LineItemListHubSpotModel<T>>(path, convertToPropertiesSchema: false);
-            }
+            return _client.ExecuteListAsync<LineItemListHubSpotModel<T>>(path, convertToPropertiesSchema: false);
+        }
 
-            /// <summary>
-            /// Gets a list of line items based on a search criteria
-            /// </summary>
-            /// <typeparam name="T">Implementation of <see cref="LineItemGetResponse"/></typeparam>
-            /// <param name="opts">Options (limit, offset) and search criteria relating to request</param>
-            /// <returns>List of line items</returns>
-            public Task<SearchHubSpotModel<T>> SearchAsync<T>(SearchRequestOptions opts = null) where T : LineItemGetResponse, new()
-            {
-                if (opts == null)
-                    opts = new SearchRequestOptions();
+        /// <summary>
+        /// Gets a list of line items based on a search criteria
+        /// </summary>
+        /// <typeparam name="T">Implementation of <see cref="LineItemGetResponse"/></typeparam>
+        /// <param name="opts">Options (limit, offset) and search criteria relating to request</param>
+        /// <returns>List of line items</returns>
+        public Task<SearchHubSpotModel<T>> SearchAsync<T>(SearchRequestOptions opts = null) where T : LineItemGetResponse, new()
+        {
+            if (opts == null)
+                opts = new SearchRequestOptions();
 
-                var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/search";
+            var path = $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}/search";
 
-                return _client.ExecuteListAsync<SearchHubSpotModel<T>>(path, opts, Method.Post, convertToPropertiesSchema: false);
-            }
+            return _client.ExecuteListAsync<SearchHubSpotModel<T>>(path, opts, Method.Post, convertToPropertiesSchema: false);
         }
     }
 }

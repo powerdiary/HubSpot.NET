@@ -4,7 +4,7 @@ using HubSpot.NET.Api.Contact;
 using HubSpot.NET.Api.ContactList;
 using HubSpot.NET.Api.CustomObject;
 using HubSpot.NET.Api.Deal;
-using HubSpot.NET.Api.LineItem.HubSpot.NET.Api.LineItems;
+using HubSpot.NET.Api.LineItem;
 using HubSpot.NET.Api.Properties;
 using HubSpot.NET.Core;
 using Microsoft.Extensions.Configuration;
