@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentAssertions.Execution;
 using HubSpot.NET.Api.CustomEvent.Dto;
 using HubSpot.NET.Api.Schemas;
 using HubSpot.NET.Core;
@@ -8,6 +9,36 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
     public class HubSpotCustomEventApiAsyncIntegrationTests : HubSpotAsyncIntegrationTestBase
     {
         private const string EventName = "test_event1";
+
+        [Fact]
+        public async Task CreateEventDefinitionAsync_WhenValidEvent_ShouldCreateEvent()
+        {
+            // Arrange
+            var eventDefinition = new EventDefinition
+            {
+                Name = "test_event_" + Guid.NewGuid().ToString("N"),
+                Label = "Test Event",
+                Labels = new SchemasLabelsModel { Singular = "Test Event" },
+                Description = "Test event description",
+                PrimaryObjectId = "0-1", // 0-1 is the ID for CONTACT
+                TrackingType = "MANUAL"
+            };
+
+            // Act
+            var result = await CustomEventApi.CreateEventDefinitionAsync(eventDefinition);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().NotBeNull();
+                result.Name.Should().Be(eventDefinition.Name);
+                result.Labels.Singular.Should().Be(eventDefinition.Labels.Singular);
+                result.Description.Should().Be(eventDefinition.Description);
+                result.PrimaryObjectId.Should().Be(eventDefinition.PrimaryObjectId);
+                result.TrackingType.Should().Be(eventDefinition.TrackingType);
+                result.Archived.Should().BeFalse();
+            }
+        }
 
         [Fact]
         public async Task SendEventTrackingDataForContact_WhenValidData_ShouldSucceedWithNoException()
@@ -53,11 +84,17 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
             result.Should().BeEquivalentTo(new EventDefinition
             {
                 Name = EventName,
-                Label = new SchemasLabelsModel() { Singular = "Test Event1" }
+                Labels = new SchemasLabelsModel() { Singular = "Test Event1" }
             }, options =>
             options
                 .Excluding(e => e.Description)
-                .Excluding(e => e.FullyQualifiedName));
+                .Excluding(e => e.FullyQualifiedName)
+                .Excluding(e => e.Id)
+                .Excluding(e => e.CreatedAt)
+                .Excluding(e => e.UpdatedAt)
+                .Excluding(e => e.Archived)
+                .Excluding(e => e.TrackingType)
+                .Excluding(e => e.PrimaryObjectId));
         }
 
         [Fact]

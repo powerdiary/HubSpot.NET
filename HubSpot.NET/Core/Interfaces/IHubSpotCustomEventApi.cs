@@ -8,5 +8,7 @@ namespace HubSpot.NET.Core.Interfaces
         Task SendEventTrackingData(EventTracking eventTracking);        
 
         Task<T> GetByNameAsync<T>(string eventName) where T : EventDefinition, new();
+
+        Task<T> CreateEventDefinitionAsync<T>(T eventDefinition) where T : EventDefinition, new();
     }
 }

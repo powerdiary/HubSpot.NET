@@ -37,5 +37,11 @@ namespace HubSpot.NET.Api.CustomEvent
                 throw;
             }
         }
+
+        public Task<T> CreateEventDefinitionAsync<T>(T eventDefinition) where T : EventDefinition, new()
+        {
+            var path = new T().RouteBasePath;
+            return _client.ExecuteAsync<T>(path, eventDefinition, Method.Post, convertToPropertiesSchema: false);
+        }
     }
 }

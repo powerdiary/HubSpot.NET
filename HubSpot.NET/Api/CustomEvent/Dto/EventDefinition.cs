@@ -7,8 +7,11 @@ namespace HubSpot.NET.Api.CustomEvent.Dto
     [DataContract]
     public class EventDefinition : IHubSpotModel
     {
+        [DataMember(Name = "label")]
+        public string Label { get; set; }
+
         [DataMember(Name = "labels")]
-        public SchemasLabelsModel Label { get; set; }
+        public SchemasLabelsModel Labels { get; set; }
         
         [DataMember(Name="name")]
         public string Name { get; set; }
@@ -16,11 +19,26 @@ namespace HubSpot.NET.Api.CustomEvent.Dto
         [DataMember(Name = "description")]
         public string Description { get; set; }
 
-        [DataMember(Name = "primaryObject")]
-        public string PrimaryObject { get; set; }
+        [DataMember(Name = "primaryObjectId")]
+        public string PrimaryObjectId { get; set; }
 
         [DataMember(Name = "fullyQualifiedName")]
         public string FullyQualifiedName { get; set; }
+
+        [DataMember(Name = "archived")]
+        public bool Archived { get; set; }
+
+        [DataMember(Name = "trackingType")]
+        public string TrackingType { get; set; }
+
+        [DataMember(Name = "id")]
+        public string Id { get; set; }
+
+        [DataMember(Name = "createdAt")]
+        public string CreatedAt { get; set; }
+
+        [DataMember(Name = "updatedAt")]
+        public string UpdatedAt { get; set; }
 
         public bool IsNameValue => true;
 
