@@ -9,7 +9,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
 {
     public class HubSpotCustomEventApiAsyncIntegrationTests : HubSpotAsyncIntegrationTestBase
     {
-        private async Task<EventDefinition> CreateUniqueEventDefinitionAsync(string primaryObjectId = "0-1")
+        private async Task<EventDefinition> CreateUniqueEventDefinitionAsync(string primaryObjectId = HubSpotObjectTypes.CONTACT)
         {
             var eventDefinition = new EventDefinition
             {
@@ -36,7 +36,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
                 Label = "Test Event",
                 Labels = new SchemasLabelsModel { Singular = "Test Event" },
                 Description = "Test event description",
-                PrimaryObjectId = "0-1", // 0-1 is the ID for CONTACT
+                PrimaryObjectId = HubSpotObjectTypes.CONTACT,
                 TrackingType = "MANUAL"
             };
 
@@ -148,7 +148,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         public async Task SendEventTrackingDataForCompany_WhenValidData_ShouldSucceedWithNoException()
         {
             var company = await RecreateTestCompanyAsync();
-            var eventDefinition = await CreateUniqueEventDefinitionAsync("0-2"); // 0-2 is the ID for COMPANY
+            var eventDefinition = await CreateUniqueEventDefinitionAsync(HubSpotObjectTypes.COMPANY);
 
             var eventTracking = CreateTestEventTracking(company.Id.Value, eventDefinition.FullyQualifiedName);
 
@@ -161,7 +161,7 @@ namespace HubSpot.NET.IntegrationTests.Api.CustomEvent
         public async Task SendEventTrackingDataForCompany_WhenInvalidObjectId_ShouldNotThrowException()
         {
             long randomNonExistingCompanyId = 10000234;
-            var eventDefinition = await CreateUniqueEventDefinitionAsync("0-2"); // 0-2 is the ID for COMPANY
+            var eventDefinition = await CreateUniqueEventDefinitionAsync(HubSpotObjectTypes.COMPANY);
 
             var eventTracking = CreateTestEventTracking(randomNonExistingCompanyId, eventDefinition.FullyQualifiedName);
 
