@@ -82,8 +82,8 @@ public abstract class HubSpotIntegrationTestBase : HubSpotIntegrationTestSetup
     {
         try
         {
-            HubSpotApi.Associations.AssociationToObject(HubSpotObjectIds.Company, company.Id.Value.ToString(),
-                HubSpotObjectIds.Contact, contact.Id.Value.ToString());
+            HubSpotApi.Associations.AssociationToObject(HubSpotObjectTypes.COMPANY, company.Id.Value.ToString(),
+                HubSpotObjectTypes.CONTACT, contact.Id.Value.ToString());
         }
         catch (Exception ex)
         {

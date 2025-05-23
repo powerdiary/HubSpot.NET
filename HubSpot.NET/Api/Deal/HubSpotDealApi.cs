@@ -111,7 +111,7 @@ namespace HubSpot.NET.Api.Deal
             if (opts == null)
                 opts = new DealListRequestOptions();
 
-            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}/deals"
+            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}"
                 .SetQueryParam("limit", opts.Limit);
 
             if (opts.Offset.HasValue)
@@ -133,7 +133,7 @@ namespace HubSpot.NET.Api.Deal
             if (opts == null)
                 opts = new DealListRequestOptions();
 
-            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}/deals"
+            var path = $"{new DealListHubSpotModel<T>().RouteBasePath}"
                 .SetQueryParam("limit", opts.Limit);
 
             if (opts.Offset.HasValue)
@@ -265,7 +265,7 @@ namespace HubSpot.NET.Api.Deal
             if (opts == null)
                 opts = new SearchRequestOptions();
 
-            var path = "/crm/v3/objects/deals/search";
+            var path = $"/crm/v3/objects/{HubSpotObjectTypes.DEAL}/search";
 
             var data = _client.ExecuteList<SearchHubSpotModel<T>>(path, opts, Method.Post, convertToPropertiesSchema: true);
 
@@ -277,7 +277,7 @@ namespace HubSpot.NET.Api.Deal
             if (opts == null)
                 opts = new SearchRequestOptions();
 
-            var path = "/crm/v3/objects/deals/search";
+            var path = $"/crm/v3/objects/{HubSpotObjectTypes.DEAL}/search";
 
             return _client.ExecuteListAsync<SearchHubSpotModel<T>>(path, opts, Method.Post, convertToPropertiesSchema: true);
         }

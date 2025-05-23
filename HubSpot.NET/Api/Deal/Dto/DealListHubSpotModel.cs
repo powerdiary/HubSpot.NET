@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
+using HubSpot.NET.Core;
 using HubSpot.NET.Core.Interfaces;
 
 namespace HubSpot.NET.Api.Deal.Dto
@@ -16,7 +17,7 @@ namespace HubSpot.NET.Api.Deal.Dto
         [DataMember(Name = "paging")]
         public PagingModel Paging { get; set; } = new PagingModel();
 
-        public string RouteBasePath => "/crm/v3/objects";
+        public string RouteBasePath => $"/crm/v3/objects/{HubSpotObjectTypes.DEAL}";
 
         public bool IsNameValue => false;
         public virtual void ToHubSpotDataEntity(ref dynamic dataEntity)

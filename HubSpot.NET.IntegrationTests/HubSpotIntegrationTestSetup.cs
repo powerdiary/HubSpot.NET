@@ -4,7 +4,7 @@ using HubSpot.NET.Api.Contact;
 using HubSpot.NET.Api.ContactList;
 using HubSpot.NET.Api.CustomObject;
 using HubSpot.NET.Api.Deal;
-using HubSpot.NET.Api.LineItem.HubSpot.NET.Api.LineItems;
+using HubSpot.NET.Api.LineItem;
 using HubSpot.NET.Api.Properties;
 using HubSpot.NET.Core;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +34,7 @@ public abstract class HubSpotIntegrationTestSetup : IAsyncLifetime
     protected readonly IList<string> CompanyPropertiesToCleanup = new List<string>();
     protected readonly IList<long> DealsToCleanup = new List<long>();
     protected readonly IList<long> LineItemsToCleanup = new List<long>();
+    protected readonly IList<string> CustomEventsToCleanup = new List<string>();
 
     protected HubSpotIntegrationTestSetup()
     {
@@ -75,6 +76,7 @@ public abstract class HubSpotIntegrationTestSetup : IAsyncLifetime
         await CleanCompanyPropertiesAsync();
         await CleanDealsAsync();
         await CleanLineItemsAsync();
+        await CleanCustomEventsAsync();
     }
 
     private async Task CleanCompaniesAsync()
@@ -162,6 +164,21 @@ public abstract class HubSpotIntegrationTestSetup : IAsyncLifetime
         catch
         {
             // Ignore errors during cleanup
+        }
+    }
+
+    private async Task CleanCustomEventsAsync()
+    {
+        foreach (var eventName in CustomEventsToCleanup)
+        {
+            try
+            {
+                await CustomEventApi.DeleteEventDefinitionAsync(eventName);
+            }
+            catch
+            {
+                // Ignore errors during cleanup
+            }
         }
     }
 }

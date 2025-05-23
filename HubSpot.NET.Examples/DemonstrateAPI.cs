@@ -45,9 +45,9 @@ namespace HubSpot.NET.Examples
 
                 // Associate the contact with the company
                 _api.Associations.AssociationToObject(
-                    HubSpot.NET.Core.HubSpotObjectIds.Contact,
+                    HubSpotObjectTypes.CONTACT,
                     createdContact.Id.Value.ToString(),
-                    HubSpot.NET.Core.HubSpotObjectIds.Company,
+                    HubSpotObjectTypes.COMPANY,
                     createdCompany.Id.Value.ToString());
 
                 Console.WriteLine($"Contact {createdContact.Id} is now associated with company {createdCompany.Id}");

@@ -170,6 +170,7 @@ public sealed class HubSpotLineItemApiAsyncIntegrationTests : HubSpotAsyncIntegr
         newLineItem.Properties.Price = 100;
 
         var createdLineItem = await LineItemApi.CreateAsync<LineItemCreateOrUpdateRequest, LineItemGetResponse>(newLineItem);
+        LineItemsToCleanup.Add(createdLineItem.Id.Value);
         return (newLineItem, createdLineItem);
     }
 }

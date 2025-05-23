@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
+using HubSpot.NET.Core;
 using HubSpot.NET.Core.Interfaces;
 
 namespace HubSpot.NET.Api.Contact.Dto
@@ -16,7 +17,7 @@ namespace HubSpot.NET.Api.Contact.Dto
         [DataMember(Name = "results")]
         public IList<T> Results { get; set; } = new List<T>();
 
-        public string RouteBasePath => "/crm/v3/objects/contacts/search";
+        public string RouteBasePath => $"/crm/v3/objects/{HubSpotObjectTypes.CONTACT}/search";
 
         public bool IsNameValue => false;
 

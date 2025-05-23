@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using HubSpot.NET.Core;
 using HubSpot.NET.Core.Interfaces;
 
 namespace HubSpot.NET.Api.LineItem.DTO
@@ -17,7 +18,7 @@ namespace HubSpot.NET.Api.LineItem.DTO
         [DataMember(Name = "paging")]
         public PagingModel Paging { get; set; } = new PagingModel();
 
-        public string RouteBasePath => "/crm/v3/objects/line_items";
+        public string RouteBasePath => $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}";
 
         public bool IsNameValue => false;
 

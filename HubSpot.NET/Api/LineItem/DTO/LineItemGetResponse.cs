@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using HubSpot.NET.Core;
 using HubSpot.NET.Core.Interfaces;
 
 namespace HubSpot.NET.Api.LineItem.DTO
@@ -44,7 +45,7 @@ namespace HubSpot.NET.Api.LineItem.DTO
         [DataMember(Name = "properties")]
         public LineItemPropertiesHubSpotModel Properties { get; set; } = new LineItemPropertiesHubSpotModel();
 
-        public string RouteBasePath => "/crm/v3/objects/line_items";
+        public string RouteBasePath => $"/crm/v3/objects/{HubSpotObjectTypes.LINE_ITEM}";
         public bool IsNameValue => true;
 
         public virtual void ToHubSpotDataEntity(ref dynamic dataEntity)
