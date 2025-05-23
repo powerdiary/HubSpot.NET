@@ -12,14 +12,14 @@
       - Improved test reliability with dynamic test data and cleanup methods.
       - Enhanced error handling and API response validation.
     </releaseNotes>
-    <title>PowerDiary's Fork of HubSpot.NET</title>
-    <authors>PowerDiary</authors>
+    <title>Zanda Health's Fork of HubSpot.NET</title>
+    <authors>Zanda Health</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <!-- <icon>icon.png</icon> -->
     <projectUrl>https://github.com/powerdiary/HubSpot.NET</projectUrl>
     <description>This is PowerDiary's custom fork of HubSpot.NET. This library modification includes adding support for asynchronous methods and upgrading the RestSharp and Newtonsoft.Net libraries. It also addresses several identified issues in the code.</description>
-    <copyright>Copyright � PowerDiary Ltd 2024</copyright>
-    <tags>HubSpot PowerDiary HubSpot.NET</tags>
+    <copyright>Copyright � Zanda Health Pty Ltd 2025</copyright>
+    <tags>Zanda Health HubSpot.NET</tags>
   </metadata>
 </package>

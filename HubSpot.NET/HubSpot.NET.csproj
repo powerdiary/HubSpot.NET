@@ -2,10 +2,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Version>1.0.13</Version>
-    <Authors>HubSpot.NET;PowerDiary</Authors>
-    <Company>PowerDiary</Company>
+    <Authors>HubSpot.NET;Zanda Health</Authors>
+    <Company>Zanda Health</Company>
     <Description>.NET client library targeting the HubSpot APIs.</Description>
-    <Copyright>HubSpot.NET;PowerDiary</Copyright>
+    <Copyright>Copyright © Zanda Health Pty Ltd 2025</Copyright>
     <PackageLicenseUrl>https://github.com/powerdiary/HubSpot.NET/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/powerdiary/HubSpot.NET</PackageProjectUrl>
     <RepositoryUrl>https://github.com/powerdiary/HubSpot.NET.git</RepositoryUrl>
