@@ -2,10 +2,15 @@
 <package >
   <metadata>
     <id>PowerDiary.HubSpot.NET</id>
-    <version>1.0.12</version>
+    <version>1.0.13</version>
     <releaseNotes>
       Added:
-	  - Added null or empty check before converting dynamic object values to ensure safe type conversion.
+      - Updated API endpoints to use object type IDs for v3 and v4 CRM APIs to comply with HubSpot's breaking changes (effective June 4, 2025).
+      - Centralized object type constants in HubSpotObjectTypes class.
+      - Added support for custom event definitions with CreateEventDefinitionAsync and DeleteEventDefinitionAsync.
+      - Added new constants for additional HubSpot object types (tickets, quotes, products, activities).
+      - Improved test reliability with dynamic test data and cleanup methods.
+      - Enhanced error handling and API response validation.
     </releaseNotes>
     <title>PowerDiary's Fork of HubSpot.NET</title>
     <authors>PowerDiary</authors>
