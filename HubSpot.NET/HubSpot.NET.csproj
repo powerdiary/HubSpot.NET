@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.0.13</Version>
+    <Version>1.0.14</Version>
     <Authors>HubSpot.NET;Zanda Health</Authors>
     <Company>Zanda Health</Company>
     <Description>.NET client library targeting the HubSpot APIs.</Description>
@@ -20,7 +20,7 @@
       - Enhanced error handling and API response validation.
     </PackageReleaseNotes>
     <PackageId>PowerDiary.HubSpot.NET</PackageId>
-    <PackageVersion>1.0.13</PackageVersion>
+    <PackageVersion>1.0.14</PackageVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <LangVersion>8</LangVersion>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net48</TargetFrameworks>
