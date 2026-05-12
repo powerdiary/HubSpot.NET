@@ -84,9 +84,29 @@ namespace HubSpot.NET.Api.Associations
         /// <returns></returns>
         public Task<T> GetAssociationsAsync<T>(string objectType, string objectId, string toObjectType) where T : AssociationListHubSpotModel, new()
         {
-            var associationPath = $"/crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}";            
+            var associationPath = $"/crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}";
 
             return _client.ExecuteListAsync<T>(associationPath, Method.Get, convertToPropertiesSchema: false);
+        }
+
+        public Task RemoveAssociationLabelAsync(string objectType, string objectId, string toObjectType,
+            string toObjectId, string associationCategory, int associationTypeId)
+        {
+            var associationPath =
+                $"/crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}/{toObjectId}";
+            var label = new
+            {
+                associationCategory,
+                associationTypeId
+            };
+            var body = new[] { label };
+            return _client.ExecuteAsync(associationPath, body, Method.Delete, convertToPropertiesSchema: false);
+        }
+
+        public Task<AssociationLabelListHubSpotModel> GetAssociationLabelsAsync(string fromObjectType, string toObjectType)
+        {
+            var path = $"/crm/v4/associations/{fromObjectType}/{toObjectType}/labels";
+            return _client.ExecuteListAsync<AssociationLabelListHubSpotModel>(path, Method.Get, convertToPropertiesSchema: false);
         }
     }
 }
