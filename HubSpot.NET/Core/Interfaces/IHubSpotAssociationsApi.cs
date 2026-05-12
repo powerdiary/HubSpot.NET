@@ -18,9 +18,6 @@ namespace HubSpot.NET.Core.Interfaces
 
         Task<T> GetAssociationsAsync<T>(string objectType, string objectId, string toObjectType) where T : AssociationListHubSpotModel, new();
 
-        Task RemoveAssociationLabelAsync(string objectType, string objectId, string toObjectType,
-            string toObjectId, string associationCategory, int associationTypeId);
-
         Task SetAssociationLabelsAsync(string objectType, string objectId, string toObjectType,
             string toObjectId, List<AssociationLabelListHubSpotModel.AssociationLabel> labels);
 

@@ -91,20 +91,6 @@ namespace HubSpot.NET.Api.Associations
             return _client.ExecuteListAsync<T>(associationPath, Method.Get, convertToPropertiesSchema: false);
         }
 
-        public Task RemoveAssociationLabelAsync(string objectType, string objectId, string toObjectType,
-            string toObjectId, string associationCategory, int associationTypeId)
-        {
-            var associationPath =
-                $"/crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}/{toObjectId}";
-            var label = new
-            {
-                associationCategory,
-                associationTypeId
-            };
-            var body = new[] { label };
-            return _client.ExecuteAsync(associationPath, body, Method.Delete, convertToPropertiesSchema: false);
-        }
-
         public Task SetAssociationLabelsAsync(string objectType, string objectId, string toObjectType,
             string toObjectId, List<AssociationLabelListHubSpotModel.AssociationLabel> labels)
         {
