@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HubSpot.NET.Api.Associations.Dto;
 using System.Threading.Tasks;
 
@@ -19,6 +20,9 @@ namespace HubSpot.NET.Core.Interfaces
 
         Task RemoveAssociationLabelAsync(string objectType, string objectId, string toObjectType,
             string toObjectId, string associationCategory, int associationTypeId);
+
+        Task SetAssociationLabelsAsync(string objectType, string objectId, string toObjectType,
+            string toObjectId, List<AssociationLabelListHubSpotModel.AssociationLabel> labels);
 
         Task<AssociationLabelListHubSpotModel> GetAssociationLabelsAsync(string fromObjectType, string toObjectType);
     }
