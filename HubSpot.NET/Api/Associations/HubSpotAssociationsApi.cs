@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HubSpot.NET.Api.Associations.Dto;
 using HubSpot.NET.Core.Interfaces;
@@ -84,9 +86,28 @@ namespace HubSpot.NET.Api.Associations
         /// <returns></returns>
         public Task<T> GetAssociationsAsync<T>(string objectType, string objectId, string toObjectType) where T : AssociationListHubSpotModel, new()
         {
-            var associationPath = $"/crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}";            
+            var associationPath = $"/crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}";
 
             return _client.ExecuteListAsync<T>(associationPath, Method.Get, convertToPropertiesSchema: false);
+        }
+
+        public Task SetAssociationLabelsAsync(string objectType, string objectId, string toObjectType,
+            string toObjectId, List<AssociationLabelListHubSpotModel.AssociationLabel> labels)
+        {
+            var associationPath =
+                $"/crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}/{toObjectId}";
+            var body = labels.Select(l => new
+            {
+                associationCategory = l.Category,
+                associationTypeId = l.TypeId
+            }).ToArray();
+            return _client.ExecuteAsync(associationPath, body, Method.Put, convertToPropertiesSchema: false);
+        }
+
+        public Task<AssociationLabelListHubSpotModel> GetAssociationLabelsAsync(string fromObjectType, string toObjectType)
+        {
+            var path = $"/crm/v4/associations/{fromObjectType}/{toObjectType}/labels";
+            return _client.ExecuteListAsync<AssociationLabelListHubSpotModel>(path, Method.Get, convertToPropertiesSchema: false);
         }
     }
 }

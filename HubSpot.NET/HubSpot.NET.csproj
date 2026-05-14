@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.0.14</Version>
+    <Version>1.0.15</Version>
     <Authors>HubSpot.NET;Zanda Health</Authors>
     <Company>Zanda Health</Company>
     <Description>.NET client library targeting the HubSpot APIs.</Description>
@@ -12,15 +12,12 @@
     <PackageTags>hubspot api wrapper c# contact company deal engagement properties crm custom objects</PackageTags>
     <PackageReleaseNotes>
       Added:
-      - Updated API endpoints to use object type IDs for v3 and v4 CRM APIs to comply with HubSpot's breaking changes (effective June 4, 2025).
-      - Centralized object type constants in HubSpotObjectTypes class.
-      - Added support for custom event definitions with CreateEventDefinitionAsync and DeleteEventDefinitionAsync.
-      - Added new constants for additional HubSpot object types (tickets, quotes, products, activities).
-      - Improved test reliability with dynamic test data and cleanup methods.
-      - Enhanced error handling and API response validation.
+      - SetAssociationLabelsAsync method to set multiple association labels in a single PUT call.
+      - GetAssociationLabelsAsync method to retrieve label definitions for an association type.
+      - AssociationLabelListHubSpotModel DTO for label definition responses.
     </PackageReleaseNotes>
     <PackageId>PowerDiary.HubSpot.NET</PackageId>
-    <PackageVersion>1.0.14</PackageVersion>
+    <PackageVersion>1.0.15</PackageVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <LangVersion>8</LangVersion>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net48</TargetFrameworks>
